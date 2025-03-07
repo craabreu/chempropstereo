@@ -1,0 +1,18 @@
+name: docs
+channels:
+  - conda-forge
+  - mdtools
+dependencies:
+    # Base dependencies
+  - python
+  - pip
+  - chemprop
+
+    # Testing
+  - pytest
+  - pytest-cov
+
+  # Docs building
+  - sphinx
+  - sphinxcontrib-bibtex
+  - sphinx-copybutton

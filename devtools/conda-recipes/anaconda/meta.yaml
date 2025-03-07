@@ -1,0 +1,41 @@
+{% set version = environ['ChempropStereo_VERSION'][1:] %}
+
+package:
+  name: chempropstereo
+  version: {{ version }}
+
+source:
+  git_url: ../../../
+
+build:
+  noarch: python
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  host:
+    - python
+    - setuptools
+    - versioningit
+    - pip
+  run:
+    - python
+    - numpy
+    - chemprop
+
+test:
+  imports:
+    - chempropstereo
+
+about:
+  home: https://github.com/craabreu/chempropstereo
+  summary: Stereochemistry Extention for Chemprop
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.md
+  doc_url: https://chempropstereo.readthedocs.io/en/stable
+  dev_url: https://github.com/craabreu/chempropstereo
+
+extra:
+  recipe-maintainers:
+    - craabreu
