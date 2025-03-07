@@ -1,0 +1,18 @@
+[MAIN]
+
+ignored-modules=
+ignore=_version.py
+extension-pkg-whitelist=rdkit
+
+[DESIGN]
+
+max-locals=15  # Maximum number of local variables for function/method body
+
+[BASIC]
+
+function-naming-style=snake_case
+argument-naming-style=snake_case
+method-naming-style=snake_case
+
+[FORMAT]
+good-names=i,j,k,_,x,y,z
