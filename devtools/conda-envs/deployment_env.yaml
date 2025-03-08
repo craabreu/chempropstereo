@@ -1,7 +1,7 @@
 name: build
 channels:
   - conda-forge
-  - mdtools
+  - craabreu
 dependencies:
   # Base dependencies
   - python

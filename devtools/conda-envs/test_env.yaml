@@ -1,7 +1,7 @@
 name: test
 channels:
   - conda-forge
-  - mdtools
+  - craabreu
 dependencies:
     # Base depends
   - python

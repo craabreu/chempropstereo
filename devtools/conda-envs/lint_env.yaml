@@ -1,7 +1,7 @@
 name: linter
 channels:
   - conda-forge
-  - mdtools
+  - craabreu
 dependencies:
     # Base depends
   - python

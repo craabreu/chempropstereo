@@ -9,9 +9,9 @@ Stereochemistry Extention for Chemprop
 [![Documentation Status](https://github.com/craabreu/chempropstereo/workflows/Docs/badge.svg)](https://github.com/craabreu/chempropstereo/actions?query=workflow%3ADocs)
 [![Coverage Report](https://craabreu.github.io/chempropstereo/development/coverage/coverage.svg)](https://craabreu.github.io/chempropstereo/development/coverage)
 
-[![Conda version](https://img.shields.io/conda/v/mdtools/chempropstereo.svg)](https://anaconda.org/mdtools/chempropstereo)
-[![Conda platforms](https://img.shields.io/conda/pn/mdtools/chempropstereo.svg)](https://anaconda.org/mdtools/chempropstereo)
-[![Conda downloads](https://img.shields.io/conda/dn/mdtools/chempropstereo.svg)](https://anaconda.org/mdtools/chempropstereo)
+[![Conda version](https://img.shields.io/conda/v/craabreu/chempropstereo.svg)](https://anaconda.org/craabreu/chempropstereo)
+[![Conda platforms](https://img.shields.io/conda/pn/craabreu/chempropstereo.svg)](https://anaconda.org/craabreu/chempropstereo)
+[![Conda downloads](https://img.shields.io/conda/dn/craabreu/chempropstereo.svg)](https://anaconda.org/craabreu/chempropstereo)
 
 [![PyPI version](https://img.shields.io/pypi/v/chempropstereo.svg)](https://pypi.org/project/chempropstereo)
 [![PyPI version](https://img.shields.io/pypi/pyversions/chempropstereo.svg)](https://pypi.org/project/chempropstereo)
@@ -24,16 +24,16 @@ Stereochemistry Extention for Chemprop
 
 ### Installation and Usage
 
-ChempropStereo is available as a conda package on the [mdtools] channel. To install it, run:
+ChempropStereo is available as a conda package on the [craabreu] channel. To install it, run:
 
 ```bash
-    conda install -c conda-forge -c mdtools chempropstereo
+    conda install -c conda-forge -c craabreu chempropstereo
 ```
 
 Or:
 
 ```bash
-    mamba install -c mdtools chempropstereo
+    mamba install -c craabreu chempropstereo
 ```
 
 To use ChempropStereo in your own Python script or Jupyter notebook, simply import it as follows:
@@ -52,4 +52,4 @@ Copyright (c) 2025 [C. Abreu](https://github.com/craabreu)
 
 
 [Github Pages]: https://craabreu.github.io/chempropstereo/latest
-[mdtools]: https://anaconda.org/mdtools/chempropstereo
+[craabreu]: https://anaconda.org/craabreu/chempropstereo

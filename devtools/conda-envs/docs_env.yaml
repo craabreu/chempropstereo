@@ -1,7 +1,7 @@
 name: docs
 channels:
   - conda-forge
-  - mdtools
+  - craabreu
 dependencies:
     # Base dependencies
   - python
