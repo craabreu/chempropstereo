@@ -25,8 +25,13 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     Examples
     --------
     >>> from chempropstereo.featurizers.atom import AtomFeaturizer
-    >>> r_atom = Chem.MolFromSmiles("C[C@H](N)O").GetAtomWithIdx(1)
-    >>> s_atom = Chem.MolFromSmiles("C[C@@H](N)O").GetAtomWithIdx(1)
+    >>> from rdkit import Chem
+    >>> r_mol = Chem.MolFromSmiles("C[C@H](N)O")
+    >>> s_mol = Chem.MolFromSmiles("C[C@@H](N)O")
+    >>> for mol in [r_mol, s_mol]:
+    ...     Chem.AssignCIPLabels(mol)
+    >>> r_atom = r_mol.GetAtomWithIdx(1)
+    >>> s_atom = s_mol.GetAtomWithIdx(1)
     >>> v2_featurizer = AtomFeaturizer()
     >>> for featurizer in [AtomFeaturizer("V2"), AtomFeaturizer("ORGANIC")]:
     ...     for atom in [r_atom, s_atom]:
