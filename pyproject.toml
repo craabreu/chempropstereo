@@ -88,15 +88,23 @@ default-tag = "0.0.0"
 [tool.versioningit.write]
 file = "chempropstereo/_version.py"
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+line-length = 88
+lint.select = [
+    "E",  # Errors
+    "W",  # Warnings
+    "F",  # Failures
+    "I",  # Imports
+    "C",  # Complexity
+    "B",  # Bugs
+    "Q",  # Quality
+    "SIM",  # Similarity
+    "UP",  # Unused Parameters
+    "PL"  # Plugin Lints
+]
 
-[tool.flake8]
-max-line-length = 88
-ignore = "E203,W503"
-
-[tool.pylint]
-rcfile = ".pylintrc"
+[tool.ruff.lint.pylint]
+allow-magic-value-types = ["int", "str"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
