@@ -2,14 +2,40 @@ import numpy as np
 from chemprop import featurizers
 from rdkit import Chem
 
-from .utils import get_cip_code
+from . import utils
 
 
 class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
-    def __init__(
-        self, mode: featurizers.AtomFeatureMode = featurizers.AtomFeatureMode.V2
-    ) -> None:
-        featurizer = featurizers.get_multi_hot_atom_featurizer(mode)
+    """
+    Multi-hot atom featurizer that includes CIP codes for stereocenters.
+
+    Parameters
+    ----------
+    mode : featurizers.AtomFeatureMode
+        The mode to use for the featurizer. Available modes are `V1`, `V2`, and
+        `ORGANIC`.
+
+    Examples
+    --------
+    >>> from chempropstereo.featurizers.atom import AtomFeaturizer
+    >>> rmol = Chem.MolFromSmiles("C[C@H](N)O")
+    >>> smol = Chem.MolFromSmiles("C[C@@H](N)O")
+    >>> v2_featurizer = AtomFeaturizer()
+    >>> "".join(map(str, v2_featurizer(rmol.GetAtomWithIdx(1))))
+    '00000100000000000000000000000000000000000010000001001000100000000100000'
+    >>> "".join(map(str, v2_featurizer(smol.GetAtomWithIdx(1))))
+    '00000100000000000000000000000000000000000010000001000100100000000100000'
+    >>> organic_featurizer = AtomFeaturizer(mode="organic")
+    >>> "".join(map(str, organic_featurizer(rmol.GetAtomWithIdx(1))))
+    '0010000000000000010000001001000100000001000'
+    >>> "".join(map(str, organic_featurizer(smol.GetAtomWithIdx(1))))
+    '0010000000000000010000001000100100000001000'
+    """
+
+    def __init__(self, mode: str | featurizers.AtomFeatureMode = "V2") -> None:
+        featurizer = featurizers.get_multi_hot_atom_featurizer(
+            featurizers.AtomFeatureMode.get(mode)
+        )
         super().__init__(
             atomic_nums=featurizer.atomic_nums,
             degrees=featurizer.degrees,
@@ -29,7 +55,7 @@ class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            get_cip_code(a),
+            utils.get_cip_code(a),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]
