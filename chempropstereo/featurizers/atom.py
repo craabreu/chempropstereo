@@ -18,18 +18,16 @@ class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
     Examples
     --------
     >>> from chempropstereo.featurizers.atom import AtomFeaturizer
-    >>> rmol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> smol = Chem.MolFromSmiles("C[C@@H](N)O")
+    >>> r_atom = Chem.MolFromSmiles("C[C@H](N)O").GetAtomWithIdx(1)
+    >>> s_atom = Chem.MolFromSmiles("C[C@@H](N)O").GetAtomWithIdx(1)
     >>> v2_featurizer = AtomFeaturizer()
-    >>> "".join(map(str, v2_featurizer(rmol.GetAtomWithIdx(1))))
-    '00000100000000000000000000000000000000000010000001001000100000000100000'
-    >>> "".join(map(str, v2_featurizer(smol.GetAtomWithIdx(1))))
-    '00000100000000000000000000000000000000000010000001000100100000000100000'
-    >>> organic_featurizer = AtomFeaturizer(mode="organic")
-    >>> "".join(map(str, organic_featurizer(rmol.GetAtomWithIdx(1))))
-    '0010000000000000010000001001000100000001000'
-    >>> "".join(map(str, organic_featurizer(smol.GetAtomWithIdx(1))))
-    '0010000000000000010000001000100100000001000'
+    >>> for featurizer in [AtomFeaturizer("V2"), AtomFeaturizer("ORGANIC")]:
+    ...     for atom in [r_atom, s_atom]:
+    ...         print("".join(map(str, featurizer(atom))))
+    00000100000000000000000000000000000000000010000001001000100000000100000
+    00000100000000000000000000000000000000000010000001000100100000000100000
+    0010000000000000010000001001000100000001000
+    0010000000000000010000001000100100000001000
     """
 
     def __init__(self, mode: str | featurizers.AtomFeatureMode = "V2") -> None:
