@@ -14,7 +14,7 @@ class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
             atomic_nums=featurizer.atomic_nums,
             degrees=featurizer.degrees,
             formal_charges=featurizer.formal_charges,
-            chiral_tags=[None, "R", "S"],
+            chiral_tags=list(range(3)),
             num_Hs=featurizer.num_Hs,
             hybridizations=featurizer.hybridizations,
         )
