@@ -7,13 +7,20 @@ from . import utils
 
 class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
     """
-    Multi-hot atom featurizer that includes CIP codes for stereocenters.
+    Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
 
     Parameters
     ----------
     mode : featurizers.AtomFeatureMode
-        The mode to use for the featurizer. Available modes are `V1`, `V2`, and
-        `ORGANIC`.
+        The mode to use for the featurizer. Available modes are `V1`_, `V2`_, and
+        `ORGANIC`_.
+
+        .. _V1: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
+featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v1
+        .. _V2: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
+featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v2
+        .. _ORGANIC: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
+featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.organic
 
     Examples
     --------
