@@ -1,0 +1,11 @@
+Functions
+=========
+
+.. toctree::
+    :titlesonly:
+
+    get_cip_code
+
+.. testsetup::
+
+    from chempropstereo import *

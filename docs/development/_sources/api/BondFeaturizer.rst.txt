@@ -1,0 +1,7 @@
+BondFeaturizer
+==============
+
+.. currentmodule:: chempropstereo
+.. autoclass:: BondFeaturizer
+    :member-order: alphabetical
+

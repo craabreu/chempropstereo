@@ -1,0 +1,7 @@
+MoleculeFeaturizer
+==================
+
+.. currentmodule:: chempropstereo
+.. autoclass:: MoleculeFeaturizer
+    :member-order: alphabetical
+
