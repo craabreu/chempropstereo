@@ -1,9 +1,7 @@
-from .atom import AtomFeaturizer
-from .bond import BondFeaturizer
-from .molecule import MoleculeFeaturizer
+from .atom import AtomCIPFeaturizer
+from .molecule import MoleculeCIPFeaturizer
 
 __all__ = [
-    "AtomFeaturizer",
-    "BondFeaturizer",
-    "MoleculeFeaturizer",
+    "AtomCIPFeaturizer",
+    "MoleculeCIPFeaturizer",
 ]
