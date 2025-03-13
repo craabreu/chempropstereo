@@ -45,3 +45,23 @@ def test_find_potential_stereo():
     assert c2.descriptor == Chem.StereoDescriptor.Tet_CW
     assert c2.specified == Chem.StereoSpecified.Specified
     assert c2.type == Chem.StereoType.Atom_Tetrahedral
+
+    mol = Chem.MolFromSmiles("CC(C(C)N)O")
+    info_list = Chem.FindPotentialStereo(mol, cleanIt=False, flagPossible=False)
+    assert len(info_list) == 0
+
+    info_list = Chem.FindPotentialStereo(mol, cleanIt=False, flagPossible=True)
+    assert len(info_list) == 2
+    c1, c2 = info_list
+
+    assert c1.centeredOn == 1
+    assert list(c1.controllingAtoms) == [0, 2, 5]
+    assert c1.type == Chem.StereoType.Atom_Tetrahedral
+    assert c1.specified == Chem.StereoSpecified.Unspecified
+    assert c1.descriptor == Chem.StereoDescriptor.NoValue
+
+    assert c2.centeredOn == 2
+    assert list(c2.controllingAtoms) == [1, 3, 4]
+    assert c2.type == Chem.StereoType.Atom_Tetrahedral
+    assert c2.specified == Chem.StereoSpecified.Unspecified
+    assert c2.descriptor == Chem.StereoDescriptor.NoValue
