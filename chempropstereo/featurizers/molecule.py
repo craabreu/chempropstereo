@@ -2,22 +2,21 @@ import numpy as np
 from chemprop import data, featurizers
 from rdkit import Chem
 
-from .atom import AtomFeaturizer
-from .bond import BondFeaturizer
+from .atom import AtomCIPFeaturizer
 
 
-class MoleculeFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
+class MoleculeCIPFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
     """
     Molecule featurizer that includes CIP codes for stereocenters.
 
     Examples
     --------
-    >>> from chempropstereo.featurizers.molecule import MoleculeFeaturizer
+    >>> from chempropstereo import MoleculeCIPFeaturizer
     >>> from rdkit import Chem
     >>> import numpy as np
     >>> r_mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> s_mol = Chem.MolFromSmiles("C[C@@H](N)O")
-    >>> featurizer = MoleculeFeaturizer()
+    >>> featurizer = MoleculeCIPFeaturizer()
     >>> r_molgraph = featurizer(r_mol)
     >>> s_molgraph = featurizer(s_mol)
     >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)
@@ -26,8 +25,8 @@ class MoleculeFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
 
     def __init__(self):
         super().__init__(
-            atom_featurizer=AtomFeaturizer(),
-            bond_featurizer=BondFeaturizer(),
+            atom_featurizer=AtomCIPFeaturizer(),
+            bond_featurizer=featurizers.MultiHotBondFeaturizer(),
         )
 
     def __call__(

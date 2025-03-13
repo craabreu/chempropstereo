@@ -5,9 +5,15 @@ from rdkit import Chem
 from . import utils
 
 
-class AtomFeaturizer(featurizers.MultiHotAtomFeaturizer):
+class AtomCIPFeaturizer(featurizers.MultiHotAtomFeaturizer):
     """
     Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
+
+    The featurized atoms are expected to be part of an RDKit molecule with CIP labels
+    assigned via the `AssignCIPLabels`_ function.
+
+    .. _AssignCIPLabels: https://www.rdkit.org/docs/source/\
+rdkit.Chem.rdCIPLabeler.html#rdkit.Chem.rdCIPLabeler.AssignCIPLabels
 
     Parameters
     ----------
@@ -24,7 +30,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
 
     Examples
     --------
-    >>> from chempropstereo.featurizers.atom import AtomFeaturizer
+    >>> from chempropstereo import AtomCIPFeaturizer
     >>> from rdkit import Chem
     >>> r_mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> s_mol = Chem.MolFromSmiles("C[C@@H](N)O")
@@ -32,8 +38,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     ...     Chem.AssignCIPLabels(mol)
     >>> r_atom = r_mol.GetAtomWithIdx(1)
     >>> s_atom = s_mol.GetAtomWithIdx(1)
-    >>> v2_featurizer = AtomFeaturizer()
-    >>> for featurizer in [AtomFeaturizer("V2"), AtomFeaturizer("ORGANIC")]:
+    >>> for featurizer in [AtomCIPFeaturizer("V2"), AtomCIPFeaturizer("ORGANIC")]:
     ...     for atom in [r_atom, s_atom]:
     ...         print("".join(map(str, featurizer(atom))))
     00000100000000000000000000000000000000000010000001001000100000000100000
