@@ -108,5 +108,5 @@ allow-magic-value-types = ["int", "str"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-v -ra --doctest-modules --cov=chempropstereo --cov-report=term --cov-report=html"
+addopts = "-v -s -ra --doctest-modules --cov=chempropstereo --cov-report=term --cov-report=html"
 testpaths = ["chempropstereo"]
