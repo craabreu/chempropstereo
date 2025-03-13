@@ -42,11 +42,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 
-<div class="viewcode-block" id="AtomFeaturizer">
-<a class="viewcode-back" href="../../../api/AtomFeaturizer.html#chempropstereo.AtomFeaturizer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">AtomFeaturizer</span><span class="p">(</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotAtomFeaturizer</span><span class="p">):</span>
+<div class="viewcode-block" id="AtomCIPFeaturizer">
+<a class="viewcode-back" href="../../../api/AtomCIPFeaturizer.html#chempropstereo.AtomCIPFeaturizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AtomCIPFeaturizer</span><span class="p">(</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotAtomFeaturizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.</span>
+
+<span class="sd">    The featurized atoms are expected to be part of an RDKit molecule with CIP labels</span>
+<span class="sd">    assigned via the `AssignCIPLabels`_ function.</span>
+
+<span class="sd">    .. _AssignCIPLabels: https://www.rdkit.org/docs/source/\</span>
+<span class="sd">rdkit.Chem.rdCIPLabeler.html#rdkit.Chem.rdCIPLabeler.AssignCIPLabels</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -63,7 +69,7 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo.featurizers.atom import AtomFeaturizer</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import AtomCIPFeaturizer</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; r_mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; s_mol = Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;)</span>
@@ -71,8 +77,7 @@
 <span class="sd">    ...     Chem.AssignCIPLabels(mol)</span>
 <span class="sd">    &gt;&gt;&gt; r_atom = r_mol.GetAtomWithIdx(1)</span>
 <span class="sd">    &gt;&gt;&gt; s_atom = s_mol.GetAtomWithIdx(1)</span>
-<span class="sd">    &gt;&gt;&gt; v2_featurizer = AtomFeaturizer()</span>
-<span class="sd">    &gt;&gt;&gt; for featurizer in [AtomFeaturizer(&quot;V2&quot;), AtomFeaturizer(&quot;ORGANIC&quot;)]:</span>
+<span class="sd">    &gt;&gt;&gt; for featurizer in [AtomCIPFeaturizer(&quot;V2&quot;), AtomCIPFeaturizer(&quot;ORGANIC&quot;)]:</span>
 <span class="sd">    ...     for atom in [r_atom, s_atom]:</span>
 <span class="sd">    ...         print(&quot;&quot;.join(map(str, featurizer(atom))))</span>
 <span class="sd">    00000100000000000000000000000000000000000010000001001000100000000100000</span>

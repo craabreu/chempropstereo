@@ -4,9 +4,8 @@ Classes
 .. toctree::
     :titlesonly:
 
-    AtomFeaturizer
-    BondFeaturizer
-    MoleculeFeaturizer
+    AtomCIPFeaturizer
+    MoleculeCIPFeaturizer
 
 .. testsetup::
 

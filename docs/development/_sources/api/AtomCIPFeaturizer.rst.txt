@@ -1,0 +1,7 @@
+AtomCIPFeaturizer
+=================
+
+.. currentmodule:: chempropstereo
+.. autoclass:: AtomCIPFeaturizer
+    :member-order: alphabetical
+

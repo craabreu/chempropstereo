@@ -1,0 +1,7 @@
+MoleculeCIPFeaturizer
+=====================
+
+.. currentmodule:: chempropstereo
+.. autoclass:: MoleculeCIPFeaturizer
+    :member-order: alphabetical
+

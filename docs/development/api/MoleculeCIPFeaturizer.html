@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>MoleculeFeaturizer &#8212; ChempropStereo dev  documentation</title>
+    <title>MoleculeCIPFeaturizer &#8212; ChempropStereo dev  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Functions" href="functions.html" />
-    <link rel="prev" title="BondFeaturizer" href="BondFeaturizer.html" />
+    <link rel="prev" title="AtomCIPFeaturizer" href="AtomCIPFeaturizer.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -37,19 +37,19 @@
 
           <div class="body" role="main">
             
-  <section id="moleculefeaturizer">
-<h1>MoleculeFeaturizer<a class="headerlink" href="#moleculefeaturizer" title="Link to this heading">¶</a></h1>
+  <section id="moleculecipfeaturizer">
+<h1>MoleculeCIPFeaturizer<a class="headerlink" href="#moleculecipfeaturizer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="chempropstereo.MoleculeFeaturizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">MoleculeFeaturizer</span></span><a class="reference internal" href="../_modules/chempropstereo/featurizers/molecule.html#MoleculeFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.MoleculeFeaturizer" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="chempropstereo.MoleculeCIPFeaturizer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">MoleculeCIPFeaturizer</span></span><a class="reference internal" href="../_modules/chempropstereo/featurizers/molecule.html#MoleculeCIPFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.MoleculeCIPFeaturizer" title="Link to this definition">¶</a></dt>
 <dd><p>Molecule featurizer that includes CIP codes for stereocenters.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo.featurizers.molecule</span><span class="w"> </span><span class="kn">import</span> <span class="n">MoleculeFeaturizer</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">MoleculeCIPFeaturizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">r_mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s_mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@@H](N)O&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">MoleculeFeaturizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">MoleculeCIPFeaturizer</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">r_molgraph</span> <span class="o">=</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">r_mol</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s_molgraph</span> <span class="o">=</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">s_mol</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">r_molgraph</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">s_molgraph</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
@@ -84,9 +84,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="classes.html">Classes</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="AtomFeaturizer.html">AtomFeaturizer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="BondFeaturizer.html">BondFeaturizer</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">MoleculeFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AtomCIPFeaturizer.html">AtomCIPFeaturizer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MoleculeCIPFeaturizer</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>
@@ -117,7 +116,7 @@
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
-      <a href="../_sources/api/MoleculeFeaturizer.rst.txt"
+      <a href="../_sources/api/MoleculeCIPFeaturizer.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -39,24 +39,23 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">chemprop</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">featurizers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomFeaturizer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">BondFeaturizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomCIPFeaturizer</span>
 
 
-<div class="viewcode-block" id="MoleculeFeaturizer">
-<a class="viewcode-back" href="../../../api/MoleculeFeaturizer.html#chempropstereo.MoleculeFeaturizer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MoleculeFeaturizer</span><span class="p">(</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
+<div class="viewcode-block" id="MoleculeCIPFeaturizer">
+<a class="viewcode-back" href="../../../api/MoleculeCIPFeaturizer.html#chempropstereo.MoleculeCIPFeaturizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MoleculeCIPFeaturizer</span><span class="p">(</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Molecule featurizer that includes CIP codes for stereocenters.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo.featurizers.molecule import MoleculeFeaturizer</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import MoleculeCIPFeaturizer</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; r_mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; s_mol = Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; featurizer = MoleculeFeaturizer()</span>
+<span class="sd">    &gt;&gt;&gt; featurizer = MoleculeCIPFeaturizer()</span>
 <span class="sd">    &gt;&gt;&gt; r_molgraph = featurizer(r_mol)</span>
 <span class="sd">    &gt;&gt;&gt; s_molgraph = featurizer(s_mol)</span>
 <span class="sd">    &gt;&gt;&gt; assert not np.array_equal(r_molgraph.V, s_molgraph.V)</span>
@@ -65,8 +64,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomFeaturizer</span><span class="p">(),</span>
-            <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">BondFeaturizer</span><span class="p">(),</span>
+            <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomCIPFeaturizer</span><span class="p">(),</span>
+            <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotBondFeaturizer</span><span class="p">(),</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
