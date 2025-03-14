@@ -2,9 +2,9 @@ import typing as t
 
 from rdkit import Chem
 
-_CIP_CODE_MAP = {False: 0, "R": 1, "S": 2}
-_CHIRAL_TAG_MAP = {None: 0, "CW": 1, "CCW": 2}
-_ROTATION_DIRECTIONS = {
+_CIP_CODES = {False: 0, "R": 1, "S": 2}
+_CHIRAL_TAGS = {None: 0, "CW": 1, "CCW": 2}
+_SCAN_DIRECTIONS = {
     Chem.ChiralType.CHI_TETRAHEDRAL_CW: "CW",
     Chem.ChiralType.CHI_TETRAHEDRAL_CCW: "CCW",
 }
@@ -35,7 +35,7 @@ def get_cip_code(atom: Chem.Atom) -> int:
     >>> [get_cip_code(atom) for atom in mol2.GetAtoms()]
     [0, 2, 0, 0]
     """
-    return _CIP_CODE_MAP[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
+    return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
 
 
 def _swap_or_not(
@@ -127,7 +127,7 @@ def get_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
     Parameters
     ----------
     direction
-        The scanning direction of the neighbors, either 'CW' for clockwise or 'CCW' for
+        The scan direction of the neighbors, either 'CW' for clockwise or 'CCW' for
         counterclockwise.
     order
         A sequence of integers representing the order of neighbors in the configuration.
@@ -135,7 +135,7 @@ def get_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
     Returns
     -------
     str
-        A string combining the scanning direction and the ordered indices of the
+        A string combining the scan direction and the ordered indices of the
         neighbors, separated by a colon.
 
     Examples
@@ -151,9 +151,9 @@ def get_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
     return direction + ":" + "".join(map(str, order))
 
 
-def get_scanning_direction(atom: Chem.Atom, numeric: bool = False) -> str | None:
+def get_scan_direction(atom: Chem.Atom, numeric: bool = False) -> str | None:
     """
-    Extract the scanning direction of the neighbors from an atom with a canonical
+    Extract the scan direction of the neighbors from an atom with a canonical
     chiral tag.
 
     Parameters
@@ -161,12 +161,12 @@ def get_scanning_direction(atom: Chem.Atom, numeric: bool = False) -> str | None
     atom
         The atom whose chiral tag is to be extracted.
     numeric
-        Whether to return the scanning direction as an integer.
+        Whether to return the scan direction as an integer.
 
     Returns
     -------
     str | None
-        The scanning direction ('CW' or 'CCW'), or None if the atom has no chirality
+        The scan direction ('CW' or 'CCW'), or None if the atom has no chirality
         property.
 
     Examples
@@ -176,34 +176,36 @@ def get_scanning_direction(atom: Chem.Atom, numeric: bool = False) -> str | None
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
-    >>> utils.get_scanning_direction(chiral_atom)
+    >>> utils.get_scan_direction(chiral_atom)
     'CW'
     >>> non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom
-    >>> utils.get_scanning_direction(non_chiral_atom) is None
+    >>> utils.get_scan_direction(non_chiral_atom) is None
     True
     """
+    if numeric:
+        return _CHIRAL_TAGS[get_scan_direction(atom)]
     if not atom.HasProp("chiral_tag"):
         return None
     direction, _ = atom.GetProp("chiral_tag").split(":")
-    return _CHIRAL_TAG_MAP[direction] if numeric else direction
+    return direction
 
 
 def get_direction_and_neighbors(
     atom: Chem.Atom,
 ) -> tuple[str, tuple[Chem.Atom, ...]] | tuple[None, None]:
     """
-    Extract the chirality direction and ordered neighbor atoms from an atom with chirality.
+    Extract the scan direction and ordered neighbor atoms from an chiral atom.
 
     Parameters
     ----------
     atom
-        The atom whose chirality and neighbors are to be extracted.
+        The atom whose chiral information is to be extracted.
 
     Returns
     -------
     tuple[str, tuple[Chem.Atom, ...]] | tuple[None, None]
-        A tuple containing the chirality direction and the ordered neighbor atoms,
-        or (None, None) if the atom has no chirality property.
+        A tuple containing the scan direction ('CW' or 'CCW') and the ordered
+        neighbors, or (None, None) if the atom has no chirality information.
 
     Examples
     --------
@@ -255,9 +257,8 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
     """
-    # all_ranks = list(Chem.CanonicalRankAtoms(mol))
     for atom in mol.GetAtoms():
-        direction = _ROTATION_DIRECTIONS.get(atom.GetChiralTag(), None)
+        direction = _SCAN_DIRECTIONS.get(atom.GetChiralTag(), None)
         if direction is not None:
             neighbors = [n.GetIdx() for n in atom.GetNeighbors()]
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
