@@ -1,5 +1,5 @@
-import numpy as np
 import chemprop
+import numpy as np
 from rdkit import Chem
 
 from . import utils

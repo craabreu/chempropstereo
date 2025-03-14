@@ -1,5 +1,5 @@
-import numpy as np
 import chemprop
+import numpy as np
 from rdkit import Chem
 
 from .atom import AtomCIPFeaturizer, AtomStereoFeaturizer
@@ -73,4 +73,52 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
         tag_tetrahedral_stereocenters(mol)
-        return super().__call__(mol, atom_features_extra, bond_features_extra)
+
+        n_atoms = mol.GetNumAtoms()
+        n_bonds = mol.GetNumBonds()
+
+        if atom_features_extra is not None and len(atom_features_extra) != n_atoms:
+            raise ValueError(
+                "Input molecule must have same number of atoms as "
+                "`len(atom_features_extra)`! "
+                f"Got: {n_atoms} and {len(atom_features_extra)}, respectively."
+            )
+        if bond_features_extra is not None and len(bond_features_extra) != n_bonds:
+            raise ValueError(
+                "Input molecule must have same number of bonds as "
+                "`len(bond_features_extra)`! "
+                f"Got: {n_bonds} and {len(bond_features_extra)}, respectively."
+            )
+
+        if n_atoms == 0:
+            V = np.zeros((1, self.atom_fdim), dtype=np.single)
+        else:
+            V = np.array(
+                [self.atom_featurizer(a) for a in mol.GetAtoms()], dtype=np.single
+            )
+        E = np.empty((2 * n_bonds, self.bond_fdim))
+        edge_index = [[], []]
+
+        if atom_features_extra is not None:
+            V = np.hstack((V, atom_features_extra))
+
+        i = 0
+        for bond in mol.GetBonds():
+            x_e = self.bond_featurizer(bond)
+            if bond_features_extra is not None:
+                x_e = np.concatenate(
+                    (x_e, bond_features_extra[bond.GetIdx()]), dtype=np.single
+                )
+
+            E[i : i + 2] = x_e
+
+            u, v = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+            edge_index[0].extend([u, v])
+            edge_index[1].extend([v, u])
+
+            i += 2
+
+        rev_edge_index = np.arange(len(E)).reshape(-1, 2)[:, ::-1].ravel()
+        edge_index = np.array(edge_index, int)
+
+        return chemprop.data.MolGraph(V, E, edge_index, rev_edge_index)

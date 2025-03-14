@@ -7,6 +7,7 @@ from ._version import __version__  # noqa: F401
 from .featurizers import (
     AtomCIPFeaturizer,
     AtomStereoFeaturizer,
+    BondStereoFeaturizer,
     MoleculeCIPFeaturizer,
     MoleculeStereoFeaturizer,
 )
@@ -17,4 +18,5 @@ __all__ = [
     "AtomStereoFeaturizer",
     "MoleculeCIPFeaturizer",
     "MoleculeStereoFeaturizer",
+    "BondStereoFeaturizer",
 ]
