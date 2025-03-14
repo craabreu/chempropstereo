@@ -1,12 +1,12 @@
 import numpy as np
-from chemprop import data, featurizers
+import chemprop
 from rdkit import Chem
 
-from .atom import AtomCIPFeaturizer
+from .atom import AtomCIPFeaturizer, AtomStereoFeaturizer
 from .utils import tag_tetrahedral_stereocenters
 
 
-class MoleculeCIPFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
+class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
     """
     Molecule featurizer that includes CIP codes for stereocenters.
 
@@ -27,7 +27,7 @@ class MoleculeCIPFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
     def __init__(self):
         super().__init__(
             atom_featurizer=AtomCIPFeaturizer(),
-            bond_featurizer=featurizers.MultiHotBondFeaturizer(),
+            bond_featurizer=chemprop.featurizers.MultiHotBondFeaturizer(),
         )
 
     def __call__(
@@ -35,13 +35,13 @@ class MoleculeCIPFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
         mol: Chem.Mol,
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
-    ) -> data.MolGraph:
+    ) -> chemprop.data.MolGraph:
         mol = Chem.Mol(mol)
         Chem.AssignCIPLabels(mol)
         return super().__call__(mol, atom_features_extra, bond_features_extra)
 
 
-class MoleculeStereoFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
+class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
     """
     Molecule featurizer that includes canonicalized chiral tags for tetrahedral
     stereocenters and the order of bonds stemming from them.
@@ -62,8 +62,8 @@ class MoleculeStereoFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
 
     def __init__(self):
         super().__init__(
-            atom_featurizer=featurizers.MultiHotAtomFeaturizer.v2(),
-            bond_featurizer=featurizers.MultiHotBondFeaturizer(),
+            atom_featurizer=AtomStereoFeaturizer(),
+            bond_featurizer=chemprop.featurizers.MultiHotBondFeaturizer(),
         )
 
     def __call__(
@@ -71,6 +71,6 @@ class MoleculeStereoFeaturizer(featurizers.SimpleMoleculeMolGraphFeaturizer):
         mol: Chem.Mol,
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
-    ) -> data.MolGraph:
+    ) -> chemprop.data.MolGraph:
         tag_tetrahedral_stereocenters(mol)
         return super().__call__(mol, atom_features_extra, bond_features_extra)

@@ -1,11 +1,11 @@
 import numpy as np
-from chemprop import featurizers
+import chemprop
 from rdkit import Chem
 
 from . import utils
 
 
-class AtomCIPFeaturizer(featurizers.MultiHotAtomFeaturizer):
+class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
     """
     Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
 
@@ -47,9 +47,9 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     0010000000000000010000001000100100000001000
     """
 
-    def __init__(self, mode: str | featurizers.AtomFeatureMode = "V2") -> None:
-        featurizer = featurizers.get_multi_hot_atom_featurizer(
-            featurizers.AtomFeatureMode.get(mode)
+    def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
+        featurizer = chemprop.featurizers.get_multi_hot_atom_featurizer(
+            chemprop.featurizers.AtomFeatureMode.get(mode)
         )
         super().__init__(
             atomic_nums=featurizer.atomic_nums,
@@ -86,7 +86,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         return x
 
 
-class AtomStereoFeaturizer(featurizers.MultiHotAtomFeaturizer):
+class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
     """
     Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
@@ -129,9 +129,9 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     0010000000000000010000001000100100000001000
     """
 
-    def __init__(self, mode: str | featurizers.AtomFeatureMode = "V2") -> None:
-        featurizer = featurizers.get_multi_hot_atom_featurizer(
-            featurizers.AtomFeatureMode.get(mode)
+    def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
+        featurizer = chemprop.featurizers.get_multi_hot_atom_featurizer(
+            chemprop.featurizers.AtomFeatureMode.get(mode)
         )
         super().__init__(
             atomic_nums=featurizer.atomic_nums,
