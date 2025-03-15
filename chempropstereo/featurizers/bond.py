@@ -2,32 +2,21 @@ import chemprop
 import numpy as np
 from rdkit.Chem.rdchem import Bond
 
-# from chemprop.featurizers.base import VectorFeaturizer
+from . import utils
 
 
 class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     def __len__(self):
-        return super().__len__()
+        return super().__len__() + 5
 
-    def __call__(self, b: Bond | None) -> np.ndarray:
-        x = np.zeros(len(self), int)
-
-        if b is None:
-            x[0] = 1
-            return x
-
-        i = 1
-        bond_type = b.GetBondType()
-        bt_bit, size = self.one_hot_index(bond_type, self.bond_types)
-        if bt_bit != size:
-            x[i + bt_bit] = 1
-        i += size - 1
-
-        x[i] = int(b.GetIsConjugated())
-        x[i + 1] = int(b.IsInRing())
-        i += 2
-
-        stereo_bit, _ = self.one_hot_index(int(b.GetStereo()), self.stereo)
-        x[i + stereo_bit] = 1
-
+    def __call__(self, b: Bond | None, reverse: bool = False) -> np.ndarray:
+        if reverse:
+            begin_atom = b.GetBeginAtom()
+            end_index = b.GetEndAtomIdx()
+        else:
+            begin_atom = b.GetEndAtom()
+            end_index = b.GetBeginAtomIdx()
+        neighbors = utils.get_neighbors_in_canonical_order(begin_atom, numeric=True)
+        x = super().__call__(b)
+        x[-4 + neighbors.index(end_index) if neighbors else -5] = 1
         return x
