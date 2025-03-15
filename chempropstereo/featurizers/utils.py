@@ -3,7 +3,7 @@ import typing as t
 from rdkit import Chem
 
 _CIP_CODES = {False: 0, "R": 1, "S": 2}
-_CHIRAL_TAGS = {None: 0, "CW": 1, "CCW": 2}
+_CHIRAL_TAGS = ["CW", "CCW", None]
 _SCAN_DIRECTIONS = {
     Chem.ChiralType.CHI_TETRAHEDRAL_CW: "CW",
     Chem.ChiralType.CHI_TETRAHEDRAL_CCW: "CCW",
@@ -188,7 +188,7 @@ def get_scan_direction(atom: Chem.Atom, numeric: bool = False) -> str | None:
     True
     """
     if numeric:
-        return _CHIRAL_TAGS[get_scan_direction(atom)]
+        return _CHIRAL_TAGS.index(get_scan_direction(atom))
     if not atom.HasProp("chiral_tag"):
         return None
     direction, _ = atom.GetProp("chiral_tag").split(":")
@@ -260,8 +260,9 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     utils.tag_tetrahedral_stereocenters(mol)
     ...     for atom in mol.GetAtoms():
-    ...         direction, neighbors = utils.get_direction_and_neighbors(atom)
+    ...         direction = utils.get_scan_direction(atom)
     ...         if direction is not None:
+    ...             neighbors = utils.get_neighbors_in_canonical_order(atom)
     ...             print(desc(atom), f"({direction})", *map(desc, neighbors))
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0

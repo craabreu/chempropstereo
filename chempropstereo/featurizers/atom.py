@@ -115,18 +115,18 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     >>> ccw_mol = Chem.MolFromSmiles("C[C@@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(cw_mol)
     >>> utils.tag_tetrahedral_stereocenters(ccw_mol)
-    >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
     >>> cw_atom = cw_mol.GetAtomWithIdx(1)
     >>> ccw_atom = ccw_mol.GetAtomWithIdx(1)
+    >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
     >>> for featurizer in [AtomStereoFeaturizer("V2"), AtomStereoFeaturizer("ORGANIC")]:
-    ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:
-    ...         print("".join(map(str, featurizer(atom))))
-    00000100000000000000000000000000000000000010000001010000001000000100000
-    00000100000000000000000000000000000000000010000001001000100000000100000
-    00000100000000000000000000000000000000000010000001000100100000000100000
-    0010000000000000010000001010000001000001000
-    0010000000000000010000001001000100000001000
-    0010000000000000010000001000100100000001000
+    ...     for atom in [cw_atom, ccw_atom, non_chiral_atom]:
+    ...         print("".join(map(str, map(int, featurizer(atom)))))
+    0000010000000000000000000000000000000000001000000101000100000000100000
+    0000010000000000000000000000000000000000001000000100100100000000100000
+    0000010000000000000000000000000000000000001000000100010001000000100000
+    001000000000000001000000101000100000001000
+    001000000000000001000000100100100000001000
+    001000000000000001000000100010001000001000
     """
 
     def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
@@ -137,13 +137,14 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             atomic_nums=featurizer.atomic_nums,
             degrees=featurizer.degrees,
             formal_charges=featurizer.formal_charges,
-            chiral_tags=range(3),
+            chiral_tags=range(2),
             num_Hs=featurizer.num_Hs,
             hybridizations=featurizer.hybridizations,
         )
+        self._lower_bound = sum(map(len, self._subfeats[:3]))
 
     def __call__(self, a: Chem.Atom | None) -> np.ndarray:
-        x = np.zeros(len(self), int)
+        x = np.zeros(len(self))
 
         if a is None:
             return x
