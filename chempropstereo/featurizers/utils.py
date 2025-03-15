@@ -38,12 +38,13 @@ def get_cip_code(atom: Chem.Atom) -> int:
     return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
 
 
-def _swap_or_not(
+def _swap_if_ascending(
     i: int, j: int, a: int, b: int, odd: bool
 ) -> tuple[int, int, int, int, bool]:
     """
-    Helper function for argsort_descending_with_parity that conditionally swaps two
-    indices and values, and returns whether the permutation is odd after the swap.
+    Helper function for :func:`utils.argsort_descending_with_parity` that conditionally
+    swaps two indices and their corresponding values, and flips the parity of the
+    permutation if a swap is performed.
 
     Parameters
     ----------
@@ -56,15 +57,17 @@ def _swap_or_not(
     b
         The value at the second index.
     odd
-        Whether the permutation is currently odd.
+        Whether the permutation is currently odd rather than even.
 
     Returns
     -------
     tuple[int, int, int, int, bool]
         A tuple containing:
-        - The potentially swapped indices (i, j).
-        - The potentially swapped values (a, b).
-        - A boolean indicating whether the permutation is odd after the potential swap.
+
+        - The potentially swapped indices i and j.
+        - The potentially swapped values a and b.
+        - A boolean indicating whether the permutation is odd after having or not
+          performed the swap.
     """
     if a < b:
         return j, i, b, a, not odd
@@ -72,11 +75,12 @@ def _swap_or_not(
 
 
 def argsort_descending_with_parity(
-    a: int, b: int, c: int, d: int | None = None
-) -> tuple[bool, tuple[int, ...]]:
+    a: int, b: int, c: int, d: t.Optional[int] = None
+) -> tuple[tuple[int, ...], bool]:
     """
     Perform an indirect sort on three or four integers and returns the indices that
-    sort them in descending order, as well as whether the required permutation is odd.
+    would arrange them in descending order, as well as a boolean indicating whether
+    the resulting permutation is odd rather than even.
 
     Parameters
     ----------
@@ -91,36 +95,37 @@ def argsort_descending_with_parity(
 
     Returns
     -------
-    tuple[bool, tuple[int, ...]]
+    tuple[tuple[int, ...], bool]
         A tuple containing:
-        - A boolean indicating whether the required permutation is odd.
+
         - A tuple of indices that sort the integers in descending order.
+        - A boolean indicating whether the required permutation is odd.
 
     Examples
     --------
     >>> from chempropstereo.featurizers.utils import argsort_descending_with_parity
     >>> argsort_descending_with_parity(9, 2, 1)
-    (False, (0, 1, 2))
+    ((0, 1, 2), False)
     >>> argsort_descending_with_parity(3, 6, 1)
-    (True, (1, 0, 2))
+    ((1, 0, 2), True)
     >>> argsort_descending_with_parity(3, 1, 2)
-    (True, (0, 2, 1))
+    ((0, 2, 1), True)
     >>> argsort_descending_with_parity(3, 6, 1, 8)
-    (False, (3, 1, 0, 2))
+    ((3, 1, 0, 2), False)
     """
-    i, j, a, b, odd = _swap_or_not(0, 1, a, b, False)
-    j, k, b, c, odd = _swap_or_not(j, 2, b, c, odd)
+    i, j, a, b, odd = _swap_if_ascending(0, 1, a, b, False)
+    j, k, b, c, odd = _swap_if_ascending(j, 2, b, c, odd)
     if d is None:
-        i, j, a, b, odd = _swap_or_not(i, j, a, b, odd)
-        return odd, (i, j, k)
-    k, m, c, d, odd = _swap_or_not(k, 3, c, d, odd)
-    i, j, a, b, odd = _swap_or_not(i, j, a, b, odd)
-    j, k, b, c, odd = _swap_or_not(j, k, b, c, odd)
-    i, j, a, b, odd = _swap_or_not(i, j, a, b, odd)
-    return odd, (i, j, k, m)
+        i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
+        return (i, j, k), odd
+    k, m, c, d, odd = _swap_if_ascending(k, 3, c, d, odd)
+    i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
+    j, k, b, c, odd = _swap_if_ascending(j, k, b, c, odd)
+    i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
+    return (i, j, k, m), odd
 
 
-def get_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
+def generate_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
     """
     Construct a canonical chiral tag representing the stereochemistry configuration.
 
@@ -140,12 +145,12 @@ def get_chiral_tag(direction: str, order: t.Sequence[int]) -> str:
 
     Examples
     --------
-    >>> from chempropstereo.featurizers.utils import get_chiral_tag
-    >>> get_chiral_tag("CW", [0, 2, 1])
+    >>> from chempropstereo.featurizers.utils import generate_chiral_tag
+    >>> generate_chiral_tag("CW", [0, 2, 1])
     'CW:021'
-    >>> get_chiral_tag("CCW", [1, 2, 0])
+    >>> generate_chiral_tag("CCW", [1, 2, 0])
     'CCW:120'
-    >>> get_chiral_tag("CW", [2, 0, 1, 3])
+    >>> generate_chiral_tag("CW", [2, 0, 1, 3])
     'CW:2013'
     """
     return direction + ":" + "".join(map(str, order))
@@ -190,22 +195,25 @@ def get_scan_direction(atom: Chem.Atom, numeric: bool = False) -> str | None:
     return direction
 
 
-def get_direction_and_neighbors(
-    atom: Chem.Atom,
-) -> tuple[str, tuple[Chem.Atom, ...]] | tuple[None, None]:
+def get_neighbors_in_canonical_order(
+    atom: Chem.Atom, numeric: bool = False
+) -> list[Chem.Atom] | list[int]:
     """
-    Extract the scan direction and ordered neighbor atoms from an chiral atom.
+    Extract the neighbor atoms in canonical order from an atom with a canonical chiral
+    tag.
 
     Parameters
     ----------
     atom
-        The atom whose chiral information is to be extracted.
+        The atom whose neighbor information is to be extracted.
+    numeric
+        Whether to return the indices of the neighbor atoms.
 
     Returns
     -------
-    tuple[str, tuple[Chem.Atom, ...]] | tuple[None, None]
-        A tuple containing the scan direction ('CW' or 'CCW') and the ordered
-        neighbors, or (None, None) if the atom has no chirality information.
+    list[Chem.Atom] | list[int]
+        The ordered neighbor atoms or their indices, or an empty list if the atom has
+        no chirality information.
 
     Examples
     --------
@@ -214,21 +222,22 @@ def get_direction_and_neighbors(
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
-    >>> direction, neighbors = utils.get_direction_and_neighbors(chiral_atom)
-    >>> direction
-    'CW'
-    >>> [n.GetSymbol() for n in neighbors]
-    ['O', 'N', 'C']
+    >>> neighbors = utils.get_neighbors_in_canonical_order(chiral_atom)
+    >>> [atom.GetIdx() for atom in neighbors]
+    [3, 2, 0]
+    >>> utils.get_neighbors_in_canonical_order(chiral_atom, numeric=True)
+    [3, 2, 0]
     >>> non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom
-    >>> utils.get_direction_and_neighbors(non_chiral_atom)
-    (None, None)
+    >>> utils.get_neighbors_in_canonical_order(non_chiral_atom)
+    []
     """
     if not atom.HasProp("chiral_tag"):
-        return None, None
-    direction, order_str = atom.GetProp("chiral_tag").split(":")
-    order = tuple(map(int, order_str))
+        return []
+    _, order_str = atom.GetProp("chiral_tag").split(":")
     neighbors = atom.GetNeighbors()
-    return direction, tuple(neighbors[i] for i in order)
+    if numeric:
+        return [neighbors[i].GetIdx() for i in map(int, order_str)]
+    return [neighbors[i] for i in map(int, order_str)]
 
 
 def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
@@ -264,7 +273,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[n.GetIdx()] for n in atom.GetNeighbors()]
             # Sorting ranks in descending order keeps explicit hydrogens at the end
-            flip, order = argsort_descending_with_parity(*neighbor_ranks)
+            order, flip = argsort_descending_with_parity(*neighbor_ranks)
             if flip:
                 direction = "CCW" if direction == "CW" else "CW"
-            atom.SetProp("chiral_tag", get_chiral_tag(direction, order))
+            atom.SetProp("chiral_tag", generate_chiral_tag(direction, order))
