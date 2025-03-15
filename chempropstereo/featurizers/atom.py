@@ -137,7 +137,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             atomic_nums=featurizer.atomic_nums,
             degrees=featurizer.degrees,
             formal_charges=featurizer.formal_charges,
-            chiral_tags=[None, "CW", "CCW"],
+            chiral_tags=range(3),
             num_Hs=featurizer.num_Hs,
             hybridizations=featurizer.hybridizations,
         )
@@ -152,7 +152,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            utils.get_scan_direction(a),
+            utils.get_scan_direction(a, numeric=True),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]
