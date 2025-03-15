@@ -3,6 +3,7 @@ import numpy as np
 from rdkit import Chem
 
 from .atom import AtomCIPFeaturizer, AtomStereoFeaturizer
+from .bond import BondStereoFeaturizer
 from .utils import tag_tetrahedral_stereocenters
 
 
@@ -51,8 +52,8 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     >>> from chempropstereo import MoleculeStereoFeaturizer
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> r_mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> s_mol = Chem.MolFromSmiles("C[C@@H](N)O")
+    >>> r_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@H](N)O"))
+    >>> s_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@@H](N)O"))
     >>> featurizer = MoleculeStereoFeaturizer()
     >>> r_molgraph = featurizer(r_mol)
     >>> s_molgraph = featurizer(s_mol)
@@ -63,7 +64,7 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     def __init__(self):
         super().__init__(
             atom_featurizer=AtomStereoFeaturizer(),
-            bond_featurizer=chemprop.featurizers.MultiHotBondFeaturizer(),
+            bond_featurizer=BondStereoFeaturizer(),
         )
 
     def __call__(
@@ -104,18 +105,15 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
 
         i = 0
         for bond in mol.GetBonds():
-            x_e = self.bond_featurizer(bond)
-            if bond_features_extra is not None:
-                x_e = np.concatenate(
-                    (x_e, bond_features_extra[bond.GetIdx()]), dtype=np.single
-                )
-
-            E[i : i + 2] = x_e
-
             u, v = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-            edge_index[0].extend([u, v])
-            edge_index[1].extend([v, u])
-
+            for j, reverse in enumerate((False, True)):
+                x_e = self.bond_featurizer(bond, reverse)
+                if bond_features_extra is not None:
+                    x_e = np.concatenate(
+                        (x_e, bond_features_extra[bond.GetIdx()]), dtype=np.single
+                    )
+                E[i + j] = x_e
+                edge_index[j].extend([v, u] if reverse else [u, v])
             i += 2
 
         rev_edge_index = np.arange(len(E)).reshape(-1, 2)[:, ::-1].ravel()
