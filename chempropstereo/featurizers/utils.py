@@ -189,9 +189,9 @@ def get_scan_direction(atom: Chem.Atom, numeric: bool = False) -> str | None:
     """
     if numeric:
         return _CHIRAL_TAGS.index(get_scan_direction(atom))
-    if not atom.HasProp("chiral_tag"):
+    if not atom.HasProp("canonicalChiralTag"):
         return None
-    direction, _ = atom.GetProp("chiral_tag").split(":")
+    direction, _ = atom.GetProp("canonicalChiralTag").split(":")
     return direction
 
 
@@ -231,9 +231,9 @@ def get_neighbors_in_canonical_order(
     >>> utils.get_neighbors_in_canonical_order(non_chiral_atom)
     []
     """
-    if not atom.HasProp("chiral_tag"):
+    if not atom.HasProp("canonicalChiralTag"):
         return []
-    _, order_str = atom.GetProp("chiral_tag").split(":")
+    _, order_str = atom.GetProp("canonicalChiralTag").split(":")
     neighbors = atom.GetNeighbors()
     if numeric:
         return [neighbors[i].GetIdx() for i in map(int, order_str)]
@@ -270,11 +270,11 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
     for atom in mol.GetAtoms():
         direction = _SCAN_DIRECTIONS.get(atom.GetChiralTag(), None)
         if direction is not None:
-            neighbors = [n.GetIdx() for n in atom.GetNeighbors()]
+            neighbors = [atom.GetIdx() for atom in atom.GetNeighbors()]
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
-            neighbor_ranks = [all_ranks[n.GetIdx()] for n in atom.GetNeighbors()]
+            neighbor_ranks = [all_ranks[idx] for idx in neighbors]
             # Sorting ranks in descending order keeps explicit hydrogens at the end
             order, flip = argsort_descending_with_parity(*neighbor_ranks)
             if flip:
                 direction = "CCW" if direction == "CW" else "CW"
-            atom.SetProp("chiral_tag", generate_chiral_tag(direction, order))
+            atom.SetProp("canonicalChiralTag", generate_chiral_tag(direction, order))
