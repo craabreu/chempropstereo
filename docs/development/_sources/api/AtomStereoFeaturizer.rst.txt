@@ -1,0 +1,7 @@
+AtomStereoFeaturizer
+====================
+
+.. currentmodule:: chempropstereo
+.. autoclass:: AtomStereoFeaturizer
+    :member-order: alphabetical
+

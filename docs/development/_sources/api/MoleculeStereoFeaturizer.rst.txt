@@ -1,0 +1,7 @@
+MoleculeStereoFeaturizer
+========================
+
+.. currentmodule:: chempropstereo
+.. autoclass:: MoleculeStereoFeaturizer
+    :member-order: alphabetical
+

@@ -5,7 +5,10 @@ Classes
     :titlesonly:
 
     AtomCIPFeaturizer
+    AtomStereoFeaturizer
+    BondStereoFeaturizer
     MoleculeCIPFeaturizer
+    MoleculeStereoFeaturizer
 
 .. testsetup::
 

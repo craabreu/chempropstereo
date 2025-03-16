@@ -35,16 +35,18 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.featurizers.molecule</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">chemprop</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">featurizers</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomCIPFeaturizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomCIPFeaturizer</span><span class="p">,</span> <span class="n">AtomStereoFeaturizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">BondStereoFeaturizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">tag_tetrahedral_stereocenters</span>
 
 
 <div class="viewcode-block" id="MoleculeCIPFeaturizer">
 <a class="viewcode-back" href="../../../api/MoleculeCIPFeaturizer.html#chempropstereo.MoleculeCIPFeaturizer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MoleculeCIPFeaturizer</span><span class="p">(</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MoleculeCIPFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Molecule featurizer that includes CIP codes for stereocenters.</span>
 
@@ -65,7 +67,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomCIPFeaturizer</span><span class="p">(),</span>
-            <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotBondFeaturizer</span><span class="p">(),</span>
+            <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotBondFeaturizer</span><span class="p">(),</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
@@ -73,10 +75,93 @@
         <span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">,</span>
         <span class="n">atom_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">bond_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">:</span>
         <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         <span class="n">Chem</span><span class="o">.</span><span class="n">AssignCIPLabels</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">atom_features_extra</span><span class="p">,</span> <span class="n">bond_features_extra</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MoleculeStereoFeaturizer">
+<a class="viewcode-back" href="../../../api/MoleculeStereoFeaturizer.html#chempropstereo.MoleculeStereoFeaturizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MoleculeStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Molecule featurizer that includes canonicalized chiral tags for tetrahedral</span>
+<span class="sd">    stereocenters and the order of bonds stemming from them.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import MoleculeStereoFeaturizer</span>
+<span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; r_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; s_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; featurizer = MoleculeStereoFeaturizer()</span>
+<span class="sd">    &gt;&gt;&gt; r_molgraph = featurizer(r_mol)</span>
+<span class="sd">    &gt;&gt;&gt; s_molgraph = featurizer(s_mol)</span>
+<span class="sd">    &gt;&gt;&gt; assert not np.array_equal(r_molgraph.V, s_molgraph.V)</span>
+<span class="sd">    &gt;&gt;&gt; assert np.array_equal(r_molgraph.E, s_molgraph.E)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomStereoFeaturizer</span><span class="p">(),</span>
+            <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">BondStereoFeaturizer</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">,</span>
+        <span class="n">atom_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bond_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">:</span>
+        <span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
+        <span class="n">n_bonds</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumBonds</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">atom_features_extra</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">atom_features_extra</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_atoms</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input molecule must have same number of atoms as &quot;</span>
+                <span class="s2">&quot;`len(atom_features_extra)`! &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got: </span><span class="si">{</span><span class="n">n_atoms</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_features_extra</span><span class="p">)</span><span class="si">}</span><span class="s2">, respectively.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">bond_features_extra</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">bond_features_extra</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_bonds</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Input molecule must have same number of bonds as &quot;</span>
+                <span class="s2">&quot;`len(bond_features_extra)`! &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Got: </span><span class="si">{</span><span class="n">n_bonds</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bond_features_extra</span><span class="p">)</span><span class="si">}</span><span class="s2">, respectively.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">n_atoms</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_fdim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">single</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atom_featurizer</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">()],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">single</span>
+            <span class="p">)</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n_bonds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_fdim</span><span class="p">))</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+
+        <span class="k">if</span> <span class="n">atom_features_extra</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">V</span><span class="p">,</span> <span class="n">atom_features_extra</span><span class="p">))</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">():</span>
+            <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">(),</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">reverse</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">((</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)):</span>
+                <span class="n">x_e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_featurizer</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">reverse</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bond_features_extra</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">x_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">x_e</span><span class="p">,</span> <span class="n">bond_features_extra</span><span class="p">[</span><span class="n">bond</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">single</span>
+                    <span class="p">)</span>
+                <span class="n">E</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_e</span>
+                <span class="n">edge_index</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">])</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="n">rev_edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">rev_edge_index</span><span class="p">)</span></div>
 
 </pre></div>
 
