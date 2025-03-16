@@ -6,6 +6,35 @@ from . import utils
 
 
 class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
+    """
+    Multi-hot bond featurizer that includes the position of the end atom in the
+    canonical order of neighbors when the begin atom has a canonical chiral tag.
+
+    The featurized bonds are expected to be part of an RDKit molecule with canonical
+    chiral tags assigned via :func:`utils.tag_tetrahedral_stereocenters`.
+
+    Examples
+    --------
+    >>> from chempropstereo import BondStereoFeaturizer
+    >>> from chempropstereo.featurizers import utils
+    >>> from rdkit import Chem
+    >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
+    >>> utils.tag_tetrahedral_stereocenters(mol)
+    >>> featurizer = BondStereoFeaturizer()
+    >>> neighbors = utils.get_neighbors_in_canonical_order(mol.GetAtomWithIdx(1))
+    >>> for neighbor in neighbors:
+    ...     bond = mol.GetBondBetweenAtoms(1, neighbor)
+    ...     one_is_begin = bond.GetBeginAtomIdx() == 1
+    ...     for reverse in (not one_is_begin, one_is_begin):
+    ...         print("".join(map(str, featurizer(bond, reverse))))
+    0100000100000010000
+    0100000100000001000
+    0100000100000010000
+    0100000100000000100
+    0100000100000010000
+    0100000100000000010
+    """
+
     def __len__(self):
         return super().__len__() + 5
 
