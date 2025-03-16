@@ -119,14 +119,14 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     >>> ccw_atom = ccw_mol.GetAtomWithIdx(1)
     >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
     >>> for featurizer in [AtomStereoFeaturizer("V2"), AtomStereoFeaturizer("ORGANIC")]:
-    ...     for atom in [cw_atom, ccw_atom, non_chiral_atom]:
+    ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:
     ...         print("".join(map(str, map(int, featurizer(atom)))))
-    0000010000000000000000000000000000000000001000000101000100000000100000
+    0000010000000000000000000000000000000000001000000101000001000000100000
     0000010000000000000000000000000000000000001000000100100100000000100000
-    0000010000000000000000000000000000000000001000000100010001000000100000
-    001000000000000001000000101000100000001000
+    0000010000000000000000000000000000000000001000000100010100000000100000
+    001000000000000001000000101000001000001000
     001000000000000001000000100100100000001000
-    001000000000000001000000100010001000001000
+    001000000000000001000000100010100000001000
     """
 
     def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
@@ -153,7 +153,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            utils.get_scan_direction(a, numeric=True),
+            utils.get_scan_direction(a),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]

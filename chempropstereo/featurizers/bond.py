@@ -16,7 +16,7 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
         else:
             begin_atom = b.GetEndAtom()
             end_index = b.GetBeginAtomIdx()
-        neighbors = utils.get_neighbors_in_canonical_order(begin_atom, numeric=True)
+        neighbors = utils.get_neighbors_in_canonical_order(begin_atom)
         x = super().__call__(b)
         x[-4 + neighbors.index(end_index) if neighbors else -5] = 1
         return x
