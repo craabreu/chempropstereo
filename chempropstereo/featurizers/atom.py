@@ -2,7 +2,7 @@ import chemprop
 import numpy as np
 from rdkit import Chem
 
-from . import utils
+from ..stereochemistry import utils
 
 
 class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
@@ -109,7 +109,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     Examples
     --------
     >>> from chempropstereo import AtomStereoFeaturizer
-    >>> from chempropstereo.featurizers import utils
+    >>> from chempropstereo.stereochemistry import utils
     >>> from rdkit import Chem
     >>> cw_mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> ccw_mol = Chem.MolFromSmiles("C[C@@H](N)O")

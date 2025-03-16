@@ -24,7 +24,7 @@ def get_cip_code(atom: Chem.Atom) -> int:
 
     Examples
     --------
-    >>> from chempropstereo.featurizers.utils import get_cip_code
+    >>> from chempropstereo.stereochemistry.utils import get_cip_code
     >>> from rdkit import Chem
     >>> mol1 = Chem.MolFromSmiles("C[C@H](N)O")
     >>> [get_cip_code(atom) for atom in mol1.GetAtoms()]
@@ -101,7 +101,7 @@ def argsort_descending_with_parity(
 
     Examples
     --------
-    >>> from chempropstereo.featurizers.utils import argsort_descending_with_parity
+    >>> from chempropstereo.stereochemistry.utils import argsort_descending_with_parity
     >>> argsort_descending_with_parity(9, 2, 1)
     ((0, 1, 2), False)
     >>> argsort_descending_with_parity(3, 6, 1)
@@ -142,7 +142,7 @@ def get_scan_direction(atom: Chem.Atom) -> int:
     Examples
     --------
     >>> from rdkit import Chem
-    >>> from chempropstereo.featurizers import utils
+    >>> from chempropstereo.stereochemistry import utils
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
@@ -174,7 +174,7 @@ def get_neighbors_in_canonical_order(atom: Chem.Atom) -> tuple[int, ...]:
     Examples
     --------
     >>> from rdkit import Chem
-    >>> from chempropstereo.featurizers import utils
+    >>> from chempropstereo.stereochemistry import utils
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
@@ -202,7 +202,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
 
     Examples
     --------
-    >>> from chempropstereo.featurizers import utils
+    >>> from chempropstereo.stereochemistry import utils
     >>> from rdkit import Chem
     >>> def desc(atom):
     ...     return f"{atom.GetSymbol()}{atom.GetIdx()}"

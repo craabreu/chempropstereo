@@ -2,7 +2,7 @@ import chemprop
 import numpy as np
 from rdkit.Chem.rdchem import Bond
 
-from . import utils
+from ..stereochemistry import utils
 
 
 class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
@@ -16,7 +16,7 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     Examples
     --------
     >>> from chempropstereo import BondStereoFeaturizer
-    >>> from chempropstereo.featurizers import utils
+    >>> from chempropstereo.stereochemistry import utils
     >>> from rdkit import Chem
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> utils.tag_tetrahedral_stereocenters(mol)
