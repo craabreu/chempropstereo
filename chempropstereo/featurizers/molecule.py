@@ -73,7 +73,8 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
-        stereochemistry.tag_tetrahedral_stereocenters(mol)
+        if not mol.HasProp("hasCanonicalChiralTags"):
+            stereochemistry.tag_tetrahedral_stereocenters(mol)
 
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()

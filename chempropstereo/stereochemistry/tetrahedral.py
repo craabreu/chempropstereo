@@ -233,3 +233,4 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
             atom.SetProp("canonicalChiralTag", "".join(map(str, [direction, *order])))
         else:
             atom.SetProp("canonicalChiralTag", "0")
+    mol.SetBoolProp("hasCanonicalChiralTags", True)
