@@ -1,6 +1,6 @@
 import chemprop
 import numpy as np
-from rdkit.Chem.rdchem import Bond
+from rdkit import Chem
 
 from .. import stereochemistry
 
@@ -36,10 +36,28 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     0100000100000000010
     """
 
-    def __len__(self):
+    def __init__(self) -> None:
+        super().__init__(
+            bond_types=[
+                Chem.BondType.SINGLE,
+                Chem.BondType.DOUBLE,
+                Chem.BondType.TRIPLE,
+                Chem.BondType.AROMATIC,
+            ],
+            stereos=[
+                Chem.BondStereo.STEREONONE,
+                Chem.BondStereo.STEREOANY,
+                Chem.BondStereo.STEREOZ,
+                Chem.BondStereo.STEREOE,
+                Chem.BondStereo.STEREOCIS,
+                Chem.BondStereo.STEREOTRANS,
+            ],
+        )
+
+    def __len__(self) -> int:
         return super().__len__() + 5
 
-    def __call__(self, b: Bond | None, reverse: bool = False) -> np.ndarray:
+    def __call__(self, b: Chem.Bond | None, reverse: bool = False) -> np.ndarray:
         if reverse:
             begin_atom = b.GetBeginAtom()
             end_index = b.GetEndAtomIdx()
