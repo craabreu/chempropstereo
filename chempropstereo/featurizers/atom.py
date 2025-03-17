@@ -2,7 +2,7 @@ import chemprop
 import numpy as np
 from rdkit import Chem
 
-from ..stereochemistry import utils
+from .. import stereochemistry
 
 
 class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
@@ -70,7 +70,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            utils.get_cip_code(a),
+            stereochemistry.get_cip_code(a),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]
@@ -91,7 +91,7 @@ class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
     Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
     The featurized atoms are expected to be part of an RDKit molecule with canonical
-    chiral tags assigned via :func:`utils.tag_tetrahedral_stereocenters`.
+    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
 
     Parameters
     ----------
@@ -108,17 +108,19 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
 
     Examples
     --------
-    >>> from chempropstereo import AtomStereoFeaturizer
-    >>> from chempropstereo.stereochemistry import utils
+    >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
     >>> cw_mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> ccw_mol = Chem.MolFromSmiles("C[C@@H](N)O")
-    >>> utils.tag_tetrahedral_stereocenters(cw_mol)
-    >>> utils.tag_tetrahedral_stereocenters(ccw_mol)
+    >>> stereochemistry.tag_tetrahedral_stereocenters(cw_mol)
+    >>> stereochemistry.tag_tetrahedral_stereocenters(ccw_mol)
     >>> cw_atom = cw_mol.GetAtomWithIdx(1)
     >>> ccw_atom = ccw_mol.GetAtomWithIdx(1)
     >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
-    >>> for featurizer in [AtomStereoFeaturizer("V2"), AtomStereoFeaturizer("ORGANIC")]:
+    >>> for featurizer in [
+    ...     featurizers.AtomStereoFeaturizer("V2"),
+    ...     featurizers.AtomStereoFeaturizer("ORGANIC")
+    ... ]:
     ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:
     ...         print("".join(map(str, map(int, featurizer(atom)))))
     0000010000000000000000000000000000000000001000000101000001000000100000
@@ -153,7 +155,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            utils.get_scan_direction(a),
+            stereochemistry.get_scan_direction(a),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]

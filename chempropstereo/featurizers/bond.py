@@ -2,7 +2,7 @@ import chemprop
 import numpy as np
 from rdkit.Chem.rdchem import Bond
 
-from ..stereochemistry import utils
+from .. import stereochemistry
 
 
 class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
@@ -11,17 +11,18 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     canonical order of neighbors when the begin atom has a canonical chiral tag.
 
     The featurized bonds are expected to be part of an RDKit molecule with canonical
-    chiral tags assigned via :func:`utils.tag_tetrahedral_stereocenters`.
+    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
 
     Examples
     --------
-    >>> from chempropstereo import BondStereoFeaturizer
-    >>> from chempropstereo.stereochemistry import utils
+    >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> utils.tag_tetrahedral_stereocenters(mol)
-    >>> featurizer = BondStereoFeaturizer()
-    >>> neighbors = utils.get_neighbors_in_canonical_order(mol.GetAtomWithIdx(1))
+    >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
+    >>> featurizer = featurizers.BondStereoFeaturizer()
+    >>> neighbors = stereochemistry.get_neighbors(
+    ...     mol.GetAtomWithIdx(1)
+    ... )
     >>> for neighbor in neighbors:
     ...     bond = mol.GetBondBetweenAtoms(1, neighbor)
     ...     one_is_begin = bond.GetBeginAtomIdx() == 1
@@ -45,7 +46,7 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
         else:
             begin_atom = b.GetEndAtom()
             end_index = b.GetBeginAtomIdx()
-        neighbors = utils.get_neighbors_in_canonical_order(begin_atom)
+        neighbors = stereochemistry.get_neighbors(begin_atom)
         x = super().__call__(b)
         x[-4 + neighbors.index(end_index) if neighbors else -5] = 1
         return x

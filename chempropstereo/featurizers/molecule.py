@@ -2,7 +2,7 @@ import chemprop
 import numpy as np
 from rdkit import Chem
 
-from ..stereochemistry import utils
+from .. import stereochemistry
 from .atom import AtomCIPFeaturizer, AtomStereoFeaturizer
 from .bond import BondStereoFeaturizer
 
@@ -49,12 +49,12 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
 
     Examples
     --------
-    >>> from chempropstereo import MoleculeStereoFeaturizer
+    >>> from chempropstereo import featurizers
     >>> from rdkit import Chem
     >>> import numpy as np
     >>> r_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@H](N)O"))
     >>> s_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@@H](N)O"))
-    >>> featurizer = MoleculeStereoFeaturizer()
+    >>> featurizer = featurizers.MoleculeStereoFeaturizer()
     >>> r_molgraph = featurizer(r_mol)
     >>> s_molgraph = featurizer(s_mol)
     >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)
@@ -73,7 +73,7 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
-        utils.tag_tetrahedral_stereocenters(mol)
+        stereochemistry.tag_tetrahedral_stereocenters(mol)
 
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()

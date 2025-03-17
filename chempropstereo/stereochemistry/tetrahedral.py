@@ -24,13 +24,13 @@ def get_cip_code(atom: Chem.Atom) -> int:
 
     Examples
     --------
-    >>> from chempropstereo.stereochemistry.utils import get_cip_code
+    >>> from chempropstereo import stereochemistry
     >>> from rdkit import Chem
     >>> mol1 = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> [get_cip_code(atom) for atom in mol1.GetAtoms()]
+    >>> [stereochemistry.get_cip_code(atom) for atom in mol1.GetAtoms()]
     [0, 1, 0, 0]
     >>> mol2 = Chem.MolFromSmiles("C[C@@H](N)O")
-    >>> [get_cip_code(atom) for atom in mol2.GetAtoms()]
+    >>> [stereochemistry.get_cip_code(atom) for atom in mol2.GetAtoms()]
     [0, 2, 0, 0]
     """
     return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
@@ -40,9 +40,9 @@ def _swap_if_ascending(
     i: int, j: int, a: int, b: int, odd: bool
 ) -> tuple[int, int, int, int, bool]:
     """
-    Helper function for :func:`utils.argsort_descending_with_parity` that conditionally
-    swaps two indices and their corresponding values, and flips the parity of the
-    permutation if a swap is performed.
+    Helper function for :func:`tetrahedral._argsort_descending_with_parity` that
+    conditionally swaps two indices and their corresponding values, and flips the
+    parity of the permutation if a swap is performed.
 
     Parameters
     ----------
@@ -72,7 +72,7 @@ def _swap_if_ascending(
     return i, j, a, b, odd
 
 
-def argsort_descending_with_parity(
+def _argsort_descending_with_parity(
     a: int, b: int, c: int, d: t.Optional[int] = None
 ) -> tuple[tuple[int, ...], bool]:
     """
@@ -101,14 +101,14 @@ def argsort_descending_with_parity(
 
     Examples
     --------
-    >>> from chempropstereo.stereochemistry.utils import argsort_descending_with_parity
-    >>> argsort_descending_with_parity(9, 2, 1)
+    >>> from chempropstereo.stereochemistry import tetrahedral
+    >>> tetrahedral._argsort_descending_with_parity(9, 2, 1)
     ((0, 1, 2), False)
-    >>> argsort_descending_with_parity(3, 6, 1)
+    >>> tetrahedral._argsort_descending_with_parity(3, 6, 1)
     ((1, 0, 2), True)
-    >>> argsort_descending_with_parity(3, 1, 2)
+    >>> tetrahedral._argsort_descending_with_parity(3, 1, 2)
     ((0, 2, 1), True)
-    >>> argsort_descending_with_parity(3, 6, 1, 8)
+    >>> tetrahedral._argsort_descending_with_parity(3, 6, 1, 8)
     ((3, 1, 0, 2), False)
     """
     i, j, a, b, odd = _swap_if_ascending(0, 1, a, b, False)
@@ -142,20 +142,20 @@ def get_scan_direction(atom: Chem.Atom) -> int:
     Examples
     --------
     >>> from rdkit import Chem
-    >>> from chempropstereo.stereochemistry import utils
+    >>> from chempropstereo import stereochemistry
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> utils.tag_tetrahedral_stereocenters(mol)
+    >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
-    >>> utils.get_scan_direction(chiral_atom)
+    >>> stereochemistry.get_scan_direction(chiral_atom)
     1
     >>> non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom
-    >>> utils.get_scan_direction(non_chiral_atom)
+    >>> stereochemistry.get_scan_direction(non_chiral_atom)
     0
     """
     return int(atom.GetProp("canonicalChiralTag")[0])
 
 
-def get_neighbors_in_canonical_order(atom: Chem.Atom) -> tuple[int, ...]:
+def get_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
     """
     Extract the indices of neighbor atoms in canonical order from an atom with a
     canonical chiral tag.
@@ -174,14 +174,14 @@ def get_neighbors_in_canonical_order(atom: Chem.Atom) -> tuple[int, ...]:
     Examples
     --------
     >>> from rdkit import Chem
-    >>> from chempropstereo.stereochemistry import utils
+    >>> from chempropstereo import stereochemistry
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> utils.tag_tetrahedral_stereocenters(mol)
+    >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
-    >>> utils.get_neighbors_in_canonical_order(chiral_atom)
+    >>> stereochemistry.get_neighbors(chiral_atom)
     (3, 2, 0)
     >>> non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom
-    >>> utils.get_neighbors_in_canonical_order(non_chiral_atom)
+    >>> stereochemistry.get_neighbors(non_chiral_atom)
     ()
     """
     neighbors = atom.GetNeighbors()
@@ -202,21 +202,22 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
 
     Examples
     --------
-    >>> from chempropstereo.stereochemistry import utils
+    >>> from chempropstereo import stereochemistry
     >>> from rdkit import Chem
     >>> def desc(atom):
     ...     return f"{atom.GetSymbol()}{atom.GetIdx()}"
     >>> for smi in ["C[C@H](N)O", "C[C@@H](O)N"]:
     ...     mol = Chem.MolFromSmiles(smi)
-    ...     utils.tag_tetrahedral_stereocenters(mol)
+    ...     stereochemistry.tag_tetrahedral_stereocenters(mol)
     ...     for atom in mol.GetAtoms():
-    ...         direction = [None, "CW", "CCW"][utils.get_scan_direction(atom)]
-    ...         if direction:
+    ...         direction = stereochemistry.get_scan_direction(atom)
+    ...         if direction != 0:
     ...             neighbors = [
     ...                 desc(mol.GetAtomWithIdx(idx))
-    ...                 for idx in utils.get_neighbors_in_canonical_order(atom)
+    ...                 for idx in stereochemistry.get_neighbors(atom)
     ...             ]
-    ...             print(desc(atom), f"({direction})", *neighbors)
+    ...             rotation = "CW" if direction == 1 else "CCW"
+    ...             print(desc(atom), f"({rotation})", *neighbors)
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
     """
@@ -227,7 +228,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
             # Sorting ranks in descending order keeps explicit hydrogens at the end
-            order, flip = argsort_descending_with_parity(*neighbor_ranks)
+            order, flip = _argsort_descending_with_parity(*neighbor_ranks)
             direction = 1 if (tag == _CCW) == flip else 2
             atom.SetProp("canonicalChiralTag", "".join(map(str, [direction, *order])))
         else:
