@@ -39,7 +39,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
 
 
 <div class="viewcode-block" id="AtomCIPFeaturizer">
@@ -109,7 +109,7 @@
             <span class="n">a</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">(),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetTotalDegree</span><span class="p">(),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetFormalCharge</span><span class="p">(),</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">get_cip_code</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
+            <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_cip_code</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">(),</span>
         <span class="p">]</span>
@@ -133,7 +133,7 @@
 <span class="sd">    Multi-hot atom featurizer that includes a canonical chiral tag for each atom.</span>
 
 <span class="sd">    The featurized atoms are expected to be part of an RDKit molecule with canonical</span>
-<span class="sd">    chiral tags assigned via :func:`utils.tag_tetrahedral_stereocenters`.</span>
+<span class="sd">    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -150,17 +150,19 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo import AtomStereoFeaturizer</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo.featurizers import utils</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import featurizers, stereochemistry</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; cw_mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; ccw_mol = Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; utils.tag_tetrahedral_stereocenters(cw_mol)</span>
-<span class="sd">    &gt;&gt;&gt; utils.tag_tetrahedral_stereocenters(ccw_mol)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(cw_mol)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(ccw_mol)</span>
 <span class="sd">    &gt;&gt;&gt; cw_atom = cw_mol.GetAtomWithIdx(1)</span>
 <span class="sd">    &gt;&gt;&gt; ccw_atom = ccw_mol.GetAtomWithIdx(1)</span>
 <span class="sd">    &gt;&gt;&gt; non_chiral_atom = cw_mol.GetAtomWithIdx(0)</span>
-<span class="sd">    &gt;&gt;&gt; for featurizer in [AtomStereoFeaturizer(&quot;V2&quot;), AtomStereoFeaturizer(&quot;ORGANIC&quot;)]:</span>
+<span class="sd">    &gt;&gt;&gt; for featurizer in [</span>
+<span class="sd">    ...     featurizers.AtomStereoFeaturizer(&quot;V2&quot;),</span>
+<span class="sd">    ...     featurizers.AtomStereoFeaturizer(&quot;ORGANIC&quot;)</span>
+<span class="sd">    ... ]:</span>
 <span class="sd">    ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:</span>
 <span class="sd">    ...         print(&quot;&quot;.join(map(str, map(int, featurizer(atom)))))</span>
 <span class="sd">    0000010000000000000000000000000000000000001000000101000001000000100000</span>
@@ -195,7 +197,7 @@
             <span class="n">a</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">(),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetTotalDegree</span><span class="p">(),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetFormalCharge</span><span class="p">(),</span>
-            <span class="n">utils</span><span class="o">.</span><span class="n">get_scan_direction</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
+            <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_scan_direction</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()),</span>
             <span class="n">a</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">(),</span>
         <span class="p">]</span>

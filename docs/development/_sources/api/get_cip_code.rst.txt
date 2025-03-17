@@ -1,0 +1,5 @@
+get_cip_code
+============
+
+.. currentmodule:: chempropstereo
+.. autofunction:: get_cip_code

@@ -1,0 +1,5 @@
+get_neighbors
+=============
+
+.. currentmodule:: chempropstereo
+.. autofunction:: get_neighbors

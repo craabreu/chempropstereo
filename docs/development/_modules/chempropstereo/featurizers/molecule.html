@@ -39,9 +39,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomCIPFeaturizer</span><span class="p">,</span> <span class="n">AtomStereoFeaturizer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">BondStereoFeaturizer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">tag_tetrahedral_stereocenters</span>
 
 
 <div class="viewcode-block" id="MoleculeCIPFeaturizer">
@@ -91,12 +91,12 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo import MoleculeStereoFeaturizer</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import featurizers</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; r_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;))</span>
 <span class="sd">    &gt;&gt;&gt; s_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;))</span>
-<span class="sd">    &gt;&gt;&gt; featurizer = MoleculeStereoFeaturizer()</span>
+<span class="sd">    &gt;&gt;&gt; featurizer = featurizers.MoleculeStereoFeaturizer()</span>
 <span class="sd">    &gt;&gt;&gt; r_molgraph = featurizer(r_mol)</span>
 <span class="sd">    &gt;&gt;&gt; s_molgraph = featurizer(s_mol)</span>
 <span class="sd">    &gt;&gt;&gt; assert not np.array_equal(r_molgraph.V, s_molgraph.V)</span>
@@ -115,7 +115,8 @@
         <span class="n">atom_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">bond_features_extra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">:</span>
-        <span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalChiralTags&quot;</span><span class="p">):</span>
+            <span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 
         <span class="n">n_atoms</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumAtoms</span><span class="p">()</span>
         <span class="n">n_bonds</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetNumBonds</span><span class="p">()</span>

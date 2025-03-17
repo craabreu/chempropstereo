@@ -39,7 +39,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem.rdchem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
 
 
 <div class="viewcode-block" id="BondStereoFeaturizer">
@@ -50,17 +50,18 @@
 <span class="sd">    canonical order of neighbors when the begin atom has a canonical chiral tag.</span>
 
 <span class="sd">    The featurized bonds are expected to be part of an RDKit molecule with canonical</span>
-<span class="sd">    chiral tags assigned via :func:`utils.tag_tetrahedral_stereocenters`.</span>
+<span class="sd">    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo import BondStereoFeaturizer</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo.featurizers import utils</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import featurizers, stereochemistry</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; utils.tag_tetrahedral_stereocenters(mol)</span>
-<span class="sd">    &gt;&gt;&gt; featurizer = BondStereoFeaturizer()</span>
-<span class="sd">    &gt;&gt;&gt; neighbors = utils.get_neighbors_in_canonical_order(mol.GetAtomWithIdx(1))</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
+<span class="sd">    &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
+<span class="sd">    &gt;&gt;&gt; neighbors = stereochemistry.get_neighbors(</span>
+<span class="sd">    ...     mol.GetAtomWithIdx(1)</span>
+<span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; for neighbor in neighbors:</span>
 <span class="sd">    ...     bond = mol.GetBondBetweenAtoms(1, neighbor)</span>
 <span class="sd">    ...     one_is_begin = bond.GetBeginAtomIdx() == 1</span>
@@ -84,7 +85,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">begin_atom</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetEndAtom</span><span class="p">()</span>
             <span class="n">end_index</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span>
-        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_neighbors_in_canonical_order</span><span class="p">(</span><span class="n">begin_atom</span><span class="p">)</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">begin_atom</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
         <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span> <span class="o">+</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">end_index</span><span class="p">)</span> <span class="k">if</span> <span class="n">neighbors</span> <span class="k">else</span> <span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">x</span></div>

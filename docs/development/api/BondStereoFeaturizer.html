@@ -45,15 +45,16 @@
 <dd><p>Multi-hot bond featurizer that includes the position of the end atom in the
 canonical order of neighbors when the begin atom has a canonical chiral tag.</p>
 <p>The featurized bonds are expected to be part of an RDKit molecule with canonical
-chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">utils.tag_tetrahedral_stereocenters()</span></code>.</p>
+chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">tetrahedral.tag_tetrahedral_stereocenters()</span></code>.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">BondStereoFeaturizer</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo.featurizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span><span class="p">,</span> <span class="n">stereochemistry</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">utils</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">BondStereoFeaturizer</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbors</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_neighbors_in_canonical_order</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbors</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">one_is_begin</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
@@ -104,6 +105,7 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <li class="toctree-l3"><a class="reference internal" href="MoleculeStereoFeaturizer.html">MoleculeStereoFeaturizer</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">Bibliography</a></li>

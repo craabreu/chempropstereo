@@ -1,0 +1,5 @@
+tag_tetrahedral_stereocenters
+=============================
+
+.. currentmodule:: chempropstereo
+.. autofunction:: tag_tetrahedral_stereocenters
