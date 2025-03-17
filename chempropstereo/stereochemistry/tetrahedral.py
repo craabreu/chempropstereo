@@ -1,6 +1,6 @@
-import typing as t
-
 from rdkit import Chem
+
+from . import utils
 
 _CW = Chem.ChiralType.CHI_TETRAHEDRAL_CW
 _CCW = Chem.ChiralType.CHI_TETRAHEDRAL_CCW
@@ -34,93 +34,6 @@ def get_cip_code(atom: Chem.Atom) -> int:
     [0, 2, 0, 0]
     """
     return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
-
-
-def _swap_if_ascending(
-    i: int, j: int, a: int, b: int, odd: bool
-) -> tuple[int, int, int, int, bool]:
-    """
-    Helper function for :func:`tetrahedral._argsort_descending_with_parity` that
-    conditionally swaps two indices and their corresponding values, and flips the
-    parity of the permutation if a swap is performed.
-
-    Parameters
-    ----------
-    i
-        The first index.
-    j
-        The second index.
-    a
-        The value at the first index.
-    b
-        The value at the second index.
-    odd
-        Whether the permutation is currently odd rather than even.
-
-    Returns
-    -------
-    tuple[int, int, int, int, bool]
-        A tuple containing:
-
-        - The potentially swapped indices i and j.
-        - The potentially swapped values a and b.
-        - A boolean indicating whether the permutation is odd after having or not
-          performed the swap.
-    """
-    if a < b:
-        return j, i, b, a, not odd
-    return i, j, a, b, odd
-
-
-def _argsort_descending_with_parity(
-    a: int, b: int, c: int, d: t.Optional[int] = None
-) -> tuple[tuple[int, ...], bool]:
-    """
-    Perform an indirect sort on three or four integers and returns the indices that
-    would arrange them in descending order, as well as a boolean indicating whether
-    the resulting permutation is odd rather than even.
-
-    Parameters
-    ----------
-    a
-        The first integer.
-    b
-        The second integer.
-    c
-        The third integer.
-    d
-        The fourth integer, optional.
-
-    Returns
-    -------
-    tuple[tuple[int, ...], bool]
-        A tuple containing:
-
-        - A tuple of indices that sort the integers in descending order.
-        - A boolean indicating whether the required permutation is odd.
-
-    Examples
-    --------
-    >>> from chempropstereo.stereochemistry import tetrahedral
-    >>> tetrahedral._argsort_descending_with_parity(9, 2, 1)
-    ((0, 1, 2), False)
-    >>> tetrahedral._argsort_descending_with_parity(3, 6, 1)
-    ((1, 0, 2), True)
-    >>> tetrahedral._argsort_descending_with_parity(3, 1, 2)
-    ((0, 2, 1), True)
-    >>> tetrahedral._argsort_descending_with_parity(3, 6, 1, 8)
-    ((3, 1, 0, 2), False)
-    """
-    i, j, a, b, odd = _swap_if_ascending(0, 1, a, b, False)
-    j, k, b, c, odd = _swap_if_ascending(j, 2, b, c, odd)
-    if d is None:
-        i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
-        return (i, j, k), odd
-    k, m, c, d, odd = _swap_if_ascending(k, 3, c, d, odd)
-    i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
-    j, k, b, c, odd = _swap_if_ascending(j, k, b, c, odd)
-    i, j, a, b, odd = _swap_if_ascending(i, j, a, b, odd)
-    return (i, j, k, m), odd
 
 
 def get_scan_direction(atom: Chem.Atom) -> int:
@@ -228,9 +141,9 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
             # Sorting ranks in descending order keeps explicit hydrogens at the end
-            order, flip = _argsort_descending_with_parity(*neighbor_ranks)
+            order, flip = utils.argsort_descending_with_parity(*neighbor_ranks)
             direction = 1 if (tag == _CCW) == flip else 2
-            atom.SetProp("canonicalChiralTag", "".join(map(str, [direction, *order])))
+            atom.SetProp("canonicalChiralTag", utils.concat(direction, *order))
         else:
             atom.SetProp("canonicalChiralTag", "0")
     mol.SetBoolProp("hasCanonicalChiralTags", True)
