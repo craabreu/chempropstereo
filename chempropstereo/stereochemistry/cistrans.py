@@ -58,13 +58,13 @@ class BranchRank(base.Rank):
     >>> bond0, bond1, bond2 = map(mol.GetBondWithIdx, range(3))
     >>> describe_stereobond(bond2)
     'N0 O2 C1 (TRANS) C3 C5 S4'
-    >>> BranchRank.get_from(bond0)
+    >>> BranchRank.from_bond(bond0)
     <BranchRank.NONE: 0>
-    >>> BranchRank.get_from(bond0, reverse=True)
+    >>> BranchRank.from_bond(bond0, reverse=True)
     <BranchRank.MAJOR: 1>
-    >>> BranchRank.get_from(bond1)
+    >>> BranchRank.from_bond(bond1)
     <BranchRank.MINOR: 2>
-    >>> BranchRank.get_from(bond1, reverse=True)
+    >>> BranchRank.from_bond(bond1, reverse=True)
     <BranchRank.NONE: 0>
     """
 

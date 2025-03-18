@@ -63,9 +63,9 @@ class VertexRank(base.Rank):
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> bond = mol.GetBondWithIdx(1)
-    >>> VertexRank.get_from(bond)
+    >>> VertexRank.from_bond(bond)
     <VertexRank.SECOND: 2>
-    >>> VertexRank.get_from(bond, reverse=True)
+    >>> VertexRank.from_bond(bond, reverse=True)
     <VertexRank.NONE: 0>
     """
 

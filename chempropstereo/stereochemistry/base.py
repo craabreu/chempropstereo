@@ -40,7 +40,7 @@ class Rank(IntEnum):
         return tuple(neighbors[i] for i in order)
 
     @classmethod
-    def get_from(cls, bond: Chem.Bond, reverse: bool = False) -> t.Self:
+    def from_bond(cls, bond: Chem.Bond, reverse: bool = False) -> t.Self:
         """
         Get the rank of a bond in a stereogenic group from its begin (or end) atom's
         canonical stereo tag.
