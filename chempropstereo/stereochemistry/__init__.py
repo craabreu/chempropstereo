@@ -1,4 +1,8 @@
-from .cistrans import get_cis_trans_neighbors, tag_cis_trans_stereobonds
+from .cistrans import (
+    StemArrangement,
+    get_cis_trans_neighbors,
+    tag_cis_trans_stereobonds,
+)
 from .tetrahedral import (
     ScanDirection,
     VertexRank,
@@ -14,5 +18,6 @@ __all__ = [
     "get_cis_trans_neighbors",
     "ScanDirection",
     "VertexRank",
+    "StemArrangement",
     "get_stereocenter_neighbors",
 ]

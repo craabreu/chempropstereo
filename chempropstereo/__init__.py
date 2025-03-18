@@ -11,6 +11,9 @@ from .featurizers import (
     MoleculeStereoFeaturizer,
 )
 from .stereochemistry import (
+    ScanDirection,
+    StemArrangement,
+    VertexRank,
     get_cip_code,
     get_cis_trans_neighbors,
     get_stereocenter_neighbors,
@@ -29,4 +32,7 @@ __all__ = [
     "get_cip_code",
     "tag_cis_trans_stereobonds",
     "get_cis_trans_neighbors",
+    "VertexRank",
+    "ScanDirection",
+    "StemArrangement",
 ]

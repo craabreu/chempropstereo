@@ -1,14 +1,12 @@
-import typing as t
-from enum import IntEnum
 
 from rdkit import Chem
 
-from . import utils
+from . import base, utils
 
 _CIP_CODES = {False: 0, "R": 1, "S": 2}
 
 
-class ScanDirection(IntEnum):
+class ScanDirection(base.SpatialArrangement):
     """
     Enumeration for scan directions in canonicalized tetrahedral stereocenters.
 
@@ -20,42 +18,25 @@ class ScanDirection(IntEnum):
         Second, third, and fourth vertices must be scanned clockwise.
     CCW : int
         Second, third, and fourth vertices must be scanned counterclockwise.
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from chempropstereo import stereochemistry
+    >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
+    >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
+    >>> ScanDirection.get_from(mol.GetAtomWithIdx(1))
+    <ScanDirection.CW: 1>
+    >>> ScanDirection.get_from(mol.GetAtomWithIdx(2))
+    <ScanDirection.NONE: 0>
     """
 
     NONE = 0
     CW = 1
     CCW = 2
 
-    @classmethod
-    def from_atom(cls, atom: Chem.Atom) -> t.Self:
-        """
-        Get the scan direction from an atom's canonical chiral tag.
 
-        Parameters
-        ----------
-        atom : Chem.Atom
-            The atom to get the scan direction from.
-
-        Returns
-        -------
-        ScanDirection
-            The scan direction of the atom.
-
-        Examples
-        --------
-        >>> from rdkit import Chem
-        >>> from chempropstereo import stereochemistry
-        >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
-        >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
-        >>> ScanDirection.from_atom(mol.GetAtomWithIdx(1))
-        <ScanDirection.CW: 1>
-        >>> ScanDirection.from_atom(mol.GetAtomWithIdx(2))
-        <ScanDirection.NONE: 0>
-        """
-        return cls(int(atom.GetProp("canonicalChiralTag")[0]))
-
-
-class VertexRank(IntEnum):
+class VertexRank(base.Rank):
     """
     Enumeration of vertex ranks for tetrahedral stereochemistry.
 
@@ -71,6 +52,19 @@ class VertexRank(IntEnum):
         The third vertex in canonical order.
     FOURTH : int
         The fourth vertex in canonical order.
+
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from chempropstereo import stereochemistry
+    >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
+    >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
+    >>> bond = mol.GetBondWithIdx(1)
+    >>> VertexRank.get_from(bond)
+    <VertexRank.SECOND: 2>
+    >>> VertexRank.get_from(bond, reverse=True)
+    <VertexRank.NONE: 0>
     """
 
     NONE = 0
@@ -78,47 +72,6 @@ class VertexRank(IntEnum):
     SECOND = 2
     THIRD = 3
     FOURTH = 4
-
-    @classmethod
-    def from_bond(cls, bond: Chem.Bond, reverse: bool = False) -> t.Self:
-        """
-        Get the vertex rank from a bond's canonical chiral tag.
-
-        Parameters
-        ----------
-        bond : Chem.Bond
-            The bond to get the vertex rank from.
-        reverse : bool, optional
-            Whether to reverse the direction of the bond (default is False).
-
-        Returns
-        -------
-        VertexRank
-            The vertex rank of the bond.
-
-        Examples
-        --------
-        >>> from rdkit import Chem
-        >>> from chempropstereo import stereochemistry
-        >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
-        >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
-        >>> bond = mol.GetBondWithIdx(1)
-        >>> VertexRank.from_bond(bond)
-        <VertexRank.SECOND: 2>
-        >>> VertexRank.from_bond(bond, reverse=True)
-        <VertexRank.NONE: 0>
-        """
-        if reverse:
-            begin_atom = bond.GetEndAtom()
-            end_index = bond.GetBeginAtomIdx()
-        else:
-            begin_atom = bond.GetBeginAtom()
-            end_index = bond.GetEndAtomIdx()
-        neighbor_indices = get_stereocenter_neighbors(begin_atom)
-        for rank, neighbor_index in enumerate(neighbor_indices, start=1):
-            if neighbor_index == end_index:
-                return cls(rank)
-        return cls.NONE
 
 
 def get_cip_code(atom: Chem.Atom) -> int:
@@ -178,9 +131,11 @@ def get_stereocenter_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
     >>> stereochemistry.get_stereocenter_neighbors(non_chiral_atom)
     ()
     """
+    if not atom.HasProp("canonicalStereoTag"):
+        return ()
     neighbors = atom.GetNeighbors()
     return tuple(
-        neighbors[i].GetIdx() for i in map(int, atom.GetProp("canonicalChiralTag")[1:])
+        neighbors[i].GetIdx() for i in map(int, atom.GetProp("canonicalStereoTag")[1:])
     )
 
 
@@ -206,7 +161,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     stereochemistry.tag_tetrahedral_stereocenters(mol)
     ...     for atom in mol.GetAtoms():
-    ...         direction = stereochemistry.ScanDirection.from_atom(atom).name
+    ...         direction = stereochemistry.ScanDirection.get_from(atom).name
     ...         if direction != "NONE":
     ...             neighbors = [
     ...                 desc(mol.GetAtomWithIdx(idx))
@@ -216,16 +171,16 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
     """
-    if mol.HasProp("hasCanonicalChiralTags") and not force:
+    if mol.HasProp("hasCanonicalStereocenters") and not force:
         return
-    hasChiralTags = False
+    hasStereocenters = False
     for atom in mol.GetAtoms():
         tag = atom.GetChiralTag()
         if tag in (
             Chem.ChiralType.CHI_TETRAHEDRAL_CW,
             Chem.ChiralType.CHI_TETRAHEDRAL_CCW,
         ):
-            hasChiralTags = True
+            hasStereocenters = True
             neighbors = [atom.GetIdx() for atom in atom.GetNeighbors()]
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
@@ -235,7 +190,5 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
                 direction = ScanDirection.CW
             else:
                 direction = ScanDirection.CCW
-            atom.SetProp("canonicalChiralTag", utils.concat(direction, *order))
-        else:
-            atom.SetProp("canonicalChiralTag", str(ScanDirection.NONE))
-    mol.SetBoolProp("hasCanonicalChiralTags", hasChiralTags)
+            atom.SetProp("canonicalStereoTag", utils.concat(direction, *order))
+    mol.SetBoolProp("hasCanonicalStereocenters", hasStereocenters)
