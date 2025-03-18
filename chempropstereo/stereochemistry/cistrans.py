@@ -42,13 +42,6 @@ class BranchRank(base.Rank):
     MINOR = 2
 
 
-def get_cis_trans_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
-    neighbors = atom.GetNeighbors()
-    return tuple(
-        neighbors[i].GetIdx() for i in map(int, atom.GetProp("canonicalStereoTag"))
-    )
-
-
 def describe_stereobond(bond: Chem.Bond) -> str:
     """
     Describe a cis/trans stereobond.
