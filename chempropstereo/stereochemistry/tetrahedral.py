@@ -128,13 +128,14 @@ def describe_stereocenter(atom: Chem.Atom) -> str:
     if direction == ScanDirection.NONE:
         return "Not a stereocenter"
     vertices = {}
+    atom_index = atom.GetIdx()
     for bond in atom.GetBonds():
-        for reverse in (False, True):
-            rank = VertexRank.get_from(bond, reverse)
-            if rank != VertexRank.NONE:
-                _, end_atom = utils.get_bond_ends(bond, reverse)
-                vertices[rank] = f"{end_atom.GetSymbol()}{end_atom.GetIdx()}"
-    description = f"{atom.GetSymbol()}{atom.GetIdx()} ({direction.name})"
+        reverse = bond.GetBeginAtomIdx() != atom_index
+        rank = VertexRank.get_from(bond, reverse)
+        if rank != VertexRank.NONE:
+            end_atom = bond.GetBeginAtom() if reverse else bond.GetEndAtom()
+            vertices[rank] = f"{end_atom.GetSymbol()}{end_atom.GetIdx()}"
+    description = f"{atom.GetSymbol()}{atom_index} ({direction.name})"
     for rank in VertexRank:
         if rank in vertices:
             description += f" {vertices[rank]}"
