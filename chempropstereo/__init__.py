@@ -14,6 +14,7 @@ from .stereochemistry import (
     ScanDirection,
     StemArrangement,
     VertexRank,
+    describe_stereobond,
     describe_stereocenter,
     get_cip_code,
     get_cis_trans_neighbors,
@@ -35,4 +36,5 @@ __all__ = [
     "ScanDirection",
     "StemArrangement",
     "describe_stereocenter",
+    "describe_stereobond",
 ]

@@ -1,5 +1,3 @@
-import enum
-
 import numpy as np
 from rdkit import Chem
 
@@ -38,7 +36,7 @@ class StemArrangement(base.SpatialArrangement):
     TRANS = 2
 
 
-class BranchRank(enum.IntEnum):
+class BranchRank(base.Rank):
     NONE = 0
     MAJOR = 1
     MINOR = 2
@@ -51,17 +49,52 @@ def get_cis_trans_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
     )
 
 
+def describe_stereobond(bond: Chem.Bond) -> str:
+    """
+    Describe a cis/trans stereobond.
+
+    Parameters
+    ----------
+    bond : Chem.Bond
+        The bond to describe.
+
+    Returns
+    -------
+    str
+        A string description of the cis/trans stereobond.
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from chempropstereo import stereochemistry
+    >>> mol = Chem.MolFromSmiles("N/C(O)=C(S)/C")
+    >>> stereochemistry.tag_cis_trans_stereobonds(mol)
+    >>> stereochemistry.describe_stereobond(mol.GetBondWithIdx(2))
+    'N0 O2 C1 (TRANS) C3 C5 S4'
+    """
+    arrangement = StemArrangement.get_from(bond)
+    if arrangement == StemArrangement.NONE:
+        return "Not a stereobond"
+    begin, end = bond.GetBeginAtom(), bond.GetEndAtom()
+    return (
+        " ".join(map(utils.describe_atom, BranchRank._get_neighbors(begin)))
+        + " "
+        + f" ({arrangement.name}) ".join(map(utils.describe_atom, (begin, end)))
+        + " "
+        + " ".join(map(utils.describe_atom, BranchRank._get_neighbors(end)))
+    )
+
+
 def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
     r"""
-    Tag tetrahedral stereocenters in a molecule as clockwise or counterclockwise based
-    on their neighbors arranged in a descending order of their canonical ranks.
+    Tag cis/trans stereobonds in a molecule based on their spatial arrangement.
 
     Parameters
     ----------
     mol
-        The molecule whose tetrahedral stereocenters are to be tagged.
+        The molecule whose cis/trans stereobonds are to be tagged.
     force
-        Whether to overwrite existing chiral tags (default is False).
+        Whether to overwrite existing stereobond tags (default is False).
 
     Examples
     --------
@@ -73,16 +106,12 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     stereochemistry.tag_cis_trans_stereobonds(mol)
     ...     for bond in mol.GetBonds():
-    ...       arrangement = stereochemistry.StemArrangement.get_from(bond).name
-    ...       if arrangement != "NONE":
-    ...          neighbors = []
-    ...          for atom in (bond.GetBeginAtom(), bond.GetEndAtom()):
-    ...             indices = stereochemistry.get_cis_trans_neighbors(atom)
-    ...             neighbors.extend(map(desc, map(mol.GetAtomWithIdx, indices)))
-    ...          print(arrangement, *neighbors)
-    TRANS N0 O2 C5 S4
-    TRANS N0 O2 C4 S5
-    TRANS N2 O0 C5 S4
+    ...       arrangement = stereochemistry.StemArrangement.get_from(bond)
+    ...       if arrangement != stereochemistry.StemArrangement.NONE:
+    ...          print(stereochemistry.describe_stereobond(bond))
+    N0 O2 C1 (TRANS) C3 C5 S4
+    N0 O2 C1 (TRANS) C3 C4 S5
+    N2 O0 C1 (TRANS) C3 C5 S4
     """
     if mol.HasProp("hasCanonicalStereobonds") and not force:
         return
@@ -116,5 +145,7 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
                 arrangement = StemArrangement.TRANS
             bond.SetIntProp("canonicalStereoTag", arrangement)
             for atom, indices in zip(connected_atoms, ranked_neighbor_indices):
-                atom.SetProp("canonicalStereoTag", utils.concat(*indices))
+                atom.SetProp("canonicalStereoTag", utils.concat(arrangement, *indices))
+        elif bond.HasProp("canonicalStereoTag"):
+            bond.ClearProp("canonicalStereoTag")
     mol.SetBoolProp("hasCanonicalStereobonds", hasStereobonds)

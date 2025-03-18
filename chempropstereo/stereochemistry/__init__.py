@@ -1,5 +1,6 @@
 from .cistrans import (
     StemArrangement,
+    describe_stereobond,
     get_cis_trans_neighbors,
     tag_cis_trans_stereobonds,
 )
@@ -20,4 +21,5 @@ __all__ = [
     "VertexRank",
     "StemArrangement",
     "describe_stereocenter",
+    "describe_stereobond",
 ]
