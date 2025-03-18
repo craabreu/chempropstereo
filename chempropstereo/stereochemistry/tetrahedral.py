@@ -114,10 +114,9 @@ class VertexRank(IntEnum):
         else:
             begin_atom = bond.GetBeginAtom()
             end_index = bond.GetEndAtomIdx()
-        neighbors = begin_atom.GetNeighbors()
-        order = map(int, begin_atom.GetProp("canonicalChiralTag")[1:])
-        for rank, position in enumerate(order, start=1):
-            if neighbors[position].GetIdx() == end_index:
+        neighbor_indices = get_stereocenter_neighbors(begin_atom)
+        for rank, neighbor_index in enumerate(neighbor_indices, start=1):
+            if neighbor_index == end_index:
                 return cls(rank)
         return cls.NONE
 
@@ -185,7 +184,7 @@ def get_stereocenter_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
     )
 
 
-def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
+def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     """
     Tag tetrahedral stereocenters in a molecule as clockwise or counterclockwise based
     on their neighbors arranged in a descending order of their canonical ranks.
@@ -194,6 +193,8 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
     ----------
     mol
         The molecule whose tetrahedral stereocenters are to be tagged.
+    force
+        Whether to overwrite existing chiral tags (default is False).
 
     Examples
     --------
@@ -215,12 +216,16 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
     """
+    if mol.HasProp("hasCanonicalChiralTags") and not force:
+        return
+    hasChiralTags = False
     for atom in mol.GetAtoms():
         tag = atom.GetChiralTag()
         if tag in (
             Chem.ChiralType.CHI_TETRAHEDRAL_CW,
             Chem.ChiralType.CHI_TETRAHEDRAL_CCW,
         ):
+            hasChiralTags = True
             neighbors = [atom.GetIdx() for atom in atom.GetNeighbors()]
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
@@ -233,4 +238,4 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol) -> None:
             atom.SetProp("canonicalChiralTag", utils.concat(direction, *order))
         else:
             atom.SetProp("canonicalChiralTag", str(ScanDirection.NONE))
-    mol.SetBoolProp("hasCanonicalChiralTags", True)
+    mol.SetBoolProp("hasCanonicalChiralTags", hasChiralTags)
