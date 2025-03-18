@@ -1,4 +1,3 @@
-
 from rdkit import Chem
 
 from . import base, utils
@@ -102,21 +101,19 @@ def get_cip_code(atom: Chem.Atom) -> int:
     return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
 
 
-def get_stereocenter_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
+def describe_stereocenter(atom: Chem.Atom) -> str:
     """
-    Extract the indices of neighbor atoms in canonical order from an atom with a
-    canonical chiral tag.
+    Describe a tetrahedral stereocenter.
 
     Parameters
     ----------
     atom : Chem.Atom
-        The atom whose neighbor information is to be extracted.
+        The atom to describe.
 
     Returns
     -------
-    tuple[int, ...]
-        The indices of the ordered neighbor atoms, or an empty tuple if the atom has
-        no chirality information.
+    str
+        A string description of the tetrahedral stereocenter.
 
     Examples
     --------
@@ -124,19 +121,24 @@ def get_stereocenter_neighbors(atom: Chem.Atom) -> tuple[int, ...]:
     >>> from chempropstereo import stereochemistry
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
-    >>> chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon
-    >>> stereochemistry.get_stereocenter_neighbors(chiral_atom)
-    (3, 2, 0)
-    >>> non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom
-    >>> stereochemistry.get_stereocenter_neighbors(non_chiral_atom)
-    ()
+    >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(1))
+    'C1 (CW) O3 N2 C0'
     """
-    if not atom.HasProp("canonicalStereoTag"):
-        return ()
-    neighbors = atom.GetNeighbors()
-    return tuple(
-        neighbors[i].GetIdx() for i in map(int, atom.GetProp("canonicalStereoTag")[1:])
-    )
+    direction = ScanDirection.get_from(atom)
+    if direction == ScanDirection.NONE:
+        return "Not a stereocenter"
+    vertices = {}
+    for bond in atom.GetBonds():
+        for reverse in (False, True):
+            rank = VertexRank.get_from(bond, reverse)
+            if rank != VertexRank.NONE:
+                _, end_atom = utils.get_bond_ends(bond, reverse)
+                vertices[rank] = f"{end_atom.GetSymbol()}{end_atom.GetIdx()}"
+    description = f"{atom.GetSymbol()}{atom.GetIdx()} ({direction.name})"
+    for rank in VertexRank:
+        if rank in vertices:
+            description += f" {vertices[rank]}"
+    return description
 
 
 def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
@@ -155,19 +157,13 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     --------
     >>> from chempropstereo import stereochemistry
     >>> from rdkit import Chem
-    >>> def desc(atom):
-    ...     return f"{atom.GetSymbol()}{atom.GetIdx()}"
     >>> for smi in ["C[C@H](N)O", "C[C@@H](O)N"]:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     stereochemistry.tag_tetrahedral_stereocenters(mol)
     ...     for atom in mol.GetAtoms():
-    ...         direction = stereochemistry.ScanDirection.get_from(atom).name
-    ...         if direction != "NONE":
-    ...             neighbors = [
-    ...                 desc(mol.GetAtomWithIdx(idx))
-    ...                 for idx in stereochemistry.get_stereocenter_neighbors(atom)
-    ...             ]
-    ...             print(desc(atom), f"({direction})", *neighbors)
+    ...         direction = stereochemistry.ScanDirection.get_from(atom)
+    ...         if direction != stereochemistry.ScanDirection.NONE:
+    ...             print(stereochemistry.describe_stereocenter(atom))
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
     """

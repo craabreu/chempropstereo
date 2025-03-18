@@ -6,8 +6,8 @@ from .cistrans import (
 from .tetrahedral import (
     ScanDirection,
     VertexRank,
+    describe_stereocenter,
     get_cip_code,
-    get_stereocenter_neighbors,
     tag_tetrahedral_stereocenters,
 )
 
@@ -19,5 +19,5 @@ __all__ = [
     "ScanDirection",
     "VertexRank",
     "StemArrangement",
-    "get_stereocenter_neighbors",
+    "describe_stereocenter",
 ]

@@ -20,19 +20,15 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> featurizer = featurizers.BondStereoFeaturizer()
-    >>> neighbors = stereochemistry.get_stereocenter_neighbors(
-    ...     mol.GetAtomWithIdx(1)
-    ... )
-    >>> for neighbor in neighbors:
-    ...     bond = mol.GetBondBetweenAtoms(1, neighbor)
+    >>> for bond in mol.GetAtomWithIdx(1).GetBonds():
     ...     one_is_begin = bond.GetBeginAtomIdx() == 1
     ...     for reverse in (not one_is_begin, one_is_begin):
     ...         print("".join(map(str, featurizer(bond, reverse))))
-    0100000100000001000
+    0100000100000000010
     0100000100000010000
     0100000100000000100
     0100000100000010000
-    0100000100000000010
+    0100000100000001000
     0100000100000010000
     """
 
