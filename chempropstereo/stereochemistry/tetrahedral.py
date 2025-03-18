@@ -24,6 +24,9 @@ class ScanDirection(base.SpatialArrangement):
     >>> from chempropstereo import stereochemistry
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
+    >>> atom = mol.GetAtomWithIdx(1)
+    >>> stereochemistry.describe_stereocenter(atom)
+    'C1 (CW) O3 N2 C0'
     >>> ScanDirection.get_from(mol.GetAtomWithIdx(1))
     <ScanDirection.CW: 1>
     >>> ScanDirection.get_from(mol.GetAtomWithIdx(2))

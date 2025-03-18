@@ -37,6 +37,37 @@ class StemArrangement(base.SpatialArrangement):
 
 
 class BranchRank(base.Rank):
+    """
+    Enumeration for branch ranks.
+
+    Attributes
+    ----------
+    NONE : int
+        Not a branch.
+    MAJOR : int
+        The major branch.
+    MINOR : int
+        The minor branch.
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from chempropstereo import stereochemistry
+    >>> mol = Chem.MolFromSmiles("N/C(O)=C(S)/C")
+    >>> stereochemistry.tag_cis_trans_stereobonds(mol)
+    >>> bond0, bond1, bond2 = map(mol.GetBondWithIdx, range(3))
+    >>> describe_stereobond(bond2)
+    'N0 O2 C1 (TRANS) C3 C5 S4'
+    >>> BranchRank.get_from(bond0)
+    <BranchRank.NONE: 0>
+    >>> BranchRank.get_from(bond0, reverse=True)
+    <BranchRank.MAJOR: 1>
+    >>> BranchRank.get_from(bond1)
+    <BranchRank.MINOR: 2>
+    >>> BranchRank.get_from(bond1, reverse=True)
+    <BranchRank.NONE: 0>
+    """
+
     NONE = 0
     MAJOR = 1
     MINOR = 2
