@@ -149,3 +149,28 @@ def get_bond_ends(
     if reverse:
         return bond.GetEndAtom(), bond.GetBeginAtom()
     return bond.GetBeginAtom(), bond.GetEndAtom()
+
+
+def describe_atom(atom: Chem.Atom) -> str:
+    """
+    Describe an atom.
+
+    Parameters
+    ----------
+    atom : Chem.Atom
+        The atom to describe.
+
+    Returns
+    -------
+    str
+        A string description of the atom.
+
+    Examples
+    --------
+    >>> from rdkit import Chem
+    >>> from chempropstereo.stereochemistry import utils
+    >>> mol = Chem.MolFromSmiles("N/C(O)=C(S)/C")
+    >>> utils.describe_atom(mol.GetAtomWithIdx(0))
+    'N0'
+    """
+    return f"{atom.GetSymbol()}{atom.GetIdx()}"

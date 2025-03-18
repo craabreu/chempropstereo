@@ -34,12 +34,10 @@ class Rank(IntEnum):
     """Base class for ranks in stereogenic groups."""
 
     @staticmethod
-    def _get_neighbor_indices(atom: Chem.Atom) -> tuple[int, ...]:
+    def _get_neighbors(atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
         neighbors = atom.GetNeighbors()
-        return tuple(
-            neighbors[i].GetIdx()
-            for i in map(int, atom.GetProp("canonicalStereoTag")[1:])
-        )
+        order = map(int, atom.GetProp("canonicalStereoTag")[1:])
+        return tuple(neighbors[i] for i in order)
 
     @classmethod
     def get_from(cls, bond: Chem.Bond, reverse: bool = False) -> t.Self:
@@ -62,8 +60,8 @@ class Rank(IntEnum):
         begin_atom, end_atom = utils.get_bond_ends(bond, reverse)
         if not begin_atom.HasProp("canonicalStereoTag"):
             return cls.NONE
-        neighbor_indices = cls._get_neighbor_indices(begin_atom)
-        for rank, neighbor_index in enumerate(neighbor_indices, start=1):
-            if neighbor_index == end_atom.GetIdx():
+        neighbors = cls._get_neighbors(begin_atom)
+        for rank, neighbor in enumerate(neighbors, start=1):
+            if neighbor.GetIdx() == end_atom.GetIdx():
                 return cls(rank)
         return cls.NONE
