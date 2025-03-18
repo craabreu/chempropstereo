@@ -20,7 +20,7 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> featurizer = featurizers.BondStereoFeaturizer()
-    >>> neighbors = stereochemistry.get_neighbors(
+    >>> neighbors = stereochemistry.get_stereocenter_neighbors(
     ...     mol.GetAtomWithIdx(1)
     ... )
     >>> for neighbor in neighbors:
@@ -28,12 +28,12 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     ...     one_is_begin = bond.GetBeginAtomIdx() == 1
     ...     for reverse in (not one_is_begin, one_is_begin):
     ...         print("".join(map(str, featurizer(bond, reverse))))
-    0100000100000010000
     0100000100000001000
     0100000100000010000
     0100000100000000100
     0100000100000010000
     0100000100000000010
+    0100000100000010000
     """
 
     def __init__(self) -> None:
@@ -55,16 +55,10 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
         )
 
     def __len__(self) -> int:
-        return super().__len__() + 5
+        return super().__len__() + len(stereochemistry.VertexRank)
 
     def __call__(self, b: Chem.Bond | None, reverse: bool = False) -> np.ndarray:
-        if reverse:
-            begin_atom = b.GetBeginAtom()
-            end_index = b.GetEndAtomIdx()
-        else:
-            begin_atom = b.GetEndAtom()
-            end_index = b.GetBeginAtomIdx()
-        neighbors = stereochemistry.get_neighbors(begin_atom)
         x = super().__call__(b)
-        x[-4 + neighbors.index(end_index) if neighbors else -5] = 1
+        vertex_rank = stereochemistry.VertexRank.from_bond(b, reverse)
+        x[-len(stereochemistry.VertexRank) + vertex_rank] = 1
         return x

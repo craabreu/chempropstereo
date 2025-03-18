@@ -155,7 +155,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
-            stereochemistry.get_scan_direction(a),
+            stereochemistry.ScanDirection.from_atom(a),
             int(a.GetTotalNumHs()),
             a.GetHybridization(),
         ]

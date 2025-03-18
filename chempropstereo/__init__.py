@@ -13,8 +13,7 @@ from .featurizers import (
 from .stereochemistry import (
     get_cip_code,
     get_cis_trans_neighbors,
-    get_neighbors,
-    get_scan_direction,
+    get_stereocenter_neighbors,
     tag_cis_trans_stereobonds,
     tag_tetrahedral_stereocenters,
 )
@@ -26,8 +25,7 @@ __all__ = [
     "MoleculeStereoFeaturizer",
     "BondStereoFeaturizer",
     "tag_tetrahedral_stereocenters",
-    "get_scan_direction",
-    "get_neighbors",
+    "get_stereocenter_neighbors",
     "get_cip_code",
     "tag_cis_trans_stereobonds",
     "get_cis_trans_neighbors",
