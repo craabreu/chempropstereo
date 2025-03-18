@@ -5,7 +5,7 @@ def _swap_if_ascending(
     i: int, j: int, a: int, b: int, odd: bool
 ) -> tuple[int, int, int, int, bool]:
     """
-    Helper function for :func:`tetrahedral._argsort_descending_with_parity` that
+    Helper function for :func:`~stereochemistry._argsort_descending_with_parity` that
     conditionally swaps two indices and their corresponding values, and flips the
     parity of the permutation if a swap is performed.
 

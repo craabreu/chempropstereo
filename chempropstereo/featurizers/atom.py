@@ -91,7 +91,7 @@ class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
     Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
     The featurized atoms are expected to be part of an RDKit molecule with canonical
-    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
+    chiral tags assigned via :func:`~stereochemistry.tag_tetrahedral_stereocenters`.
 
     Parameters
     ----------
