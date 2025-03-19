@@ -23,13 +23,15 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
     >>> for bond in mol.GetAtomWithIdx(1).GetBonds():
     ...     one_is_begin = bond.GetBeginAtomIdx() == 1
     ...     for reverse in (not one_is_begin, one_is_begin):
-    ...         print("".join(map(str, featurizer(bond, reverse))))
-    0100000100000000010
-    0100000100000010000
-    0100000100000000100
-    0100000100000010000
-    0100000100000001000
-    0100000100000010000
+    ...         features = featurizer(bond, reverse)
+    ...         assert len(features) == len(featurizer)
+    ...         print("".join(map(str, features)))
+    010000000010100100
+    010000010000100100
+    010000000100100100
+    010000010000100100
+    010000001000100100
+    010000010000100100
     """
 
     def __init__(self) -> None:
@@ -39,22 +41,14 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
             Chem.BondType.TRIPLE,
             Chem.BondType.AROMATIC,
         ]
-        self.stereo = [
-            Chem.BondStereo.STEREONONE,
-            Chem.BondStereo.STEREOANY,
-            Chem.BondStereo.STEREOZ,
-            Chem.BondStereo.STEREOE,
-            Chem.BondStereo.STEREOCIS,
-            Chem.BondStereo.STEREOTRANS,
-        ]
 
     def __len__(self) -> int:
         return (
-            1
-            + len(self.bond_types)
-            + 2
-            + (len(self.stereo) + 1)
-            + len(stereochemistry.VertexRank)
+            3  # null bond?, is conjugated?, is in ring?
+            + len(self.bond_types)  # bond types
+            + len(stereochemistry.VertexRank)  # tetrahedral vertex ranks
+            + len(stereochemistry.StemArrangement)  # cis/trans stem arrangements
+            + len(stereochemistry.BranchRank)  # cis/trans branch ranks
         )
 
     def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
@@ -64,8 +58,9 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
             return x
 
         bond_type = b.GetBondType()
-        stereo_type = b.GetStereo()
         vertex_rank = stereochemistry.VertexRank.from_bond(b, flip_direction)
+        arrangement = stereochemistry.StemArrangement.get_from(b)
+        branch_rank = stereochemistry.BranchRank.from_bond(b, flip_direction)
 
         return np.array(
             [
@@ -73,9 +68,9 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
                 *(bond_type == item for item in self.bond_types),
                 b.GetIsConjugated(),
                 b.IsInRing(),
-                *(stereo_type == item for item in self.stereo),
-                stereo_type not in self.stereo,
                 *(vertex_rank == item for item in stereochemistry.VertexRank),
+                *(arrangement == item for item in stereochemistry.StemArrangement),
+                *(branch_rank == item for item in stereochemistry.BranchRank),
             ],
             dtype=int,
         )
