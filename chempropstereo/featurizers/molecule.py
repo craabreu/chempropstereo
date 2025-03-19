@@ -44,8 +44,14 @@ class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturize
 
 class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
     """
-    Molecule featurizer that includes canonicalized chiral tags for tetrahedral
-    stereocenters and the order of bonds stemming from them.
+    Molecule featurizer that includes canonicalized tetrahedral stereocenters and
+    cis/trans stereobonds.
+
+    Parameters
+    ----------
+    divergent_bonds : bool
+        Whether to add stereochemical features to the directed bonds that diverge from
+        stereocenters and stereobonds, as opposed to those that converge to them.
 
     Examples
     --------
@@ -61,11 +67,12 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     >>> assert np.array_equal(r_molgraph.E, s_molgraph.E)
     """
 
-    def __init__(self):
+    def __init__(self, divergent_bonds: bool = True):
         super().__init__(
             atom_featurizer=AtomStereoFeaturizer(),
             bond_featurizer=BondStereoFeaturizer(),
         )
+        self.divergent_bonds = divergent_bonds
 
     def __call__(
         self,
@@ -73,8 +80,8 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
-        if not mol.HasProp("hasCanonicalChiralTags"):
-            stereochemistry.tag_tetrahedral_stereocenters(mol)
+        stereochemistry.tag_tetrahedral_stereocenters(mol, force=False)
+        stereochemistry.tag_cis_trans_stereobonds(mol, force=False)
 
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
@@ -106,15 +113,16 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
 
         i = 0
         for bond in mol.GetBonds():
-            u, v = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
-            for j, reverse in enumerate((False, True)):
-                x_e = self.bond_featurizer(bond, reverse)
+            begin, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
+            u, v = (begin, end) if self.divergent_bonds else (end, begin)
+            for j, flip_direction in enumerate((False, True)):
+                x_e = self.bond_featurizer(bond, flip_direction)
                 if bond_features_extra is not None:
                     x_e = np.concatenate(
                         (x_e, bond_features_extra[bond.GetIdx()]), dtype=np.single
                     )
                 E[i + j] = x_e
-                edge_index[j].extend([v, u] if reverse else [u, v])
+                edge_index[j].extend([v, u] if flip_direction else [u, v])
             i += 2
 
         rev_edge_index = np.arange(len(E)).reshape(-1, 2)[:, ::-1].ravel()

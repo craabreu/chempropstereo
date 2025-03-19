@@ -11,20 +11,30 @@ from .featurizers import (
     MoleculeStereoFeaturizer,
 )
 from .stereochemistry import (
+    BranchRank,
+    ScanDirection,
+    StemArrangement,
+    VertexRank,
+    describe_stereobond,
+    describe_stereocenter,
     get_cip_code,
-    get_neighbors,
-    get_scan_direction,
+    tag_cis_trans_stereobonds,
     tag_tetrahedral_stereocenters,
 )
 
 __all__ = [
     "AtomCIPFeaturizer",
     "AtomStereoFeaturizer",
+    "BondStereoFeaturizer",
+    "BranchRank",
+    "ScanDirection",
+    "StemArrangement",
+    "VertexRank",
     "MoleculeCIPFeaturizer",
     "MoleculeStereoFeaturizer",
-    "BondStereoFeaturizer",
-    "tag_tetrahedral_stereocenters",
-    "get_scan_direction",
-    "get_neighbors",
+    "describe_stereobond",
+    "describe_stereocenter",
     "get_cip_code",
+    "tag_cis_trans_stereobonds",
+    "tag_tetrahedral_stereocenters",
 ]

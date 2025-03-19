@@ -40,7 +40,9 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     >>> s_atom = s_mol.GetAtomWithIdx(1)
     >>> for featurizer in [AtomCIPFeaturizer("V2"), AtomCIPFeaturizer("ORGANIC")]:
     ...     for atom in [r_atom, s_atom]:
-    ...         print("".join(map(str, featurizer(atom))))
+    ...         features = featurizer(atom)
+    ...         assert len(features) == len(featurizer)
+    ...         print("".join(map(str, features)))
     00000100000000000000000000000000000000000010000001001000100000000100000
     00000100000000000000000000000000000000000010000001000100100000000100000
     0010000000000000010000001001000100000001000
@@ -91,7 +93,7 @@ class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
     Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
     The featurized atoms are expected to be part of an RDKit molecule with canonical
-    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
+    chiral tags assigned via :func:`~stereochemistry.tag_tetrahedral_stereocenters`.
 
     Parameters
     ----------
@@ -119,10 +121,12 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
     >>> for featurizer in [
     ...     featurizers.AtomStereoFeaturizer("V2"),
-    ...     featurizers.AtomStereoFeaturizer("ORGANIC")
+    ...     featurizers.AtomStereoFeaturizer("ORGANIC"),
     ... ]:
     ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:
-    ...         print("".join(map(str, map(int, featurizer(atom)))))
+    ...         features = featurizer(atom)
+    ...         assert len(features) == len(featurizer)
+    ...         print("".join(map(str, map(int, features))))
     0000010000000000000000000000000000000000001000000101000001000000100000
     0000010000000000000000000000000000000000001000000100100100000000100000
     0000010000000000000000000000000000000000001000000100010100000000100000
@@ -139,33 +143,44 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             atomic_nums=featurizer.atomic_nums,
             degrees=featurizer.degrees,
             formal_charges=featurizer.formal_charges,
-            chiral_tags=range(2),
+            chiral_tags=[],
             num_Hs=featurizer.num_Hs,
             hybridizations=featurizer.hybridizations,
         )
-        self._lower_bound = sum(map(len, self._subfeats[:3]))
+
+    def __len__(self):
+        return (
+            super().__len__()  # Original subfeatures
+            - 1  # minus chiral tag padding
+            + len(stereochemistry.ScanDirection)  # plus scan direction slots
+        )
 
     def __call__(self, a: Chem.Atom | None) -> np.ndarray:
-        x = np.zeros(len(self))
-
         if a is None:
-            return x
+            return np.zeros(len(self))
 
-        feats = [
-            a.GetAtomicNum(),
-            a.GetTotalDegree(),
-            a.GetFormalCharge(),
-            stereochemistry.get_scan_direction(a),
-            int(a.GetTotalNumHs()),
-            a.GetHybridization(),
-        ]
+        atomic_num = a.GetAtomicNum()
+        total_degree = a.GetTotalDegree()
+        formal_charge = a.GetFormalCharge()
+        total_num_hs = a.GetTotalNumHs()
+        hybridization = a.GetHybridization()
+        scan_direction = stereochemistry.ScanDirection.get_from(a)
 
-        i = 0
-        for feat, choices in zip(feats, self._subfeats):
-            j = choices.get(feat, len(choices))
-            x[i + j] = 1
-            i += len(choices) + 1
-        x[i] = int(a.GetIsAromatic())
-        x[i + 1] = 0.01 * a.GetMass()
-
-        return x
+        return np.array(
+            [
+                *(atomic_num == item for item in self.atomic_nums),
+                atomic_num not in self.atomic_nums,
+                *(total_degree == item for item in self.degrees),
+                total_degree not in self.degrees,
+                *(formal_charge == item for item in self.formal_charges),
+                formal_charge not in self.formal_charges,
+                *(scan_direction == item for item in stereochemistry.ScanDirection),
+                *(total_num_hs == item for item in self.num_Hs),
+                total_num_hs not in self.num_Hs,
+                *(hybridization == item for item in self.hybridizations),
+                hybridization not in self.hybridizations,
+                a.GetIsAromatic(),
+                0.01 * a.GetMass(),
+            ],
+            dtype=float,
+        )
