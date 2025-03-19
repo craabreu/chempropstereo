@@ -53,8 +53,12 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     def __len__(self) -> int:
         return super().__len__() + len(stereochemistry.VertexRank)
 
-    def __call__(self, b: Chem.Bond | None, reverse: bool = False) -> np.ndarray:
+    def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
         x = super().__call__(b)
-        vertex_rank = stereochemistry.VertexRank.from_bond(b, reverse)
+        if b is None:
+            return x
+        vertex_rank = stereochemistry.VertexRank.from_bond(
+            bond=b, end_is_center=flip_direction
+        )
         x[-len(stereochemistry.VertexRank) + vertex_rank] = 1
         return x
