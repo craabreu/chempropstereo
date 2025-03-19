@@ -24,13 +24,14 @@ def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
     --------
     >>> from rdkit import Chem
     >>> from chempropstereo import stereochemistry
-    >>> mol = Chem.MolFromSmiles("C\\C(=C(O)/C=C(/N)O)[C@@H](C)O")
+    >>> mol = Chem.MolFromSmiles("C\\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
     >>> stereochemistry.tag_steregroups(mol)
     >>> for atom in mol.GetAtoms():
     ...     direction = stereochemistry.ScanDirection.get_from(atom)
     ...     if direction != stereochemistry.ScanDirection.NONE:
     ...         print(stereochemistry.describe_stereocenter(atom))
-    C8 (CCW) O10 C9 C1
+    C8 (CCW) O12 C9 C1
+    C9 (CW) O11 N10 C8
     >>> for bond in mol.GetBonds():
     ...     arrangement = stereochemistry.StemArrangement.get_from(bond)
     ...     if arrangement != stereochemistry.StemArrangement.NONE:
