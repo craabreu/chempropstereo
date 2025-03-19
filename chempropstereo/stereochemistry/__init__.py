@@ -1,4 +1,5 @@
 from .cistrans import (
+    BranchRank,
     StemArrangement,
     describe_stereobond,
     tag_cis_trans_stereobonds,
@@ -12,12 +13,13 @@ from .tetrahedral import (
 )
 
 __all__ = [
-    "tag_tetrahedral_stereocenters",
+    "BranchRank",
+    "ScanDirection",
+    "StemArrangement",
+    "VertexRank",
+    "describe_stereobond",
+    "describe_stereocenter",
     "get_cip_code",
     "tag_cis_trans_stereobonds",
-    "ScanDirection",
-    "VertexRank",
-    "StemArrangement",
-    "describe_stereocenter",
-    "describe_stereobond",
+    "tag_tetrahedral_stereocenters",
 ]

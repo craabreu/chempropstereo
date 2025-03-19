@@ -11,6 +11,7 @@ from .featurizers import (
     MoleculeStereoFeaturizer,
 )
 from .stereochemistry import (
+    BranchRank,
     ScanDirection,
     StemArrangement,
     VertexRank,
@@ -24,15 +25,16 @@ from .stereochemistry import (
 __all__ = [
     "AtomCIPFeaturizer",
     "AtomStereoFeaturizer",
-    "MoleculeCIPFeaturizer",
-    "MoleculeStereoFeaturizer",
     "BondStereoFeaturizer",
-    "tag_tetrahedral_stereocenters",
-    "get_cip_code",
-    "tag_cis_trans_stereobonds",
-    "VertexRank",
+    "BranchRank",
     "ScanDirection",
     "StemArrangement",
-    "describe_stereocenter",
+    "VertexRank",
+    "MoleculeCIPFeaturizer",
+    "MoleculeStereoFeaturizer",
     "describe_stereobond",
+    "describe_stereocenter",
+    "get_cip_code",
+    "tag_cis_trans_stereobonds",
+    "tag_tetrahedral_stereocenters",
 ]

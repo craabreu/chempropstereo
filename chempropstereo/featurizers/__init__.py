@@ -4,8 +4,8 @@ from .molecule import MoleculeCIPFeaturizer, MoleculeStereoFeaturizer
 
 __all__ = [
     "AtomCIPFeaturizer",
-    "MoleculeCIPFeaturizer",
-    "MoleculeStereoFeaturizer",
     "AtomStereoFeaturizer",
     "BondStereoFeaturizer",
+    "MoleculeCIPFeaturizer",
+    "MoleculeStereoFeaturizer",
 ]

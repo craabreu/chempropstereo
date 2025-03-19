@@ -1,12 +1,10 @@
+import enum
 import typing as t
-from enum import IntEnum
 
 from rdkit import Chem
 
-CANONICAL_STEREO_TAG: str = "canonicalStereoTag"
 
-
-class SpatialArrangement(IntEnum):
+class SpatialArrangement(enum.IntEnum):
     """Base class for enumerating spatial arrangements in stereogenic groups."""
 
     @classmethod
@@ -25,18 +23,18 @@ class SpatialArrangement(IntEnum):
         SpatialArrangement
             The spatial arrangement obtained from the atom or bond.
         """
-        if entity.HasProp(CANONICAL_STEREO_TAG):
-            return cls(int(entity.GetProp(CANONICAL_STEREO_TAG)[0]))
+        if entity.HasProp(cls.tag):
+            return cls(int(entity.GetProp(cls.tag)[0]))
         return cls.NONE
 
 
-class Rank(IntEnum):
+class Rank(enum.IntEnum):
     """Base class for ranks in stereogenic groups."""
 
-    @staticmethod
-    def _get_neighbors(atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
+    @classmethod
+    def _get_neighbors(cls, atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
         neighbors = atom.GetNeighbors()
-        order = map(int, atom.GetProp(CANONICAL_STEREO_TAG)[1:])
+        order = map(int, atom.GetProp(cls.tag)[1:])
         return tuple(neighbors[i] for i in order)
 
     @classmethod
@@ -63,7 +61,7 @@ class Rank(IntEnum):
             center_atom, edge_index = bond.GetEndAtom(), bond.GetBeginAtomIdx()
         else:
             center_atom, edge_index = bond.GetBeginAtom(), bond.GetEndAtomIdx()
-        if not center_atom.HasProp(CANONICAL_STEREO_TAG):
+        if not center_atom.HasProp(cls.tag):
             return cls.NONE
         neighbors = cls._get_neighbors(center_atom)
         for rank, neighbor in enumerate(neighbors, start=1):

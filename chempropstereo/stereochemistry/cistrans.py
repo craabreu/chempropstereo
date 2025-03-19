@@ -1,3 +1,5 @@
+import enum
+
 import numpy as np
 from rdkit import Chem
 
@@ -30,6 +32,8 @@ class StemArrangement(base.SpatialArrangement):
     >>> StemArrangement.get_from(bond)
     <StemArrangement.NONE: 0>
     """
+
+    tag = enum.nonmember("canonicalCisTransTag")
 
     NONE = 0
     CIS = 1
@@ -67,6 +71,8 @@ class BranchRank(base.Rank):
     >>> BranchRank.from_bond(bond1, end_is_center=True)
     <BranchRank.NONE: 0>
     """
+
+    tag = enum.nonmember("canonicalCisTransTag")
 
     NONE = 0
     MAJOR = 1
@@ -110,6 +116,13 @@ def describe_stereobond(bond: Chem.Bond) -> str:
         + " "
         + " ".join(map(utils.describe_atom, BranchRank._get_neighbors(end)))
     )
+
+
+def _clean_cis_trans_stereobond(bond: Chem.Bond) -> None:
+    if bond.HasProp(StemArrangement.tag):
+        bond.ClearProp(StemArrangement.tag)
+        for atom in (bond.GetBeginAtom(), bond.GetEndAtom()):
+            atom.ClearProp(BranchRank.tag)
 
 
 def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
@@ -170,11 +183,9 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
                 arrangement = StemArrangement.CIS
             else:
                 arrangement = StemArrangement.TRANS
-            bond.SetIntProp(base.CANONICAL_STEREO_TAG, arrangement)
+            bond.SetIntProp(StemArrangement.tag, arrangement)
             for atom, indices in zip(connected_atoms, ranked_neighbor_indices):
-                atom.SetProp(
-                    base.CANONICAL_STEREO_TAG, utils.concat(arrangement, *indices)
-                )
-        elif bond.HasProp(base.CANONICAL_STEREO_TAG):
-            bond.ClearProp(base.CANONICAL_STEREO_TAG)
+                atom.SetProp(BranchRank.tag, utils.concat(arrangement, *indices))
+        else:
+            _clean_cis_trans_stereobond(bond)
     mol.SetBoolProp("hasCanonicalStereobonds", hasStereobonds)

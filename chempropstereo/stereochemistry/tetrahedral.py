@@ -1,3 +1,5 @@
+import enum
+
 from rdkit import Chem
 
 from . import base, utils
@@ -32,6 +34,8 @@ class ScanDirection(base.SpatialArrangement):
     >>> ScanDirection.get_from(mol.GetAtomWithIdx(2))
     <ScanDirection.NONE: 0>
     """
+
+    tag = enum.nonmember("canonicalChiralTag")
 
     NONE = 0
     CW = 1
@@ -68,6 +72,8 @@ class VertexRank(base.Rank):
     >>> VertexRank.from_bond(bond, end_is_center=True)
     <VertexRank.NONE: 0>
     """
+
+    tag = enum.nonmember("canonicalChiralTag")
 
     NONE = 0
     FIRST = 1
@@ -182,7 +188,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
                 direction = ScanDirection.CW
             else:
                 direction = ScanDirection.CCW
-            atom.SetProp(base.CANONICAL_STEREO_TAG, utils.concat(direction, *order))
-        elif atom.HasProp(base.CANONICAL_STEREO_TAG):
-            atom.ClearProp(base.CANONICAL_STEREO_TAG)
+            atom.SetProp(ScanDirection.tag, utils.concat(direction, *order))
+        elif atom.HasProp(ScanDirection.tag):
+            atom.ClearProp(ScanDirection.tag)
     mol.SetBoolProp("hasCanonicalStereocenters", hasStereocenters)
