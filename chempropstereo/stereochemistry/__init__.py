@@ -1,3 +1,4 @@
+from .all import tag_steregroups
 from .cistrans import (
     BranchRank,
     StemArrangement,
@@ -20,6 +21,7 @@ __all__ = [
     "describe_stereobond",
     "describe_stereocenter",
     "get_cip_code",
+    "tag_steregroups",
     "tag_cis_trans_stereobonds",
     "tag_tetrahedral_stereocenters",
 ]
