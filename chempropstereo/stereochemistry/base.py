@@ -3,21 +3,21 @@ from enum import IntEnum
 
 from rdkit import Chem
 
-from . import utils
+CANONICAL_STEREO_TAG: str = "canonicalStereoTag"
 
 
 class SpatialArrangement(IntEnum):
-    """Base class for spatial arrangements in stereogenic groups."""
+    """Base class for enumerating spatial arrangements in stereogenic groups."""
 
     @classmethod
     def get_from(cls, entity: Chem.Atom | Chem.Bond) -> t.Self:
         """
-        Get the spatial arrangement of a stereogenic group from an atom's or bond's
-        canonical stereo tag.
+        Classify the spatial arrangement of a stereogenic group based on an atom's or
+        bond's canonical stereo tag.
 
         Parameters
         ----------
-        entity : Chem.Atom | Chem.Bond
+        entity
             The atom or bond to get the spatial arrangement from.
 
         Returns
@@ -25,8 +25,8 @@ class SpatialArrangement(IntEnum):
         SpatialArrangement
             The spatial arrangement obtained from the atom or bond.
         """
-        if entity.HasProp("canonicalStereoTag"):
-            return cls(int(entity.GetProp("canonicalStereoTag")[0]))
+        if entity.HasProp(CANONICAL_STEREO_TAG):
+            return cls(int(entity.GetProp(CANONICAL_STEREO_TAG)[0]))
         return cls.NONE
 
 
@@ -36,32 +36,37 @@ class Rank(IntEnum):
     @staticmethod
     def _get_neighbors(atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
         neighbors = atom.GetNeighbors()
-        order = map(int, atom.GetProp("canonicalStereoTag")[1:])
+        order = map(int, atom.GetProp(CANONICAL_STEREO_TAG)[1:])
         return tuple(neighbors[i] for i in order)
 
     @classmethod
-    def from_bond(cls, bond: Chem.Bond, reverse: bool = False) -> t.Self:
+    def from_bond(cls, bond: Chem.Bond, end_is_center: bool = False) -> t.Self:
         """
-        Get the rank of a bond in a stereogenic group from its begin (or end) atom's
+        Get the rank of a bond in a stereogenic group from its center atom's
         canonical stereo tag.
 
         Parameters
         ----------
-        bond : Chem.Bond
+        bond
             The bond to get the rank from.
-        reverse : bool, optional
-            Whether to reverse the direction of the bond (default is False).
+        end_is_center
+            Whether to treat the end atom as the center of the stereogenic group.
+            If False (the default), the begin atom is treated as the center.
 
         Returns
         -------
         Rank
-            The rank obtained from the bond.
+            The rank of the bond in the stereogenic group.
         """
-        begin_atom, end_atom = utils.get_bond_ends(bond, reverse)
-        if not begin_atom.HasProp("canonicalStereoTag"):
+
+        if end_is_center:
+            center_atom, edge_index = bond.GetEndAtom(), bond.GetBeginAtomIdx()
+        else:
+            center_atom, edge_index = bond.GetBeginAtom(), bond.GetEndAtomIdx()
+        if not center_atom.HasProp(CANONICAL_STEREO_TAG):
             return cls.NONE
-        neighbors = cls._get_neighbors(begin_atom)
+        neighbors = cls._get_neighbors(center_atom)
         for rank, neighbor in enumerate(neighbors, start=1):
-            if neighbor.GetIdx() == end_atom.GetIdx():
+            if neighbor.GetIdx() == edge_index:
                 return cls(rank)
         return cls.NONE

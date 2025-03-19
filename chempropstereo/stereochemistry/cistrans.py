@@ -60,11 +60,11 @@ class BranchRank(base.Rank):
     'N0 O2 C1 (TRANS) C3 C5 S4'
     >>> BranchRank.from_bond(bond0)
     <BranchRank.NONE: 0>
-    >>> BranchRank.from_bond(bond0, reverse=True)
+    >>> BranchRank.from_bond(bond0, end_is_center=True)
     <BranchRank.MAJOR: 1>
     >>> BranchRank.from_bond(bond1)
     <BranchRank.MINOR: 2>
-    >>> BranchRank.from_bond(bond1, reverse=True)
+    >>> BranchRank.from_bond(bond1, end_is_center=True)
     <BranchRank.NONE: 0>
     """
 
@@ -95,15 +95,18 @@ def describe_stereobond(bond: Chem.Bond) -> str:
     >>> stereochemistry.tag_cis_trans_stereobonds(mol)
     >>> stereochemistry.describe_stereobond(mol.GetBondWithIdx(2))
     'N0 O2 C1 (TRANS) C3 C5 S4'
+    >>> stereochemistry.describe_stereobond(mol.GetBondWithIdx(0))
+    'N0 C1 is not a stereobond'
     """
+    begin, end = bond.GetBeginAtom(), bond.GetEndAtom()
+    descriptions = [utils.describe_atom(atom) for atom in (begin, end)]
     arrangement = StemArrangement.get_from(bond)
     if arrangement == StemArrangement.NONE:
-        return "Not a stereobond"
-    begin, end = bond.GetBeginAtom(), bond.GetEndAtom()
+        return " ".join(descriptions) + " is not a stereobond"
     return (
         " ".join(map(utils.describe_atom, BranchRank._get_neighbors(begin)))
         + " "
-        + f" ({arrangement.name}) ".join(map(utils.describe_atom, (begin, end)))
+        + f" ({arrangement.name}) ".join(descriptions)
         + " "
         + " ".join(map(utils.describe_atom, BranchRank._get_neighbors(end)))
     )
@@ -167,9 +170,11 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
                 arrangement = StemArrangement.CIS
             else:
                 arrangement = StemArrangement.TRANS
-            bond.SetIntProp("canonicalStereoTag", arrangement)
+            bond.SetIntProp(base.CANONICAL_STEREO_TAG, arrangement)
             for atom, indices in zip(connected_atoms, ranked_neighbor_indices):
-                atom.SetProp("canonicalStereoTag", utils.concat(arrangement, *indices))
-        elif bond.HasProp("canonicalStereoTag"):
-            bond.ClearProp("canonicalStereoTag")
+                atom.SetProp(
+                    base.CANONICAL_STEREO_TAG, utils.concat(arrangement, *indices)
+                )
+        elif bond.HasProp(base.CANONICAL_STEREO_TAG):
+            bond.ClearProp(base.CANONICAL_STEREO_TAG)
     mol.SetBoolProp("hasCanonicalStereobonds", hasStereobonds)

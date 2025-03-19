@@ -65,7 +65,7 @@ class VertexRank(base.Rank):
     >>> bond = mol.GetBondWithIdx(1)
     >>> VertexRank.from_bond(bond)
     <VertexRank.SECOND: 2>
-    >>> VertexRank.from_bond(bond, reverse=True)
+    >>> VertexRank.from_bond(bond, end_is_center=True)
     <VertexRank.NONE: 0>
     """
 
@@ -126,10 +126,12 @@ def describe_stereocenter(atom: Chem.Atom) -> str:
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(1))
     'C1 (CW) O3 N2 C0'
+    >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(2))
+    'N2 is not a stereocenter'
     """
     direction = ScanDirection.get_from(atom)
     if direction == ScanDirection.NONE:
-        return "Not a stereocenter"
+        return f"{utils.describe_atom(atom)} is not a stereocenter"
     return f"{utils.describe_atom(atom)} ({direction.name}) " + " ".join(
         map(utils.describe_atom, VertexRank._get_neighbors(atom))
     )
@@ -180,7 +182,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
                 direction = ScanDirection.CW
             else:
                 direction = ScanDirection.CCW
-            atom.SetProp("canonicalStereoTag", utils.concat(direction, *order))
-        elif atom.HasProp("canonicalStereoTag"):
-            atom.ClearProp("canonicalStereoTag")
+            atom.SetProp(base.CANONICAL_STEREO_TAG, utils.concat(direction, *order))
+        elif atom.HasProp(base.CANONICAL_STEREO_TAG):
+            atom.ClearProp(base.CANONICAL_STEREO_TAG)
     mol.SetBoolProp("hasCanonicalStereocenters", hasStereocenters)

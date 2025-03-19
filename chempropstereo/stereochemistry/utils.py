@@ -117,40 +117,6 @@ def concat(*args: t.Any) -> str:
     return "".join(map(str, args))
 
 
-def get_bond_ends(
-    bond: Chem.Bond, reverse: bool = False
-) -> tuple[Chem.Atom, Chem.Atom]:
-    """
-    Get the atoms at the ends of a bond.
-
-    Parameters
-    ----------
-    bond : Chem.Bond
-        The bond to get the end atoms from.
-    reverse : bool, optional
-        Whether to reverse the direction of the bond (default is False).
-
-    Returns
-    -------
-    tuple[Chem.Atom, Chem.Atom]
-        The atoms at the ends of the bond.
-
-    Examples
-    --------
-    >>> from rdkit import Chem
-    >>> from chempropstereo.stereochemistry import utils
-    >>> mol = Chem.MolFromSmiles("CCO")
-    >>> bond = mol.GetBondWithIdx(0)
-    >>> [atom.GetIdx() for atom in utils.get_bond_ends(bond)]
-    [0, 1]
-    >>> [atom.GetIdx() for atom in utils.get_bond_ends(bond, reverse=True)]
-    [1, 0]
-    """
-    if reverse:
-        return bond.GetEndAtom(), bond.GetBeginAtom()
-    return bond.GetBeginAtom(), bond.GetEndAtom()
-
-
 def describe_atom(atom: Chem.Atom) -> str:
     """
     Describe an atom.
