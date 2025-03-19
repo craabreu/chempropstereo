@@ -24,74 +24,6 @@ import chempropstereo
 sys.path.insert(0, os.path.abspath(".."))
 
 
-def create_class_rst_file(cls):
-    name = cls.__name__
-    methods = list(cls.__dict__.keys())
-    excluded = ["yaml_tag"]
-    with open(f"api/{name}.rst", "w") as f:
-        included_methods = [
-            f"    .. automethod:: {method}\n"
-            for method in sorted(methods)
-            if not (method.startswith("_") or method in excluded)
-        ]
-        f.writelines(
-            [
-                f"{name}\n",
-                "=" * len(name) + "\n\n",
-                ".. currentmodule:: chempropstereo\n",
-                f".. autoclass:: {name}\n",
-                "    :member-order: alphabetical\n\n",
-            ]
-            + ["    .. rubric:: Methods\n\n"] * bool(included_methods)
-            + included_methods
-        )
-
-
-def create_function_rst_file(func):
-    name = func.__name__
-    with open(f"api/{name}.rst", "w") as f:
-        f.writelines(
-            [
-                f"{name}\n",
-                "=" * len(name) + "\n\n",
-                ".. currentmodule:: chempropstereo\n",
-                f".. autofunction:: {name}\n",
-            ]
-        )
-
-
-classes = [item for item in chempropstereo.__dict__.values() if inspect.isclass(item)]
-functions = [item for item in chempropstereo.__dict__.values() if inspect.isfunction(item)]
-
-if classes:
-    with open("api/classes.rst", "w") as f:
-        f.write("Classes\n" "=======\n" "\n" ".. toctree::\n" "    :titlesonly:\n" "\n")
-        for item in classes:
-            f.write(f"    {item.__name__}\n")
-            create_class_rst_file(item)
-        f.write("\n.. testsetup::\n\n    from chempropstereo import *")
-
-if functions:
-    with open("api/functions.rst", "w") as f:
-        f.write(
-            "Functions\n" "=========\n" "\n" ".. toctree::\n" "    :titlesonly:\n" "\n"
-        )
-        for item in functions:
-            f.write(f"    {item.__name__}\n")
-            create_function_rst_file(item)
-        f.write("\n.. testsetup::\n\n    from chempropstereo import *")
-
-with open("api/index.rst", "w") as f:
-    f.write(
-        "API Reference\n"
-        "=============\n"
-        "\n"
-        ".. toctree::\n"
-        "    :maxdepth: 2\n"
-        "    :titlesonly:\n"
-        "\n" + "    classes\n" * bool(classes) + "    functions\n" * bool(functions)
-    )
-
 # -- Project information -----------------------------------------------------
 
 version = os.getenv("ChempropStereo_VERSION", chempropstereo.__version__)
@@ -122,7 +54,22 @@ extensions = [
     "sphinx_copybutton",
 ]
 
-autosummary_generate = False
+# Enable autosummary (it will generate .rst files automatically)
+autosummary_generate = True
+
+# Configure autodoc to include class members and methods
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "private-members": False,  # Change to True if you want private members
+    "special-members": "__init__",  # Include __init__ method in docs
+    "inherited-members": True,
+    "show-inheritance": True,
+}
+
+# Sort members in documentation alphabetically
+autodoc_member_order = "alphabetical"
+
 napoleon_google_docstring = False
 napoleon_use_param = True
 napoleon_use_ivar = True
