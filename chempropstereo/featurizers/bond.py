@@ -5,7 +5,7 @@ from rdkit import Chem
 from .. import stereochemistry
 
 
-class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
+class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]):
     """
     Multi-hot bond featurizer that includes the position of the end atom in the
     canonical order of neighbors when the begin atom has a canonical chiral tag.
@@ -33,32 +33,49 @@ class BondStereoFeaturizer(chemprop.featurizers.MultiHotBondFeaturizer):
     """
 
     def __init__(self) -> None:
-        super().__init__(
-            bond_types=[
-                Chem.BondType.SINGLE,
-                Chem.BondType.DOUBLE,
-                Chem.BondType.TRIPLE,
-                Chem.BondType.AROMATIC,
-            ],
-            stereos=[
-                Chem.BondStereo.STEREONONE,
-                Chem.BondStereo.STEREOANY,
-                Chem.BondStereo.STEREOZ,
-                Chem.BondStereo.STEREOE,
-                Chem.BondStereo.STEREOCIS,
-                Chem.BondStereo.STEREOTRANS,
-            ],
-        )
+        self.bond_types = [
+            Chem.BondType.SINGLE,
+            Chem.BondType.DOUBLE,
+            Chem.BondType.TRIPLE,
+            Chem.BondType.AROMATIC,
+        ]
+        self.stereo = [
+            Chem.BondStereo.STEREONONE,
+            Chem.BondStereo.STEREOANY,
+            Chem.BondStereo.STEREOZ,
+            Chem.BondStereo.STEREOE,
+            Chem.BondStereo.STEREOCIS,
+            Chem.BondStereo.STEREOTRANS,
+        ]
 
     def __len__(self) -> int:
-        return super().__len__() + len(stereochemistry.VertexRank)
+        return (
+            1
+            + len(self.bond_types)
+            + 2
+            + (len(self.stereo) + 1)
+            + len(stereochemistry.VertexRank)
+        )
 
     def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
-        x = super().__call__(b)
         if b is None:
+            x = np.zeros(len(self), int)
+            x[0] = 1
             return x
-        vertex_rank = stereochemistry.VertexRank.from_bond(
-            bond=b, end_is_center=flip_direction
+
+        bond_type = b.GetBondType()
+        stereo_type = b.GetStereo()
+        vertex_rank = stereochemistry.VertexRank.from_bond(b, flip_direction)
+
+        return np.array(
+            [
+                b is None,
+                *(bond_type == item for item in self.bond_types),
+                b.GetIsConjugated(),
+                b.IsInRing(),
+                *(stereo_type == item for item in self.stereo),
+                stereo_type not in self.stereo,
+                *(vertex_rank == item for item in stereochemistry.VertexRank),
+            ],
+            dtype=int,
         )
-        x[-len(stereochemistry.VertexRank) + vertex_rank] = 1
-        return x
