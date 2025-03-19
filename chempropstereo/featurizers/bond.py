@@ -13,7 +13,7 @@ _BOND_TYPES: tuple[Chem.BondType] = (
 
 
 class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]):
-    """
+    r"""
     Multi-hot bond featurizer that includes the position of the end atom in the
     canonical order of neighbors when the begin atom has a canonical chiral tag.
 

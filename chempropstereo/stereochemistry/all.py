@@ -5,7 +5,7 @@ from .tetrahedral import tag_tetrahedral_stereocenters
 
 
 def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
-    """
+    r"""
     Add canonical stereochemistry information to all stereogenic groups in a molecule.
 
     The currently supported stereogenic groups are:
