@@ -41,7 +41,7 @@
 <h1>BondStereoFeaturizer<a class="headerlink" href="#bondstereofeaturizer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">BondStereoFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stereos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/featurizers/bond.html#BondStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">BondStereoFeaturizer</span></span><a class="reference internal" href="../_modules/chempropstereo/featurizers/bond.html#BondStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer" title="Link to this definition">¶</a></dt>
 <dd><p>Multi-hot bond featurizer that includes the position of the end atom in the
 canonical order of neighbors when the begin atom has a canonical chiral tag.</p>
 <p>The featurized bonds are expected to be part of an RDKit molecule with canonical
@@ -49,27 +49,126 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span><span class="p">,</span> <span class="n">stereochemistry</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">neighbors</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">neighbor</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="n">one_is_begin</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span>
-<span class="gp">... </span>    <span class="k">for</span> <span class="n">reverse</span> <span class="ow">in</span> <span class="p">(</span><span class="ow">not</span> <span class="n">one_is_begin</span><span class="p">,</span> <span class="n">one_is_begin</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">reverse</span><span class="p">))))</span>
-<span class="go">0100000100000010000</span>
-<span class="go">0100000100000001000</span>
-<span class="go">0100000100000010000</span>
-<span class="go">0100000100000000100</span>
-<span class="go">0100000100000010000</span>
-<span class="go">0100000100000000010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">describe_bonds_from_atom</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">GetBonds</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="n">atom_is_begin</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">index</span>
+<span class="gp">... </span>        <span class="k">for</span> <span class="n">reverse</span> <span class="ow">in</span> <span class="p">(</span><span class="ow">not</span> <span class="n">atom_is_begin</span><span class="p">,</span> <span class="n">atom_is_begin</span><span class="p">):</span>
+<span class="gp">... </span>            <span class="nb">print</span><span class="p">(</span><span class="n">featurizer</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">reverse</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_steregroups</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="go">&#39;C0 C8 C1 (CIS) C2 C4 O3&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">  1→0: 0 1000 0 0 10000 100 010</span>
+<span class="go">  0→1: 0 1000 0 0 10000 100 100</span>
+<span class="go">  1→2: 0 0100 1 0 10000 010 100</span>
+<span class="go">  2→1: 0 0100 1 0 10000 010 100</span>
+<span class="go">  1→8: 0 1000 0 0 10000 100 001</span>
+<span class="go">  8→1: 0 1000 0 0 00010 100 100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">  2→1: 0 0100 1 0 10000 010 100</span>
+<span class="go">  1→2: 0 0100 1 0 10000 010 100</span>
+<span class="go">  2→3: 0 1000 1 0 10000 100 001</span>
+<span class="go">  3→2: 0 1000 1 0 10000 100 100</span>
+<span class="go">  2→4: 0 1000 1 0 10000 100 010</span>
+<span class="go">  4→2: 0 1000 1 0 10000 100 010</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="go">&#39;C2 C4 (TRANS) C5 N6 O7&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">  4→2: 0 1000 1 0 10000 100 010</span>
+<span class="go">  2→4: 0 1000 1 0 10000 100 010</span>
+<span class="go">  4→5: 0 0100 1 0 10000 001 100</span>
+<span class="go">  5→4: 0 0100 1 0 10000 001 100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">  5→4: 0 0100 1 0 10000 001 100</span>
+<span class="go">  4→5: 0 0100 1 0 10000 001 100</span>
+<span class="go">  5→6: 0 1000 1 0 10000 100 010</span>
+<span class="go">  6→5: 0 1000 1 0 10000 100 100</span>
+<span class="go">  5→7: 0 1000 1 0 10000 100 001</span>
+<span class="go">  7→5: 0 1000 1 0 10000 100 100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereocenter</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+<span class="go">&#39;C8 (CCW) O12 C9 C1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="go">  8→1: 0 1000 0 0 00010 100 100</span>
+<span class="go">  1→8: 0 1000 0 0 10000 100 001</span>
+<span class="go">  8→9: 0 1000 0 0 00100 100 100</span>
+<span class="go">  9→8: 0 1000 0 0 00010 100 100</span>
+<span class="go"> 8→12: 0 1000 0 0 01000 100 100</span>
+<span class="go"> 12→8: 0 1000 0 0 10000 100 100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereocenter</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span>
+<span class="go">&#39;C9 (CW) O11 N10 C8&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+<span class="go">  9→8: 0 1000 0 0 00010 100 100</span>
+<span class="go">  8→9: 0 1000 0 0 00100 100 100</span>
+<span class="go"> 9→10: 0 1000 0 0 00100 100 100</span>
+<span class="go"> 10→9: 0 1000 0 0 10000 100 100</span>
+<span class="go"> 9→11: 0 1000 0 0 01000 100 100</span>
+<span class="go"> 11→9: 0 1000 0 0 10000 100 100</span>
 </pre></div>
 </div>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer.pretty_print">
+<span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/featurizers/bond.html#BondStereoFeaturizer.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer.pretty_print" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a formatted string representation of the bond features.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>Chem.Bond</em><em> or </em><em>None</em>) – The bond to be described. If None, a null bond is assumed.</p></li>
+<li><p><strong>flip_direction</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to reverse the direction of the bond (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A formatted string representing the bond features.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s1">&#39;CC&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&#39;  0→1: 0 1000 0 0 10000 100 100&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer.sizes">
+<span class="sig-name descname"><span class="pre">sizes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer.sizes" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of sizes corresponding to different bond features.</p>
+<p>The list contains the sizes for:
+- Null bond indicator
+- Bond types
+- Conjugation indicator
+- Ring indicator
+- Tetrahedral vertex ranks
+- Cis/trans stem arrangements
+- Cis/trans branch ranks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of integers representing the sizes of each bond feature.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[int]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span><span class="o">.</span><span class="n">sizes</span>
+<span class="go">[1, 4, 1, 1, 5, 3, 3]</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -103,6 +202,10 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <li class="toctree-l3 current"><a class="current reference internal" href="#">BondStereoFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeCIPFeaturizer.html">MoleculeCIPFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeStereoFeaturizer.html">MoleculeStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BranchRank.html">BranchRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScanDirection.html">ScanDirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="StemArrangement.html">StemArrangement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VertexRank.html">VertexRank</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>

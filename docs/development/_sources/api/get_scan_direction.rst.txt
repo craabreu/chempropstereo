@@ -1,5 +1,0 @@
-get_scan_direction
-==================
-
-.. currentmodule:: chempropstereo
-.. autofunction:: get_scan_direction

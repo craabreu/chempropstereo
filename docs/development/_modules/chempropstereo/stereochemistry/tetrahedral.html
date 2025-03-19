@@ -35,14 +35,94 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.stereochemistry.tetrahedral</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">t</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
-<span class="n">_CW</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CW</span>
-<span class="n">_CCW</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CCW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">base</span><span class="p">,</span> <span class="n">utils</span>
 
 <span class="n">_CIP_CODES</span> <span class="o">=</span> <span class="p">{</span><span class="kc">False</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="ScanDirection">
+<a class="viewcode-back" href="../../../api/ScanDirection.html#chempropstereo.ScanDirection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScanDirection</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">SpatialArrangement</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration for scan directions in canonicalized tetrahedral stereocenters.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    NONE : int</span>
+<span class="sd">        Not a stereocenter.</span>
+<span class="sd">    CW : int</span>
+<span class="sd">        Second, third, and fourth vertices must be scanned clockwise.</span>
+<span class="sd">    CCW : int</span>
+<span class="sd">        Second, third, and fourth vertices must be scanned counterclockwise.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import stereochemistry</span>
+<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
+<span class="sd">    &gt;&gt;&gt; atom = mol.GetAtomWithIdx(1)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(atom)</span>
+<span class="sd">    &#39;C1 (CW) O3 N2 C0&#39;</span>
+<span class="sd">    &gt;&gt;&gt; ScanDirection.get_from(mol.GetAtomWithIdx(1))</span>
+<span class="sd">    &lt;ScanDirection.CW: 1&gt;</span>
+<span class="sd">    &gt;&gt;&gt; ScanDirection.get_from(mol.GetAtomWithIdx(2))</span>
+<span class="sd">    &lt;ScanDirection.NONE: 0&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">CW</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">CCW</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+
+<div class="viewcode-block" id="VertexRank">
+<a class="viewcode-back" href="../../../api/VertexRank.html#chempropstereo.VertexRank">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VertexRank</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Rank</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of vertex ranks for tetrahedral stereochemistry.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    NONE : int</span>
+<span class="sd">        Not a tetrahedral vertex.</span>
+<span class="sd">    FIRST : int</span>
+<span class="sd">        The first vertex in canonical order.</span>
+<span class="sd">    SECOND : int</span>
+<span class="sd">        The second vertex in canonical order.</span>
+<span class="sd">    THIRD : int</span>
+<span class="sd">        The third vertex in canonical order.</span>
+<span class="sd">    FOURTH : int</span>
+<span class="sd">        The fourth vertex in canonical order.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
+<span class="sd">    &gt;&gt;&gt; from chempropstereo import stereochemistry</span>
+<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
+<span class="sd">    &gt;&gt;&gt; bond = mol.GetBondWithIdx(1)</span>
+<span class="sd">    &gt;&gt;&gt; VertexRank.from_bond(bond)</span>
+<span class="sd">    &lt;VertexRank.SECOND: 2&gt;</span>
+<span class="sd">    &gt;&gt;&gt; VertexRank.from_bond(bond, end_is_center=True)</span>
+<span class="sd">    &lt;VertexRank.NONE: 0&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">FIRST</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">SECOND</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">THIRD</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">FOURTH</span> <span class="o">=</span> <span class="mi">4</span></div>
+
 
 
 <div class="viewcode-block" id="get_cip_code">
@@ -76,110 +156,21 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_swap_if_ascending</span><span class="p">(</span>
-    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">odd</span><span class="p">:</span> <span class="nb">bool</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<div class="viewcode-block" id="describe_stereocenter">
+<a class="viewcode-back" href="../../../api/describe_stereocenter.html#chempropstereo.describe_stereocenter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">describe_stereocenter</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Helper function for :func:`tetrahedral._argsort_descending_with_parity` that</span>
-<span class="sd">    conditionally swaps two indices and their corresponding values, and flips the</span>
-<span class="sd">    parity of the permutation if a swap is performed.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    i</span>
-<span class="sd">        The first index.</span>
-<span class="sd">    j</span>
-<span class="sd">        The second index.</span>
-<span class="sd">    a</span>
-<span class="sd">        The value at the first index.</span>
-<span class="sd">    b</span>
-<span class="sd">        The value at the second index.</span>
-<span class="sd">    odd</span>
-<span class="sd">        Whether the permutation is currently odd rather than even.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tuple[int, int, int, int, bool]</span>
-<span class="sd">        A tuple containing:</span>
-
-<span class="sd">        - The potentially swapped indices i and j.</span>
-<span class="sd">        - The potentially swapped values a and b.</span>
-<span class="sd">        - A boolean indicating whether the permutation is odd after having or not</span>
-<span class="sd">          performed the swap.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="ow">not</span> <span class="n">odd</span>
-    <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_argsort_descending_with_parity</span><span class="p">(</span>
-    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform an indirect sort on three or four integers and returns the indices that</span>
-<span class="sd">    would arrange them in descending order, as well as a boolean indicating whether</span>
-<span class="sd">    the resulting permutation is odd rather than even.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    a</span>
-<span class="sd">        The first integer.</span>
-<span class="sd">    b</span>
-<span class="sd">        The second integer.</span>
-<span class="sd">    c</span>
-<span class="sd">        The third integer.</span>
-<span class="sd">    d</span>
-<span class="sd">        The fourth integer, optional.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tuple[tuple[int, ...], bool]</span>
-<span class="sd">        A tuple containing:</span>
-
-<span class="sd">        - A tuple of indices that sort the integers in descending order.</span>
-<span class="sd">        - A boolean indicating whether the required permutation is odd.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo.stereochemistry import tetrahedral</span>
-<span class="sd">    &gt;&gt;&gt; tetrahedral._argsort_descending_with_parity(9, 2, 1)</span>
-<span class="sd">    ((0, 1, 2), False)</span>
-<span class="sd">    &gt;&gt;&gt; tetrahedral._argsort_descending_with_parity(3, 6, 1)</span>
-<span class="sd">    ((1, 0, 2), True)</span>
-<span class="sd">    &gt;&gt;&gt; tetrahedral._argsort_descending_with_parity(3, 1, 2)</span>
-<span class="sd">    ((0, 2, 1), True)</span>
-<span class="sd">    &gt;&gt;&gt; tetrahedral._argsort_descending_with_parity(3, 6, 1, 8)</span>
-<span class="sd">    ((3, 1, 0, 2), False)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">odd</span>
-    <span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-    <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-    <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-    <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span> <span class="o">=</span> <span class="n">_swap_if_ascending</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">odd</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">odd</span>
-
-
-<div class="viewcode-block" id="get_scan_direction">
-<a class="viewcode-back" href="../../../api/get_scan_direction.html#chempropstereo.get_scan_direction">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_scan_direction</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract the scan direction of the neighbors from an atom with a canonical</span>
-<span class="sd">    chiral tag.</span>
+<span class="sd">    Describe a tetrahedral stereocenter.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    atom : Chem.Atom</span>
-<span class="sd">        The atom whose chiral tag is to be extracted.</span>
+<span class="sd">        The atom to describe.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    int</span>
-<span class="sd">        The scan direction as an integer (1 for &#39;CW&#39;, 2 for &#39;CCW&#39;), or 0 if the atom</span>
-<span class="sd">        has no chirality property.</span>
+<span class="sd">    str</span>
+<span class="sd">        A string description of the tetrahedral stereocenter.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -187,58 +178,23 @@
 <span class="sd">    &gt;&gt;&gt; from chempropstereo import stereochemistry</span>
 <span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
-<span class="sd">    &gt;&gt;&gt; chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon</span>
-<span class="sd">    &gt;&gt;&gt; stereochemistry.get_scan_direction(chiral_atom)</span>
-<span class="sd">    1</span>
-<span class="sd">    &gt;&gt;&gt; non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom</span>
-<span class="sd">    &gt;&gt;&gt; stereochemistry.get_scan_direction(non_chiral_atom)</span>
-<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(1))</span>
+<span class="sd">    &#39;C1 (CW) O3 N2 C0&#39;</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(2))</span>
+<span class="sd">    &#39;N2 is not a stereocenter&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span></div>
-
-
-
-<div class="viewcode-block" id="get_neighbors">
-<a class="viewcode-back" href="../../../api/get_neighbors.html#chempropstereo.get_neighbors">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_neighbors</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract the indices of neighbor atoms in canonical order from an atom with a</span>
-<span class="sd">    canonical chiral tag.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    atom : Chem.Atom</span>
-<span class="sd">        The atom whose neighbor information is to be extracted.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tuple[int, ...]</span>
-<span class="sd">        The indices of the ordered neighbor atoms, or an empty tuple if the atom has</span>
-<span class="sd">        no chirality information.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
-<span class="sd">    &gt;&gt;&gt; from chempropstereo import stereochemistry</span>
-<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
-<span class="sd">    &gt;&gt;&gt; chiral_atom = mol.GetAtomWithIdx(1)  # The chiral carbon</span>
-<span class="sd">    &gt;&gt;&gt; stereochemistry.get_neighbors(chiral_atom)</span>
-<span class="sd">    (3, 2, 0)</span>
-<span class="sd">    &gt;&gt;&gt; non_chiral_atom = mol.GetAtomWithIdx(0)  # A non-chiral atom</span>
-<span class="sd">    &gt;&gt;&gt; stereochemistry.get_neighbors(non_chiral_atom)</span>
-<span class="sd">    ()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">()</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
-        <span class="n">neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">direction</span> <span class="o">=</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">get_from</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not a stereocenter&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">direction</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">) &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="nb">map</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">,</span> <span class="n">VertexRank</span><span class="o">.</span><span class="n">_get_neighbors</span><span class="p">(</span><span class="n">atom</span><span class="p">))</span>
     <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="tag_tetrahedral_stereocenters">
 <a class="viewcode-back" href="../../../api/tag_tetrahedral_stereocenters.html#chempropstereo.tag_tetrahedral_stereocenters">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Tag tetrahedral stereocenters in a molecule as clockwise or counterclockwise based</span>
 <span class="sd">    on their neighbors arranged in a descending order of their canonical ranks.</span>
@@ -247,41 +203,46 @@
 <span class="sd">    ----------</span>
 <span class="sd">    mol</span>
 <span class="sd">        The molecule whose tetrahedral stereocenters are to be tagged.</span>
+<span class="sd">    force</span>
+<span class="sd">        Whether to overwrite existing chiral tags (default is False).</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from chempropstereo import stereochemistry</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
-<span class="sd">    &gt;&gt;&gt; def desc(atom):</span>
-<span class="sd">    ...     return f&quot;{atom.GetSymbol()}{atom.GetIdx()}&quot;</span>
 <span class="sd">    &gt;&gt;&gt; for smi in [&quot;C[C@H](N)O&quot;, &quot;C[C@@H](O)N&quot;]:</span>
 <span class="sd">    ...     mol = Chem.MolFromSmiles(smi)</span>
 <span class="sd">    ...     stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
 <span class="sd">    ...     for atom in mol.GetAtoms():</span>
-<span class="sd">    ...         direction = stereochemistry.get_scan_direction(atom)</span>
-<span class="sd">    ...         if direction != 0:</span>
-<span class="sd">    ...             neighbors = [</span>
-<span class="sd">    ...                 desc(mol.GetAtomWithIdx(idx))</span>
-<span class="sd">    ...                 for idx in stereochemistry.get_neighbors(atom)</span>
-<span class="sd">    ...             ]</span>
-<span class="sd">    ...             rotation = &quot;CW&quot; if direction == 1 else &quot;CCW&quot;</span>
-<span class="sd">    ...             print(desc(atom), f&quot;({rotation})&quot;, *neighbors)</span>
+<span class="sd">    ...         direction = stereochemistry.ScanDirection.get_from(atom)</span>
+<span class="sd">    ...         if direction != stereochemistry.ScanDirection.NONE:</span>
+<span class="sd">    ...             print(stereochemistry.describe_stereocenter(atom))</span>
 <span class="sd">    C1 (CW) O3 N2 C0</span>
 <span class="sd">    C1 (CW) O2 N3 C0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">hasStereocenters</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">():</span>
         <span class="n">tag</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetChiralTag</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_CW</span><span class="p">,</span> <span class="n">_CCW</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CW</span><span class="p">,</span>
+            <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CCW</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">hasStereocenters</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">()]</span>
             <span class="n">all_ranks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">CanonicalRankAtomsInFragment</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">))</span>
             <span class="n">neighbor_ranks</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_ranks</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">]</span>
             <span class="c1"># Sorting ranks in descending order keeps explicit hydrogens at the end</span>
-            <span class="n">order</span><span class="p">,</span> <span class="n">flip</span> <span class="o">=</span> <span class="n">_argsort_descending_with_parity</span><span class="p">(</span><span class="o">*</span><span class="n">neighbor_ranks</span><span class="p">)</span>
-            <span class="n">direction</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_CCW</span><span class="p">)</span> <span class="o">==</span> <span class="n">flip</span> <span class="k">else</span> <span class="mi">2</span>
-            <span class="n">atom</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="p">[</span><span class="n">direction</span><span class="p">,</span> <span class="o">*</span><span class="n">order</span><span class="p">])))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">atom</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
-    <span class="n">mol</span><span class="o">.</span><span class="n">SetBoolProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalChiralTags&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+            <span class="n">order</span><span class="p">,</span> <span class="n">flip</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">argsort_descending_with_parity</span><span class="p">(</span><span class="o">*</span><span class="n">neighbor_ranks</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">tag</span> <span class="o">==</span> <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CCW</span><span class="p">)</span> <span class="o">==</span> <span class="n">flip</span><span class="p">:</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">CW</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">CCW</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="o">*</span><span class="n">order</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">atom</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">):</span>
+            <span class="n">atom</span><span class="o">.</span><span class="n">ClearProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">SetBoolProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">,</span> <span class="n">hasStereocenters</span><span class="p">)</span></div>
 
 </pre></div>
 

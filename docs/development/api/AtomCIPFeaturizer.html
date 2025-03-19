@@ -63,7 +63,9 @@ assigned via the <a class="reference external" href="https://www.rdkit.org/docs/
 <span class="gp">&gt;&gt;&gt; </span><span class="n">s_atom</span> <span class="o">=</span> <span class="n">s_mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">featurizer</span> <span class="ow">in</span> <span class="p">[</span><span class="n">AtomCIPFeaturizer</span><span class="p">(</span><span class="s2">&quot;V2&quot;</span><span class="p">),</span> <span class="n">AtomCIPFeaturizer</span><span class="p">(</span><span class="s2">&quot;ORGANIC&quot;</span><span class="p">)]:</span>
 <span class="gp">... </span>    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="p">[</span><span class="n">r_atom</span><span class="p">,</span> <span class="n">s_atom</span><span class="p">]:</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">atom</span><span class="p">))))</span>
+<span class="gp">... </span>        <span class="n">features</span> <span class="o">=</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">featurizer</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">features</span><span class="p">)))</span>
 <span class="go">00000100000000000000000000000000000000000010000001001000100000000100000</span>
 <span class="go">00000100000000000000000000000000000000000010000001000100100000000100000</span>
 <span class="go">0010000000000000010000001001000100000001000</span>
@@ -103,6 +105,10 @@ assigned via the <a class="reference external" href="https://www.rdkit.org/docs/
 <li class="toctree-l3"><a class="reference internal" href="BondStereoFeaturizer.html">BondStereoFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeCIPFeaturizer.html">MoleculeCIPFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeStereoFeaturizer.html">MoleculeStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BranchRank.html">BranchRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScanDirection.html">ScanDirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="StemArrangement.html">StemArrangement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VertexRank.html">VertexRank</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>

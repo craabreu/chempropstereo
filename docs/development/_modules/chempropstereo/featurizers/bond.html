@@ -37,15 +37,22 @@
   <h1>Source code for chempropstereo.featurizers.bond</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">rdkit.Chem.rdchem</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bond</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+
+<span class="n">_BOND_TYPES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">SINGLE</span><span class="p">,</span>
+    <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+    <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">TRIPLE</span><span class="p">,</span>
+    <span class="n">Chem</span><span class="o">.</span><span class="n">BondType</span><span class="o">.</span><span class="n">AROMATIC</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="BondStereoFeaturizer">
 <a class="viewcode-back" href="../../../api/BondStereoFeaturizer.html#chempropstereo.BondStereoFeaturizer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BondStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotBondFeaturizer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BondStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">VectorFeaturizer</span><span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span><span class="p">]):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Multi-hot bond featurizer that includes the position of the end atom in the</span>
 <span class="sd">    canonical order of neighbors when the begin atom has a canonical chiral tag.</span>
 
@@ -56,39 +63,165 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from chempropstereo import featurizers, stereochemistry</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
-<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; stereochemistry.tag_tetrahedral_stereocenters(mol)</span>
 <span class="sd">    &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
-<span class="sd">    &gt;&gt;&gt; neighbors = stereochemistry.get_neighbors(</span>
-<span class="sd">    ...     mol.GetAtomWithIdx(1)</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; for neighbor in neighbors:</span>
-<span class="sd">    ...     bond = mol.GetBondBetweenAtoms(1, neighbor)</span>
-<span class="sd">    ...     one_is_begin = bond.GetBeginAtomIdx() == 1</span>
-<span class="sd">    ...     for reverse in (not one_is_begin, one_is_begin):</span>
-<span class="sd">    ...         print(&quot;&quot;.join(map(str, featurizer(bond, reverse))))</span>
-<span class="sd">    0100000100000010000</span>
-<span class="sd">    0100000100000001000</span>
-<span class="sd">    0100000100000010000</span>
-<span class="sd">    0100000100000000100</span>
-<span class="sd">    0100000100000010000</span>
-<span class="sd">    0100000100000000010</span>
+<span class="sd">    &gt;&gt;&gt; def describe_bonds_from_atom(index):</span>
+<span class="sd">    ...     for bond in mol.GetAtomWithIdx(index).GetBonds():</span>
+<span class="sd">    ...         atom_is_begin = bond.GetBeginAtomIdx() == index</span>
+<span class="sd">    ...         for reverse in (not atom_is_begin, atom_is_begin):</span>
+<span class="sd">    ...             print(featurizer.pretty_print(bond, reverse))</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.tag_steregroups(mol)</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(1, 2))</span>
+<span class="sd">    &#39;C0 C8 C1 (CIS) C2 C4 O3&#39;</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(1) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      1→0: 0 1000 0 0 10000 100 010</span>
+<span class="sd">      0→1: 0 1000 0 0 10000 100 100</span>
+<span class="sd">      1→2: 0 0100 1 0 10000 010 100</span>
+<span class="sd">      2→1: 0 0100 1 0 10000 010 100</span>
+<span class="sd">      1→8: 0 1000 0 0 10000 100 001</span>
+<span class="sd">      8→1: 0 1000 0 0 00010 100 100</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(2) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      2→1: 0 0100 1 0 10000 010 100</span>
+<span class="sd">      1→2: 0 0100 1 0 10000 010 100</span>
+<span class="sd">      2→3: 0 1000 1 0 10000 100 001</span>
+<span class="sd">      3→2: 0 1000 1 0 10000 100 100</span>
+<span class="sd">      2→4: 0 1000 1 0 10000 100 010</span>
+<span class="sd">      4→2: 0 1000 1 0 10000 100 010</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(4, 5))</span>
+<span class="sd">    &#39;C2 C4 (TRANS) C5 N6 O7&#39;</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(4) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      4→2: 0 1000 1 0 10000 100 010</span>
+<span class="sd">      2→4: 0 1000 1 0 10000 100 010</span>
+<span class="sd">      4→5: 0 0100 1 0 10000 001 100</span>
+<span class="sd">      5→4: 0 0100 1 0 10000 001 100</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(5) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      5→4: 0 0100 1 0 10000 001 100</span>
+<span class="sd">      4→5: 0 0100 1 0 10000 001 100</span>
+<span class="sd">      5→6: 0 1000 1 0 10000 100 010</span>
+<span class="sd">      6→5: 0 1000 1 0 10000 100 100</span>
+<span class="sd">      5→7: 0 1000 1 0 10000 100 001</span>
+<span class="sd">      7→5: 0 1000 1 0 10000 100 100</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(8))</span>
+<span class="sd">    &#39;C8 (CCW) O12 C9 C1&#39;</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      8→1: 0 1000 0 0 00010 100 100</span>
+<span class="sd">      1→8: 0 1000 0 0 10000 100 001</span>
+<span class="sd">      8→9: 0 1000 0 0 00100 100 100</span>
+<span class="sd">      9→8: 0 1000 0 0 00010 100 100</span>
+<span class="sd">     8→12: 0 1000 0 0 01000 100 100</span>
+<span class="sd">     12→8: 0 1000 0 0 10000 100 100</span>
+<span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(9))</span>
+<span class="sd">    &#39;C9 (CW) O11 N10 C8&#39;</span>
+<span class="sd">    &gt;&gt;&gt; describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">      9→8: 0 1000 0 0 00010 100 100</span>
+<span class="sd">      8→9: 0 1000 0 0 00100 100 100</span>
+<span class="sd">     9→10: 0 1000 0 0 00100 100 100</span>
+<span class="sd">     10→9: 0 1000 0 0 10000 100 100</span>
+<span class="sd">     9→11: 0 1000 0 0 01000 100 100</span>
+<span class="sd">     11→9: 0 1000 0 0 10000 100 100</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">+</span> <span class="mi">5</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Bond</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
-            <span class="n">begin_atom</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetBeginAtom</span><span class="p">()</span>
-            <span class="n">end_index</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">begin_atom</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetEndAtom</span><span class="p">()</span>
-            <span class="n">end_index</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span>
-        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">begin_atom</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-        <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span> <span class="o">+</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">end_index</span><span class="p">)</span> <span class="k">if</span> <span class="n">neighbors</span> <span class="k">else</span> <span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">x</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">x</span>
+
+        <span class="n">bond_type</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetBondType</span><span class="p">()</span>
+        <span class="n">vertex_rank</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">)</span>
+        <span class="n">arrangement</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">StemArrangement</span><span class="o">.</span><span class="n">get_from</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">branch_rank</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">BranchRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">bond_type</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_BOND_TYPES</span><span class="p">),</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">GetIsConjugated</span><span class="p">(),</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">IsInRing</span><span class="p">(),</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">vertex_rank</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">VertexRank</span><span class="p">),</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">arrangement</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">StemArrangement</span><span class="p">),</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">branch_rank</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">BranchRank</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of sizes corresponding to different bond features.</span>
+
+<span class="sd">        The list contains the sizes for:</span>
+<span class="sd">        - Null bond indicator</span>
+<span class="sd">        - Bond types</span>
+<span class="sd">        - Conjugation indicator</span>
+<span class="sd">        - Ring indicator</span>
+<span class="sd">        - Tetrahedral vertex ranks</span>
+<span class="sd">        - Cis/trans stem arrangements</span>
+<span class="sd">        - Cis/trans branch ranks</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[int]</span>
+<span class="sd">            A list of integers representing the sizes of each bond feature.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from chempropstereo import featurizers</span>
+<span class="sd">        &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
+<span class="sd">        &gt;&gt;&gt; featurizer.sizes</span>
+<span class="sd">        [1, 4, 1, 1, 5, 3, 3]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">_BOND_TYPES</span><span class="p">),</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">VertexRank</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">StemArrangement</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">BranchRank</span><span class="p">),</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="BondStereoFeaturizer.pretty_print">
+<a class="viewcode-back" href="../../../api/BondStereoFeaturizer.html#chempropstereo.BondStereoFeaturizer.pretty_print">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a formatted string representation of the bond features.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : Chem.Bond or None</span>
+<span class="sd">            The bond to be described. If None, a null bond is assumed.</span>
+<span class="sd">        flip_direction : bool, optional</span>
+<span class="sd">            Whether to reverse the direction of the bond (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A formatted string representing the bond features.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from rdkit import Chem</span>
+<span class="sd">        &gt;&gt;&gt; from chempropstereo import featurizers</span>
+<span class="sd">        &gt;&gt;&gt; mol = Chem.MolFromSmiles(&#39;CC&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; bond = mol.GetBondWithIdx(0)</span>
+<span class="sd">        &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
+<span class="sd">        &gt;&gt;&gt; featurizer.pretty_print(bond)</span>
+<span class="sd">        &#39;  0→1: 0 1000 0 0 10000 100 100&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">flip_direction</span><span class="p">:</span>
+            <span class="n">atoms</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="n">bond_desc</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\u2192</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">atoms</span><span class="p">))</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">)))</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bond_desc</span><span class="si">}</span><span class="s2">: &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">a</span><span class="p">:</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">cuts</span><span class="p">,</span> <span class="n">cuts</span><span class="p">))</span></div>
+</div>
 
 </pre></div>
 

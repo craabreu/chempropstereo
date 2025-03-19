@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>get_neighbors &#8212; ChempropStereo dev  documentation</title>
+    <title>describe_stereobond &#8212; ChempropStereo dev  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
@@ -18,8 +18,8 @@
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="get_scan_direction" href="get_scan_direction.html" />
-    <link rel="prev" title="get_cip_code" href="get_cip_code.html" />
+    <link rel="next" title="describe_stereocenter" href="describe_stereocenter.html" />
+    <link rel="prev" title="Functions" href="functions.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -37,36 +37,32 @@
 
           <div class="body" role="main">
             
-  <section id="get-neighbors">
-<h1>get_neighbors<a class="headerlink" href="#get-neighbors" title="Link to this heading">¶</a></h1>
+  <section id="describe-stereobond">
+<h1>describe_stereobond<a class="headerlink" href="#describe-stereobond" title="Link to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="chempropstereo.get_neighbors">
-<span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">get_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/stereochemistry/tetrahedral.html#get_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.get_neighbors" title="Link to this definition">¶</a></dt>
-<dd><p>Extract the indices of neighbor atoms in canonical order from an atom with a
-canonical chiral tag.</p>
+<dt class="sig sig-object py" id="chempropstereo.describe_stereobond">
+<span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">describe_stereobond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/stereochemistry/cistrans.html#describe_stereobond"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.describe_stereobond" title="Link to this definition">¶</a></dt>
+<dd><p>Describe a cis/trans stereobond.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>atom</strong> (<em>Chem.Atom</em>) – The atom whose neighbor information is to be extracted.</p>
+<dd class="field-odd"><p><strong>bond</strong> (<em>Chem.Bond</em>) – The bond to describe.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The indices of the ordered neighbor atoms, or an empty tuple if the atom has
-no chirality information.</p>
+<dd class="field-even"><p>A string description of the cis/trans stereobond.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple[int, …]</p>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chiral_atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># The chiral carbon</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">chiral_atom</span><span class="p">)</span>
-<span class="go">(3, 2, 0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">non_chiral_atom</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># A non-chiral atom</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">non_chiral_atom</span><span class="p">)</span>
-<span class="go">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;N/C(O)=C(S)/C&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_cis_trans_stereobonds</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">&#39;N0 O2 C1 (TRANS) C3 C5 S4&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="go">&#39;N0 C1 is not a stereobond&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -98,9 +94,10 @@ no chirality information.</p>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="classes.html">Classes</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="functions.html">Functions</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">describe_stereobond</a></li>
+<li class="toctree-l3"><a class="reference internal" href="describe_stereocenter.html">describe_stereocenter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="get_cip_code.html">get_cip_code</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">get_neighbors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="get_scan_direction.html">get_scan_direction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tag_cis_trans_stereobonds.html">tag_cis_trans_stereobonds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tag_tetrahedral_stereocenters.html">tag_tetrahedral_stereocenters</a></li>
 </ul>
 </li>
@@ -131,7 +128,7 @@ no chirality information.</p>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
-      <a href="../_sources/api/get_neighbors.rst.txt"
+      <a href="../_sources/api/describe_stereobond.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

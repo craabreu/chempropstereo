@@ -1,0 +1,13 @@
+ScanDirection
+=============
+
+.. currentmodule:: chempropstereo
+.. autoclass:: ScanDirection
+    :member-order: alphabetical
+
+    .. rubric:: Methods
+
+    .. automethod:: CCW
+    .. automethod:: CW
+    .. automethod:: NONE
+    .. automethod:: tag

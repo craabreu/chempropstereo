@@ -79,7 +79,9 @@
 <span class="sd">    &gt;&gt;&gt; s_atom = s_mol.GetAtomWithIdx(1)</span>
 <span class="sd">    &gt;&gt;&gt; for featurizer in [AtomCIPFeaturizer(&quot;V2&quot;), AtomCIPFeaturizer(&quot;ORGANIC&quot;)]:</span>
 <span class="sd">    ...     for atom in [r_atom, s_atom]:</span>
-<span class="sd">    ...         print(&quot;&quot;.join(map(str, featurizer(atom))))</span>
+<span class="sd">    ...         features = featurizer(atom)</span>
+<span class="sd">    ...         assert len(features) == len(featurizer)</span>
+<span class="sd">    ...         print(&quot;&quot;.join(map(str, features)))</span>
 <span class="sd">    00000100000000000000000000000000000000000010000001001000100000000100000</span>
 <span class="sd">    00000100000000000000000000000000000000000010000001000100100000000100000</span>
 <span class="sd">    0010000000000000010000001001000100000001000</span>
@@ -133,7 +135,7 @@
 <span class="sd">    Multi-hot atom featurizer that includes a canonical chiral tag for each atom.</span>
 
 <span class="sd">    The featurized atoms are expected to be part of an RDKit molecule with canonical</span>
-<span class="sd">    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.</span>
+<span class="sd">    chiral tags assigned via :func:`~stereochemistry.tag_tetrahedral_stereocenters`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -161,10 +163,12 @@
 <span class="sd">    &gt;&gt;&gt; non_chiral_atom = cw_mol.GetAtomWithIdx(0)</span>
 <span class="sd">    &gt;&gt;&gt; for featurizer in [</span>
 <span class="sd">    ...     featurizers.AtomStereoFeaturizer(&quot;V2&quot;),</span>
-<span class="sd">    ...     featurizers.AtomStereoFeaturizer(&quot;ORGANIC&quot;)</span>
+<span class="sd">    ...     featurizers.AtomStereoFeaturizer(&quot;ORGANIC&quot;),</span>
 <span class="sd">    ... ]:</span>
 <span class="sd">    ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:</span>
-<span class="sd">    ...         print(&quot;&quot;.join(map(str, map(int, featurizer(atom)))))</span>
+<span class="sd">    ...         features = featurizer(atom)</span>
+<span class="sd">    ...         assert len(features) == len(featurizer)</span>
+<span class="sd">    ...         print(&quot;&quot;.join(map(str, map(int, features))))</span>
 <span class="sd">    0000010000000000000000000000000000000000001000000101000001000000100000</span>
 <span class="sd">    0000010000000000000000000000000000000000001000000100100100000000100000</span>
 <span class="sd">    0000010000000000000000000000000000000000001000000100010100000000100000</span>
@@ -181,36 +185,47 @@
             <span class="n">atomic_nums</span><span class="o">=</span><span class="n">featurizer</span><span class="o">.</span><span class="n">atomic_nums</span><span class="p">,</span>
             <span class="n">degrees</span><span class="o">=</span><span class="n">featurizer</span><span class="o">.</span><span class="n">degrees</span><span class="p">,</span>
             <span class="n">formal_charges</span><span class="o">=</span><span class="n">featurizer</span><span class="o">.</span><span class="n">formal_charges</span><span class="p">,</span>
-            <span class="n">chiral_tags</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">chiral_tags</span><span class="o">=</span><span class="p">[],</span>
             <span class="n">num_Hs</span><span class="o">=</span><span class="n">featurizer</span><span class="o">.</span><span class="n">num_Hs</span><span class="p">,</span>
             <span class="n">hybridizations</span><span class="o">=</span><span class="n">featurizer</span><span class="o">.</span><span class="n">hybridizations</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lower_bound</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subfeats</span><span class="p">[:</span><span class="mi">3</span><span class="p">]))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>  <span class="c1"># Original subfeatures</span>
+            <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># minus chiral tag padding</span>
+            <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">ScanDirection</span><span class="p">)</span>  <span class="c1"># plus scan direction slots</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-
         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">x</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-        <span class="n">feats</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">(),</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">GetTotalDegree</span><span class="p">(),</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">GetFormalCharge</span><span class="p">(),</span>
-            <span class="n">stereochemistry</span><span class="o">.</span><span class="n">get_scan_direction</span><span class="p">(</span><span class="n">a</span><span class="p">),</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()),</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">(),</span>
-        <span class="p">]</span>
+        <span class="n">atomic_num</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">GetAtomicNum</span><span class="p">()</span>
+        <span class="n">total_degree</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">GetTotalDegree</span><span class="p">()</span>
+        <span class="n">formal_charge</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">GetFormalCharge</span><span class="p">()</span>
+        <span class="n">total_num_hs</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">GetTotalNumHs</span><span class="p">()</span>
+        <span class="n">hybridization</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">GetHybridization</span><span class="p">()</span>
+        <span class="n">scan_direction</span> <span class="o">=</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">get_from</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 
-        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">feat</span><span class="p">,</span> <span class="n">choices</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subfeats</span><span class="p">):</span>
-            <span class="n">j</span> <span class="o">=</span> <span class="n">choices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">))</span>
-            <span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">i</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">GetIsAromatic</span><span class="p">())</span>
-        <span class="n">x</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">GetMass</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">x</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">atomic_num</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_nums</span><span class="p">),</span>
+                <span class="n">atomic_num</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_nums</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">total_degree</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">),</span>
+                <span class="n">total_degree</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">formal_charge</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formal_charges</span><span class="p">),</span>
+                <span class="n">formal_charge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formal_charges</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">scan_direction</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stereochemistry</span><span class="o">.</span><span class="n">ScanDirection</span><span class="p">),</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">total_num_hs</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_Hs</span><span class="p">),</span>
+                <span class="n">total_num_hs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_Hs</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">hybridization</span> <span class="o">==</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hybridizations</span><span class="p">),</span>
+                <span class="n">hybridization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hybridizations</span><span class="p">,</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">GetIsAromatic</span><span class="p">(),</span>
+                <span class="mf">0.01</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">GetMass</span><span class="p">(),</span>
+            <span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

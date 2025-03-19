@@ -1,0 +1,5 @@
+tag_cis_trans_stereobonds
+=========================
+
+.. currentmodule:: chempropstereo
+.. autofunction:: tag_cis_trans_stereobonds

@@ -44,7 +44,7 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">AtomStereoFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'V2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/featurizers/atom.html#AtomStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.AtomStereoFeaturizer" title="Link to this definition">¶</a></dt>
 <dd><p>Multi-hot atom featurizer that includes a canonical chiral tag for each atom.</p>
 <p>The featurized atoms are expected to be part of an RDKit molecule with canonical
-chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">tetrahedral.tag_tetrahedral_stereocenters()</span></code>.</p>
+chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">tag_tetrahedral_stereocenters()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mode</strong> (<em>str</em><em> | </em><em>AtomFeatureMode</em>) – <p>The mode to use for the featurizer. Available modes are <a class="reference external" href="https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v1">V1</a>, <a class="reference external" href="https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v2">V2</a>, and
@@ -64,10 +64,12 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <span class="gp">&gt;&gt;&gt; </span><span class="n">non_chiral_atom</span> <span class="o">=</span> <span class="n">cw_mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">featurizer</span> <span class="ow">in</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="n">featurizers</span><span class="o">.</span><span class="n">AtomStereoFeaturizer</span><span class="p">(</span><span class="s2">&quot;V2&quot;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">featurizers</span><span class="o">.</span><span class="n">AtomStereoFeaturizer</span><span class="p">(</span><span class="s2">&quot;ORGANIC&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">featurizers</span><span class="o">.</span><span class="n">AtomStereoFeaturizer</span><span class="p">(</span><span class="s2">&quot;ORGANIC&quot;</span><span class="p">),</span>
 <span class="gp">... </span><span class="p">]:</span>
 <span class="gp">... </span>    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="p">[</span><span class="n">non_chiral_atom</span><span class="p">,</span> <span class="n">cw_atom</span><span class="p">,</span> <span class="n">ccw_atom</span><span class="p">]:</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">atom</span><span class="p">)))))</span>
+<span class="gp">... </span>        <span class="n">features</span> <span class="o">=</span> <span class="n">featurizer</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">featurizer</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">features</span><span class="p">))))</span>
 <span class="go">0000010000000000000000000000000000000000001000000101000001000000100000</span>
 <span class="go">0000010000000000000000000000000000000000001000000100100100000000100000</span>
 <span class="go">0000010000000000000000000000000000000000001000000100010100000000100000</span>
@@ -109,6 +111,10 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <li class="toctree-l3"><a class="reference internal" href="BondStereoFeaturizer.html">BondStereoFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeCIPFeaturizer.html">MoleculeCIPFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeStereoFeaturizer.html">MoleculeStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BranchRank.html">BranchRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScanDirection.html">ScanDirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="StemArrangement.html">StemArrangement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VertexRank.html">VertexRank</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>

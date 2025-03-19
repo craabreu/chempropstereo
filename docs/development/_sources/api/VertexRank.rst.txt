@@ -1,0 +1,15 @@
+VertexRank
+==========
+
+.. currentmodule:: chempropstereo
+.. autoclass:: VertexRank
+    :member-order: alphabetical
+
+    .. rubric:: Methods
+
+    .. automethod:: FIRST
+    .. automethod:: FOURTH
+    .. automethod:: NONE
+    .. automethod:: SECOND
+    .. automethod:: THIRD
+    .. automethod:: tag

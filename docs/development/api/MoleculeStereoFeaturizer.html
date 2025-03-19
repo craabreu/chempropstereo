@@ -18,7 +18,7 @@
     <script src="../_static/copybutton.js?v=ccdb6887"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Functions" href="functions.html" />
+    <link rel="next" title="BranchRank" href="BranchRank.html" />
     <link rel="prev" title="MoleculeCIPFeaturizer" href="MoleculeCIPFeaturizer.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -41,9 +41,15 @@
 <h1>MoleculeStereoFeaturizer<a class="headerlink" href="#moleculestereofeaturizer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="chempropstereo.MoleculeStereoFeaturizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">MoleculeStereoFeaturizer</span></span><a class="reference internal" href="../_modules/chempropstereo/featurizers/molecule.html#MoleculeStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.MoleculeStereoFeaturizer" title="Link to this definition">¶</a></dt>
-<dd><p>Molecule featurizer that includes canonicalized chiral tags for tetrahedral
-stereocenters and the order of bonds stemming from them.</p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">MoleculeStereoFeaturizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">divergent_bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/featurizers/molecule.html#MoleculeStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.MoleculeStereoFeaturizer" title="Link to this definition">¶</a></dt>
+<dd><p>Molecule featurizer that includes canonicalized tetrahedral stereocenters and
+cis/trans stereobonds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>divergent_bonds</strong> (<em>bool</em>) – Whether to add stereochemical features to the directed bonds that diverge from
+stereocenters and stereobonds, as opposed to those that converge to them.</p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
@@ -90,6 +96,10 @@ stereocenters and the order of bonds stemming from them.</p>
 <li class="toctree-l3"><a class="reference internal" href="BondStereoFeaturizer.html">BondStereoFeaturizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="MoleculeCIPFeaturizer.html">MoleculeCIPFeaturizer</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">MoleculeStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BranchRank.html">BranchRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScanDirection.html">ScanDirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="StemArrangement.html">StemArrangement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VertexRank.html">VertexRank</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>

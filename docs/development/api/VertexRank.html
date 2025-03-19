@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>VertexRank &#8212; ChempropStereo dev  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=572d9513" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=ccdb6887"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Functions" href="functions.html" />
+    <link rel="prev" title="StemArrangement" href="StemArrangement.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="vertexrank">
+<h1>VertexRank<a class="headerlink" href="#vertexrank" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">VertexRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/stereochemistry/tetrahedral.html#VertexRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.VertexRank" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.FIRST">
+<span class="sig-name descname"><span class="pre">FIRST</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.FIRST" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.FOURTH">
+<span class="sig-name descname"><span class="pre">FOURTH</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.FOURTH" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.NONE" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.SECOND">
+<span class="sig-name descname"><span class="pre">SECOND</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.SECOND" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.THIRD">
+<span class="sig-name descname"><span class="pre">THIRD</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.THIRD" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of vertex ranks for tetrahedral stereochemistry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>NONE</strong> (<em>int</em>) – Not a tetrahedral vertex.</p></li>
+<li><p><strong>FIRST</strong> (<em>int</em>) – The first vertex in canonical order.</p></li>
+<li><p><strong>SECOND</strong> (<em>int</em>) – The second vertex in canonical order.</p></li>
+<li><p><strong>THIRD</strong> (<em>int</em>) – The third vertex in canonical order.</p></li>
+<li><p><strong>FOURTH</strong> (<em>int</em>) – The fourth vertex in canonical order.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="s2">&quot;C[C@H](N)O&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.SECOND: 2&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">VertexRank</span><span class="o">.</span><span class="n">from_bond</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">end_is_center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&lt;VertexRank.NONE: 0&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chempropstereo.VertexRank.tag">
+<span class="sig-name descname"><span class="pre">tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.VertexRank.tag" title="Link to this definition">¶</a></dt>
+<dd><p>str(object=’’) -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.__str__() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to ‘strict’.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ChempropStereo dev</a></h1>
+
+
+
+
+
+
+
+
+
+
+
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="classes.html">Classes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="AtomCIPFeaturizer.html">AtomCIPFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="AtomStereoFeaturizer.html">AtomStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BondStereoFeaturizer.html">BondStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="MoleculeCIPFeaturizer.html">MoleculeCIPFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="MoleculeStereoFeaturizer.html">MoleculeStereoFeaturizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="BranchRank.html">BranchRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScanDirection.html">ScanDirection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="StemArrangement.html">StemArrangement</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">VertexRank</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">Bibliography</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025 C. Abreu.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/api/VertexRank.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

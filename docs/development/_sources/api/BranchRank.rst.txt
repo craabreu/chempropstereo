@@ -1,0 +1,13 @@
+BranchRank
+==========
+
+.. currentmodule:: chempropstereo
+.. autoclass:: BranchRank
+    :member-order: alphabetical
+
+    .. rubric:: Methods
+
+    .. automethod:: MAJOR
+    .. automethod:: MINOR
+    .. automethod:: NONE
+    .. automethod:: tag

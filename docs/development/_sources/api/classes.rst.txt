@@ -9,6 +9,10 @@ Classes
     BondStereoFeaturizer
     MoleculeCIPFeaturizer
     MoleculeStereoFeaturizer
+    BranchRank
+    ScanDirection
+    StemArrangement
+    VertexRank
 
 .. testsetup::
 

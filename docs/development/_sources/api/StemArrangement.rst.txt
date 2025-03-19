@@ -1,0 +1,13 @@
+StemArrangement
+===============
+
+.. currentmodule:: chempropstereo
+.. autoclass:: StemArrangement
+    :member-order: alphabetical
+
+    .. rubric:: Methods
+
+    .. automethod:: CIS
+    .. automethod:: NONE
+    .. automethod:: TRANS
+    .. automethod:: tag
