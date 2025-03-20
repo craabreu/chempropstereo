@@ -16,6 +16,29 @@ _BOND_TYPES: tuple[Chem.BondType] = (
     Chem.BondType.TRIPLE,
     Chem.BondType.AROMATIC,
 )
+_VERTEX_RANKS: tuple[stereochemistry.VertexRank] = (
+    stereochemistry.VertexRank.FIRST,
+    stereochemistry.VertexRank.SECOND,
+    stereochemistry.VertexRank.THIRD,
+    stereochemistry.VertexRank.FOURTH,
+)
+_STEM_ARRANGEMENTS: tuple[stereochemistry.StemArrangement] = (
+    stereochemistry.StemArrangement.CIS,
+    stereochemistry.StemArrangement.TRANS,
+)
+_BRANCH_RANKS: tuple[stereochemistry.BranchRank] = (
+    stereochemistry.BranchRank.MAJOR,
+    stereochemistry.BranchRank.MINOR,
+)
+_SIZES = (
+    1,
+    len(_BOND_TYPES),
+    1,
+    1,
+    len(_VERTEX_RANKS),
+    len(_STEM_ARRANGEMENTS),
+    len(_BRANCH_RANKS),
+)
 
 
 class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]):
@@ -26,6 +49,11 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
 
     The featurized bonds are expected to be part of an RDKit molecule with canonical
     chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
+
+    Attributes
+    ----------
+    sizes: tuple[int]
+        A tuple of integers representing the sizes of each bond subfeature.
 
     Examples
     --------
@@ -44,56 +72,56 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
     >>> stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(1, 2))
     'C0 C8 C1 (CIS) C2 C4 O3'
     >>> describe_bonds_from_atom(1) # doctest: +NORMALIZE_WHITESPACE
-      1→0: 0 1000 0 0 10000 100 010
-      0→1: 0 1000 0 0 10000 100 100
-      1→2: 0 0100 1 0 10000 010 100
-      2→1: 0 0100 1 0 10000 010 100
-      1→8: 0 1000 0 0 10000 100 001
-      8→1: 0 1000 0 0 00010 100 100
+      1→0: 0 1000 0 0 0000 00 10
+      0→1: 0 1000 0 0 0000 00 00
+      1→2: 0 0100 1 0 0000 10 00
+      2→1: 0 0100 1 0 0000 10 00
+      1→8: 0 1000 0 0 0000 00 01
+      8→1: 0 1000 0 0 0010 00 00
     >>> describe_bonds_from_atom(2) # doctest: +NORMALIZE_WHITESPACE
-      2→1: 0 0100 1 0 10000 010 100
-      1→2: 0 0100 1 0 10000 010 100
-      2→3: 0 1000 1 0 10000 100 001
-      3→2: 0 1000 1 0 10000 100 100
-      2→4: 0 1000 1 0 10000 100 010
-      4→2: 0 1000 1 0 10000 100 010
+      2→1: 0 0100 1 0 0000 10 00
+      1→2: 0 0100 1 0 0000 10 00
+      2→3: 0 1000 1 0 0000 00 01
+      3→2: 0 1000 1 0 0000 00 00
+      2→4: 0 1000 1 0 0000 00 10
+      4→2: 0 1000 1 0 0000 00 10
     >>> stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(4, 5))
     'C2 C4 (TRANS) C5 N6 O7'
     >>> describe_bonds_from_atom(4) # doctest: +NORMALIZE_WHITESPACE
-      4→2: 0 1000 1 0 10000 100 010
-      2→4: 0 1000 1 0 10000 100 010
-      4→5: 0 0100 1 0 10000 001 100
-      5→4: 0 0100 1 0 10000 001 100
+      4→2: 0 1000 1 0 0000 00 10
+      2→4: 0 1000 1 0 0000 00 10
+      4→5: 0 0100 1 0 0000 01 00
+      5→4: 0 0100 1 0 0000 01 00
     >>> describe_bonds_from_atom(5) # doctest: +NORMALIZE_WHITESPACE
-      5→4: 0 0100 1 0 10000 001 100
-      4→5: 0 0100 1 0 10000 001 100
-      5→6: 0 1000 1 0 10000 100 010
-      6→5: 0 1000 1 0 10000 100 100
-      5→7: 0 1000 1 0 10000 100 001
-      7→5: 0 1000 1 0 10000 100 100
+      5→4: 0 0100 1 0 0000 01 00
+      4→5: 0 0100 1 0 0000 01 00
+      5→6: 0 1000 1 0 0000 00 10
+      6→5: 0 1000 1 0 0000 00 00
+      5→7: 0 1000 1 0 0000 00 01
+      7→5: 0 1000 1 0 0000 00 00
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(8))
     'C8 (CCW) O12 C9 C1'
     >>> describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE
-      8→1: 0 1000 0 0 00010 100 100
-      1→8: 0 1000 0 0 10000 100 001
-      8→9: 0 1000 0 0 00100 100 100
-      9→8: 0 1000 0 0 00010 100 100
-     8→12: 0 1000 0 0 01000 100 100
-     12→8: 0 1000 0 0 10000 100 100
+      8→1: 0 1000 0 0 0010 00 00
+      1→8: 0 1000 0 0 0000 00 01
+      8→9: 0 1000 0 0 0100 00 00
+      9→8: 0 1000 0 0 0010 00 00
+     8→12: 0 1000 0 0 1000 00 00
+     12→8: 0 1000 0 0 0000 00 00
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(9))
     'C9 (CW) O11 N10 C8'
     >>> describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE
-      9→8: 0 1000 0 0 00010 100 100
-      8→9: 0 1000 0 0 00100 100 100
-     9→10: 0 1000 0 0 00100 100 100
-     10→9: 0 1000 0 0 10000 100 100
-     9→11: 0 1000 0 0 01000 100 100
-     11→9: 0 1000 0 0 10000 100 100
+      9→8: 0 1000 0 0 0010 00 00
+      8→9: 0 1000 0 0 0100 00 00
+     9→10: 0 1000 0 0 0100 00 00
+     10→9: 0 1000 0 0 0000 00 00
+     9→11: 0 1000 0 0 1000 00 00
+     11→9: 0 1000 0 0 0000 00 00
 
     """
 
     def __len__(self) -> int:
-        return sum(self.sizes)
+        return sum(_SIZES)
 
     def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
         """Encode a bond in a molecule with canonical stereochemistry information.
@@ -138,9 +166,9 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
                 *(bond_type == item for item in _BOND_TYPES),
                 b.GetIsConjugated(),
                 b.IsInRing(),
-                *(vertex_rank == item for item in stereochemistry.VertexRank),
-                *(arrangement == item for item in stereochemistry.StemArrangement),
-                *(branch_rank == item for item in stereochemistry.BranchRank),
+                *(vertex_rank == item for item in _VERTEX_RANKS),
+                *(arrangement == item for item in _STEM_ARRANGEMENTS),
+                *(branch_rank == item for item in _BRANCH_RANKS),
             ],
             dtype=int,
         )
@@ -171,15 +199,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         [1, 4, 1, 1, 5, 3, 3]
 
         """
-        return [
-            1,
-            len(_BOND_TYPES),
-            1,
-            1,
-            len(stereochemistry.VertexRank),
-            len(stereochemistry.StemArrangement),
-            len(stereochemistry.BranchRank),
-        ]
+        return _SIZES
 
     def pretty_print(self, b: Chem.Bond | None, flip_direction: bool = False) -> str:
         """Get a formatted string representation of the bond features.
@@ -204,7 +224,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         >>> bond = mol.GetBondWithIdx(0)
         >>> featurizer = featurizers.BondStereoFeaturizer()
         >>> featurizer.pretty_print(bond)
-        '  0→1: 0 1000 0 0 10000 100 100'
+        '  0→1: 0 1000 0 0 0000 00 00'
 
         """
         atoms = [b.GetBeginAtomIdx(), b.GetEndAtomIdx()]

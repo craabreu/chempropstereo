@@ -92,9 +92,13 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
 
     """
 
-    def __init__(self, divergent_bonds: bool = True):
+    def __init__(
+        self,
+        atom_featurizer_mode: str | chemprop.featurizers.AtomFeatureMode,
+        divergent_bonds: bool,
+    ) -> None:
         super().__init__(
-            atom_featurizer=AtomStereoFeaturizer(),
+            atom_featurizer=AtomStereoFeaturizer(atom_featurizer_mode),
             bond_featurizer=BondStereoFeaturizer(),
         )
         self.divergent_bonds = divergent_bonds

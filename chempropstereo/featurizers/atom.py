@@ -162,7 +162,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
 
     """
 
-    def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
+    def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode) -> None:
         featurizer = chemprop.featurizers.get_multi_hot_atom_featurizer(
             chemprop.featurizers.AtomFeatureMode.get(mode)
         )
