@@ -258,7 +258,7 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         >>> from chempropstereo import MoleculeStereoFeaturizer
         >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
         >>> featurizer = MoleculeStereoFeaturizer("ORGANIC", divergent_bonds=True)
-        >>> print(featurizer.pretty_print(mol))
+        >>> print(featurizer.pretty_print(mol))  # doctest: +NORMALIZE_WHITESPACE
         Vertices:
         0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
         1: 0010000000000 0000100 000010 100 010000 00010 0 0.120
