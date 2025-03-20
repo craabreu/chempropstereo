@@ -84,7 +84,10 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     >>> import numpy as np
     >>> r_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@H](N)O"))
     >>> s_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@@H](N)O"))
-    >>> featurizer = featurizers.MoleculeStereoFeaturizer()
+    >>> featurizer = featurizers.MoleculeStereoFeaturizer(
+    ...     atom_featurizer_mode="ORGANIC",
+    ...     divergent_bonds=True,
+    ... )
     >>> r_molgraph = featurizer(r_mol)
     >>> s_molgraph = featurizer(s_mol)
     >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)

@@ -196,7 +196,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         >>> from chempropstereo import featurizers
         >>> featurizer = featurizers.BondStereoFeaturizer()
         >>> featurizer.sizes
-        [1, 4, 1, 1, 5, 3, 3]
+        (1, 4, 1, 1, 4, 2, 2)
 
         """
         return _SIZES
