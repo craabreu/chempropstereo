@@ -1,3 +1,5 @@
+"""Package for stereochemistry functions and features."""
+
 from .all import tag_steregroups
 from .cistrans import (
     BranchRank,

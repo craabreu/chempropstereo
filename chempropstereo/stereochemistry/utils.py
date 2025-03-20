@@ -1,3 +1,9 @@
+"""Utility functions related to stereochemistry tagging in molecules.
+
+.. module:: stereochemistry.utils
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import typing as t
 
 from rdkit import Chem
@@ -6,10 +12,10 @@ from rdkit import Chem
 def _swap_if_ascending(
     i: int, j: int, a: int, b: int, odd: bool
 ) -> tuple[int, int, int, int, bool]:
-    """
-    Helper function for :func:`~stereochemistry._argsort_descending_with_parity` that
-    conditionally swaps two indices and their corresponding values, and flips the
-    parity of the permutation if a swap is performed.
+    """Conditionally swap indices and values, and update permutation parity.
+
+    This is a helper function for
+    :func:`~stereochemistry._argsort_descending_with_parity`.
 
     Parameters
     ----------
@@ -33,6 +39,7 @@ def _swap_if_ascending(
         - The potentially swapped values a and b.
         - A boolean indicating whether the permutation is odd after having or not
           performed the swap.
+
     """
     if a < b:
         return j, i, b, a, not odd
@@ -42,10 +49,11 @@ def _swap_if_ascending(
 def argsort_descending_with_parity(
     a: int, b: int, c: int, d: t.Optional[int] = None
 ) -> tuple[tuple[int, ...], bool]:
-    """
-    Perform an indirect sort on three or four integers and returns the indices that
-    would arrange them in descending order, as well as a boolean indicating whether
-    the resulting permutation is odd rather than even.
+    """Perform an indirect sort on three or four integers.
+
+    This function takes three or four integers and returns the indices that
+    would arrange them in descending order, as well as a boolean indicating
+    whether the resulting permutation is odd rather than even.
 
     Parameters
     ----------
@@ -77,6 +85,7 @@ def argsort_descending_with_parity(
     ((0, 2, 1), True)
     >>> utils.argsort_descending_with_parity(3, 6, 1, 8)
     ((3, 1, 0, 2), False)
+
     """
     i, j, a, b, odd = _swap_if_ascending(0, 1, a, b, False)
     j, k, b, c, odd = _swap_if_ascending(j, 2, b, c, odd)
@@ -91,8 +100,7 @@ def argsort_descending_with_parity(
 
 
 def concat(*args: t.Any) -> str:
-    """
-    Concatenate the string representations of the given arguments.
+    """Concatenate the string representations of the given arguments.
 
     Parameters
     ----------
@@ -113,13 +121,13 @@ def concat(*args: t.Any) -> str:
     'abc'
     >>> utils.concat(1, "a", 2, "b", 3, "c")
     '1a2b3c'
+
     """
     return "".join(map(str, args))
 
 
 def describe_atom(atom: Chem.Atom) -> str:
-    """
-    Describe an atom.
+    """Describe an atom.
 
     Parameters
     ----------
@@ -138,5 +146,6 @@ def describe_atom(atom: Chem.Atom) -> str:
     >>> mol = Chem.MolFromSmiles("N/C(O)=C(S)/C")
     >>> utils.describe_atom(mol.GetAtomWithIdx(0))
     'N0'
+
     """
     return f"{atom.GetSymbol()}{atom.GetIdx()}"

@@ -1,3 +1,9 @@
+"""Module for tagging cis/trans stereogenic bonds in molecules.
+
+.. module:: stereochemistry.cistrans
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import enum
 
 import numpy as np
@@ -7,8 +13,7 @@ from . import base, utils
 
 
 class StemArrangement(base.SpatialArrangement):
-    """
-    Enumeration for cis/trans arrangements in double bonds.
+    """Enumeration for cis/trans arrangements in double bonds.
 
     Attributes
     ----------
@@ -31,6 +36,7 @@ class StemArrangement(base.SpatialArrangement):
     >>> bond = mol.GetBondWithIdx(0)
     >>> StemArrangement.get_from(bond)
     <StemArrangement.NONE: 0>
+
     """
 
     tag = enum.nonmember("canonicalCisTransTag")
@@ -41,8 +47,7 @@ class StemArrangement(base.SpatialArrangement):
 
 
 class BranchRank(base.Rank):
-    """
-    Enumeration for branch ranks.
+    """Enumeration for branch ranks.
 
     Attributes
     ----------
@@ -70,6 +75,7 @@ class BranchRank(base.Rank):
     <BranchRank.MINOR: 2>
     >>> BranchRank.from_bond(bond1, end_is_center=True)
     <BranchRank.NONE: 0>
+
     """
 
     tag = enum.nonmember("canonicalCisTransTag")
@@ -80,8 +86,7 @@ class BranchRank(base.Rank):
 
 
 def describe_stereobond(bond: Chem.Bond) -> str:
-    """
-    Describe a cis/trans stereobond.
+    """Describe a cis/trans stereobond.
 
     Parameters
     ----------
@@ -103,6 +108,7 @@ def describe_stereobond(bond: Chem.Bond) -> str:
     'N0 O2 C1 (TRANS) C3 C5 S4'
     >>> stereochemistry.describe_stereobond(mol.GetBondWithIdx(0))
     'N0 C1 is not a stereobond'
+
     """
     begin, end = bond.GetBeginAtom(), bond.GetEndAtom()
     descriptions = [utils.describe_atom(atom) for atom in (begin, end)]
@@ -126,8 +132,7 @@ def _clean_cis_trans_stereobond(bond: Chem.Bond) -> None:
 
 
 def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
-    r"""
-    Tag cis/trans stereobonds in a molecule based on their spatial arrangement.
+    r"""Tag cis/trans stereobonds in a molecule based on their spatial arrangement.
 
     Parameters
     ----------
@@ -152,6 +157,7 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
     N0 O2 C1 (TRANS) C3 C5 S4
     N0 O2 C1 (TRANS) C3 C4 S5
     N2 O0 C1 (TRANS) C3 C5 S4
+
     """
     if mol.HasProp("hasCanonicalStereobonds") and not force:
         return

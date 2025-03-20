@@ -1,3 +1,9 @@
+"""Base classes for spatial arrangements and ranks in stereogenicgroups.
+
+.. module:: stereochemistry.base
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import enum
 import typing as t
 
@@ -9,9 +15,10 @@ class SpatialArrangement(enum.IntEnum):
 
     @classmethod
     def get_from(cls, entity: Chem.Atom | Chem.Bond) -> t.Self:
-        """
-        Classify the spatial arrangement of a stereogenic group based on an atom's or
-        bond's canonical stereo tag.
+        """Classify the spatial arrangement of a stereogenic group.
+
+        The spatial arrangement is determined based on an atom's or bond's canonical
+        stereo tag.
 
         Parameters
         ----------
@@ -22,6 +29,7 @@ class SpatialArrangement(enum.IntEnum):
         -------
         SpatialArrangement
             The spatial arrangement obtained from the atom or bond.
+
         """
         if entity.HasProp(cls.tag):
             return cls(int(entity.GetProp(cls.tag)[0]))
@@ -33,9 +41,9 @@ class Rank(enum.IntEnum):
 
     @classmethod
     def get_neighbors(cls, atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
-        """
-        Get the neighbors of an atom in a specific order based on a canonical
-        stereogroup tag.
+        """Get the neighbors of an atom in a specific order.
+
+        The order is determined based on a canonical stereogroup tag.
 
         Parameters
         ----------
@@ -46,6 +54,7 @@ class Rank(enum.IntEnum):
         -------
         tuple[Chem.Atom, ...]
             A tuple of neighboring atoms in the specified order.
+
         """
         neighbors = atom.GetNeighbors()
         order = map(int, atom.GetProp(cls.tag)[1:])
@@ -53,9 +62,9 @@ class Rank(enum.IntEnum):
 
     @classmethod
     def from_bond(cls, bond: Chem.Bond, end_is_center: bool = False) -> t.Self:
-        """
-        Get the rank of a bond in a stereogenic group from its center atom's
-        canonical stereo tag.
+        """Get the rank of a bond in a stereogenic group.
+
+        The rank is determined from its center atom's canonical stereo tag.
 
         Parameters
         ----------
@@ -69,8 +78,8 @@ class Rank(enum.IntEnum):
         -------
         Rank
             The rank of the bond in the stereogenic group.
-        """
 
+        """
         if end_is_center:
             center_atom, edge_index = bond.GetEndAtom(), bond.GetBeginAtomIdx()
         else:

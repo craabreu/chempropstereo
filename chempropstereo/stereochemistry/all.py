@@ -1,3 +1,9 @@
+"""Module for tagging stereogenic groups in molecules.
+
+.. module:: stereochemistry.all
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 from rdkit import Chem
 
 from .cistrans import tag_cis_trans_stereobonds
@@ -5,8 +11,7 @@ from .tetrahedral import tag_tetrahedral_stereocenters
 
 
 def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
-    r"""
-    Add canonical stereochemistry information to all stereogenic groups in a molecule.
+    r"""Add canonical stereochemistry information to stereogenic groups in a molecule.
 
     The currently supported stereogenic groups are:
 
@@ -38,7 +43,7 @@ def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
     ...         print(stereochemistry.describe_stereobond(bond))
     C0 C8 C1 (CIS) C2 C4 O3
     C2 C4 (TRANS) C5 N6 O7
-    """
 
+    """
     tag_tetrahedral_stereocenters(mol, force)
     tag_cis_trans_stereobonds(mol, force)
