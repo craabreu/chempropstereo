@@ -9,6 +9,7 @@ import numpy as np
 from rdkit import Chem
 
 from .. import stereochemistry
+from . import utils
 
 
 class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
@@ -291,10 +292,4 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         '  0: 0010000000000 0000100 000010 001 000100 00010 0 0.120'
 
         """
-        atom_desc = str(a.GetIdx()).rjust(3)
-        features = self(a)
-        s = "".join(map(str, map(int, features[:-1])))
-        cuts = list(np.cumsum(self.sizes[:-1]))
-        bits_desc = " ".join(s[a:b] for a, b in zip([0] + cuts, cuts))
-        mass_desc = f"{features[-1]:.3f}"
-        return f"{atom_desc}: {bits_desc} {mass_desc}"
+        return utils.describe_atom_features(a.GetIdx(), self(a), self.sizes)

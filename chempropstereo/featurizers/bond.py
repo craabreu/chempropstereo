@@ -9,6 +9,7 @@ import numpy as np
 from rdkit import Chem
 
 from .. import stereochemistry
+from . import utils
 
 _BOND_TYPES: tuple[Chem.BondType, ...] = (
     Chem.BondType.SINGLE,
@@ -236,7 +237,4 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         atoms = [b.GetBeginAtomIdx(), b.GetEndAtomIdx()]
         if flip_direction:
             atoms.reverse()
-        bond_desc = "\u2192".join(map(str, atoms)).rjust(7)
-        s = "".join(map(str, self(b, flip_direction)))
-        cuts = list(np.cumsum(self.sizes))
-        return f"{bond_desc}: " + " ".join(s[a:b] for a, b in zip([0] + cuts, cuts))
+        return utils.describe_bond_features(atoms, self(b, flip_direction), self.sizes)
