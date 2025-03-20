@@ -9,6 +9,7 @@ import numpy as np
 from rdkit import Chem
 
 from .. import stereochemistry
+from . import utils
 from .atom import AtomCIPFeaturizer, AtomStereoFeaturizer
 from .bond import BondStereoFeaturizer
 
@@ -66,7 +67,7 @@ class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturize
 
 
 class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
-    """Molecule featurizer that includes canonical stereochemical information.
+    r"""Molecule featurizer that includes canonical stereochemical information.
 
     This featurizer includes canonicalized tetrahedral stereocenters and
     cis/trans stereobonds.
@@ -82,26 +83,72 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     >>> from chempropstereo import featurizers
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> r_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@H](N)O"))
-    >>> s_mol = Chem.AddHs(Chem.MolFromSmiles("C[C@@H](N)O"))
-    >>> featurizer = featurizers.MoleculeStereoFeaturizer(
-    ...     atom_featurizer_mode="ORGANIC",
-    ...     divergent_bonds=True,
-    ... )
-    >>> r_molgraph = featurizer(r_mol)
-    >>> s_molgraph = featurizer(s_mol)
-    >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)
-    >>> assert np.array_equal(r_molgraph.E, s_molgraph.E)
+    >>> mol = Chem.MolFromSmiles("C[C@@H](N)/C=C(O)/N")
+    >>> for divergent in (True, False):
+    ...     print(f"\nWith {'di' if divergent else 'con'}vergent bonds:\n")
+    ...     featurizer = featurizers.MoleculeStereoFeaturizer(
+    ...         mode="ORGANIC",
+    ...         divergent_bonds=divergent,
+    ...     )
+    ...     print(featurizer.pretty_print(mol))
+    <BLANKLINE>
+    With divergent bonds:
+    <BLANKLINE>
+    Vertices:
+      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
+      1: 0010000000000 0000100 000010 010 010000 00010 0 0.120
+      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140
+      3: 0010000000000 0001000 000010 001 010000 00100 0 0.120
+      4: 0010000000000 0001000 000010 001 100000 00100 0 0.120
+      5: 0000100000000 0010000 000010 001 010000 00100 0 0.160
+      6: 0001000000000 0001000 000010 001 001000 00100 0 0.140
+    Edges:
+        0→1: 0 1000 0 0 0000 00 00
+        1→0: 0 1000 0 0 0100 00 00
+        1→2: 0 1000 0 0 1000 00 00
+        2→1: 0 1000 0 0 0000 00 00
+        1→3: 0 1000 0 0 0010 00 00
+        3→1: 0 1000 0 0 0000 00 10
+        3→4: 0 0100 1 0 0000 01 00
+        4→3: 0 0100 1 0 0000 01 00
+        4→5: 0 1000 1 0 0000 00 01
+        5→4: 0 1000 1 0 0000 00 00
+        4→6: 0 1000 1 0 0000 00 10
+        6→4: 0 1000 1 0 0000 00 00
+    <BLANKLINE>
+    With convergent bonds:
+    <BLANKLINE>
+    Vertices:
+      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
+      1: 0010000000000 0000100 000010 010 010000 00010 0 0.120
+      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140
+      3: 0010000000000 0001000 000010 001 010000 00100 0 0.120
+      4: 0010000000000 0001000 000010 001 100000 00100 0 0.120
+      5: 0000100000000 0010000 000010 001 010000 00100 0 0.160
+      6: 0001000000000 0001000 000010 001 001000 00100 0 0.140
+    Edges:
+        1→0: 0 1000 0 0 0000 00 00
+        0→1: 0 1000 0 0 0100 00 00
+        2→1: 0 1000 0 0 1000 00 00
+        1→2: 0 1000 0 0 0000 00 00
+        3→1: 0 1000 0 0 0010 00 00
+        1→3: 0 1000 0 0 0000 00 10
+        4→3: 0 0100 1 0 0000 01 00
+        3→4: 0 0100 1 0 0000 01 00
+        5→4: 0 1000 1 0 0000 00 01
+        4→5: 0 1000 1 0 0000 00 00
+        6→4: 0 1000 1 0 0000 00 10
+        4→6: 0 1000 1 0 0000 00 00
 
     """
 
     def __init__(
         self,
-        atom_featurizer_mode: str | chemprop.featurizers.AtomFeatureMode,
+        mode: str | chemprop.featurizers.AtomFeatureMode,
         divergent_bonds: bool,
     ) -> None:
         super().__init__(
-            atom_featurizer=AtomStereoFeaturizer(atom_featurizer_mode),
+            atom_featurizer=AtomStereoFeaturizer(mode),
             bond_featurizer=BondStereoFeaturizer(),
         )
         self.divergent_bonds = divergent_bonds
@@ -178,3 +225,61 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         edge_index = np.array(edge_index, int)
 
         return chemprop.data.MolGraph(vertices, edges, edge_index, rev_edge_index)
+
+    def pretty_print(self, mol: Chem.Mol) -> None:
+        """Print a formatted string representation of the featurized molecule.
+
+        Parameters
+        ----------
+        mol
+            The molecule to be featurized.
+
+        Returns
+        -------
+        str
+            A string with the following format:
+            .. code-block:: text
+
+                Vertices:
+                <atom1 features>
+                <atom2 features>
+                ...
+                Edges:
+                <bond1 features>
+                <bond2 features>
+                ...
+
+            The features for each atom and bond are described in terms of the
+            one-hot encodings of the properties and the floats for the masses.
+
+        Example
+        -------
+        >>> from rdkit import Chem
+        >>> from chempropstereo import MoleculeStereoFeaturizer
+        >>> mol = Chem.MolFromSmiles("C[C@H](N)O")
+        >>> featurizer = MoleculeStereoFeaturizer("ORGANIC", divergent_bonds=True)
+        >>> print(featurizer.pretty_print(mol))
+        Vertices:
+        0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
+        1: 0010000000000 0000100 000010 100 010000 00010 0 0.120
+        2: 0001000000000 0001000 000010 001 001000 00010 0 0.140
+        3: 0000100000000 0010000 000010 001 010000 00010 0 0.160
+        Edges:
+            0→1: 0 1000 0 0 0000 00 00
+            1→0: 0 1000 0 0 0010 00 00
+            1→2: 0 1000 0 0 0100 00 00
+            2→1: 0 1000 0 0 0000 00 00
+            1→3: 0 1000 0 0 1000 00 00
+            3→1: 0 1000 0 0 0000 00 00
+
+        """
+        molgraph = self(mol)
+        vertices = "\n".join(
+            utils.describe_atom_features(vertex, features, self.atom_featurizer.sizes)
+            for vertex, features in enumerate(molgraph.V)
+        )
+        edges = "\n".join(
+            utils.describe_bond_features(edge, features, self.bond_featurizer.sizes)
+            for edge, features in zip(molgraph.edge_index.T, molgraph.E)
+        )
+        return f"Vertices:\n{vertices}\nEdges:\n{edges}"
