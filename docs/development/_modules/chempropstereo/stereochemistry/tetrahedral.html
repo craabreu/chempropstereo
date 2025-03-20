@@ -187,7 +187,7 @@
     <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not a stereocenter&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">direction</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">) &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="nb">map</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">,</span> <span class="n">VertexRank</span><span class="o">.</span><span class="n">_get_neighbors</span><span class="p">(</span><span class="n">atom</span><span class="p">))</span>
+        <span class="nb">map</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">,</span> <span class="n">VertexRank</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">atom</span><span class="p">))</span>
     <span class="p">)</span></div>
 
 
@@ -222,14 +222,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="n">hasStereocenters</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">has_stereocenters</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtoms</span><span class="p">():</span>
         <span class="n">tag</span> <span class="o">=</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetChiralTag</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CW</span><span class="p">,</span>
             <span class="n">Chem</span><span class="o">.</span><span class="n">ChiralType</span><span class="o">.</span><span class="n">CHI_TETRAHEDRAL_CCW</span><span class="p">,</span>
         <span class="p">):</span>
-            <span class="n">hasStereocenters</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">has_stereocenters</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">GetIdx</span><span class="p">()</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetNeighbors</span><span class="p">()]</span>
             <span class="n">all_ranks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">CanonicalRankAtomsInFragment</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">))</span>
             <span class="n">neighbor_ranks</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_ranks</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">]</span>
@@ -242,7 +242,7 @@
             <span class="n">atom</span><span class="o">.</span><span class="n">SetProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="o">*</span><span class="n">order</span><span class="p">))</span>
         <span class="k">elif</span> <span class="n">atom</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">):</span>
             <span class="n">atom</span><span class="o">.</span><span class="n">ClearProp</span><span class="p">(</span><span class="n">ScanDirection</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
-    <span class="n">mol</span><span class="o">.</span><span class="n">SetBoolProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">,</span> <span class="n">hasStereocenters</span><span class="p">)</span></div>
+    <span class="n">mol</span><span class="o">.</span><span class="n">SetBoolProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">,</span> <span class="n">has_stereocenters</span><span class="p">)</span></div>
 
 </pre></div>
 
