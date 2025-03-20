@@ -30,15 +30,6 @@ _BRANCH_RANKS: tuple[stereochemistry.BranchRank, ...] = (
     stereochemistry.BranchRank.MAJOR,
     stereochemistry.BranchRank.MINOR,
 )
-_SIZES: tuple[int, ...] = (
-    1,
-    len(_BOND_TYPES),
-    1,
-    1,
-    len(_VERTEX_RANKS),
-    len(_STEM_ARRANGEMENTS),
-    len(_BRANCH_RANKS),
-)
 
 
 class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]):
@@ -120,8 +111,15 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
 
     """
 
+    def __init__(self):
+        self.bond_types = _BOND_TYPES
+        self.vertex_ranks = _VERTEX_RANKS
+        self.stem_arrangements = _STEM_ARRANGEMENTS
+        self.branch_ranks = _BRANCH_RANKS
+        self._len = sum(self.sizes)
+
     def __len__(self) -> int:
-        return sum(_SIZES)
+        return self._len
 
     def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
         """Encode a bond in a molecule with canonical stereochemistry information.
@@ -199,7 +197,15 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         (1, 4, 1, 1, 4, 2, 2)
 
         """
-        return _SIZES
+        return (
+            1,
+            len(self.bond_types),
+            1,
+            1,
+            len(self.vertex_ranks),
+            len(self.stem_arrangements),
+            len(self.branch_ranks),
+        )
 
     def pretty_print(self, b: Chem.Bond | None, flip_direction: bool = False) -> str:
         """Get a formatted string representation of the bond features.

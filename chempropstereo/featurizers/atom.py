@@ -154,9 +154,9 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     ...     features = featurizer(atom)
     ...     assert len(features) == len(featurizer)
     ...     print("".join(map(str, map(int, features))))
-    001000000000000001000000100001001000001000
+    001000000000000001000000100010001000001000
+    001000000000000001000000101000100000001000
     001000000000000001000000100100100000001000
-    001000000000000001000000100010100000001000
 
     """
 
@@ -232,13 +232,13 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         """Get a tuple of sizes corresponding to different atom features.
 
         The tuple contains the sizes for:
-        - Atomic number
-        - Total degree
-        - Formal charge
-        - Scan direction
-        - Total number of Hs
-        - Hybridization
-        - Is aromatic
+        - Atomic numbers
+        - Total degrees
+        - Formal charges
+        - Scan directions
+        - Total numbers of Hs
+        - Hybridizations
+        - Aromatic indicator
         - Mass
 
         Returns
@@ -264,3 +264,35 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
             1,
             1,
         )
+
+    def pretty_print(self, a: Chem.Atom | None) -> str:
+        """Get a formatted string representation of the atom features.
+
+        Parameters
+        ----------
+        a : Chem.Atom or None
+            The atom to be described. If None, a null atom is assumed.
+
+        Returns
+        -------
+        str
+            A formatted string representing the atom features.
+
+        Examples
+        --------
+        >>> from rdkit import Chem
+        >>> from chempropstereo import featurizers
+        >>> mol = Chem.MolFromSmiles('CC')
+        >>> atom = mol.GetAtomWithIdx(0)
+        >>> featurizer = featurizers.AtomStereoFeaturizer("ORGANIC")
+        >>> featurizer.pretty_print(atom)
+        '   C0: 0010000000000 0000100 000010 001 000100 00010 0 0.12'
+
+        """
+        atom_desc = stereochemistry.utils.describe_atom(a).rjust(5)
+        features = self(a)
+        s = "".join(map(str, map(int, features[:-1])))
+        cuts = list(np.cumsum(self.sizes[:-1]))
+        bits_desc = " ".join(s[a:b] for a, b in zip([0] + cuts, cuts))
+        mass_desc = f"{features[-1]:.2f}"
+        return f"{atom_desc}: {bits_desc} {mass_desc}"
