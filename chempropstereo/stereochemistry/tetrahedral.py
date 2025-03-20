@@ -1,3 +1,9 @@
+"""Module for tagging tetrahedral stereogenic centers in molecules.
+
+.. module:: stereochemistry.tetrahedral
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import enum
 
 from rdkit import Chem
@@ -8,8 +14,7 @@ _CIP_CODES = {False: 0, "R": 1, "S": 2}
 
 
 class ScanDirection(base.SpatialArrangement):
-    """
-    Enumeration for scan directions in canonicalized tetrahedral stereocenters.
+    """Enumeration for scan directions in canonicalized tetrahedral stereocenters.
 
     Attributes
     ----------
@@ -33,6 +38,7 @@ class ScanDirection(base.SpatialArrangement):
     <ScanDirection.CW: 1>
     >>> ScanDirection.get_from(mol.GetAtomWithIdx(2))
     <ScanDirection.NONE: 0>
+
     """
 
     tag = enum.nonmember("canonicalChiralTag")
@@ -43,8 +49,7 @@ class ScanDirection(base.SpatialArrangement):
 
 
 class VertexRank(base.Rank):
-    """
-    Enumeration of vertex ranks for tetrahedral stereochemistry.
+    """Enumeration of vertex ranks for tetrahedral stereochemistry.
 
     Attributes
     ----------
@@ -71,6 +76,7 @@ class VertexRank(base.Rank):
     <VertexRank.SECOND: 2>
     >>> VertexRank.from_bond(bond, end_is_center=True)
     <VertexRank.NONE: 0>
+
     """
 
     tag = enum.nonmember("canonicalChiralTag")
@@ -83,8 +89,7 @@ class VertexRank(base.Rank):
 
 
 def get_cip_code(atom: Chem.Atom) -> int:
-    """
-    Get the CIP code of an atom as an integer.
+    """Get the CIP code of an atom as an integer.
 
     Parameters
     ----------
@@ -106,13 +111,13 @@ def get_cip_code(atom: Chem.Atom) -> int:
     >>> mol2 = Chem.MolFromSmiles("C[C@@H](N)O")
     >>> [stereochemistry.get_cip_code(atom) for atom in mol2.GetAtoms()]
     [0, 2, 0, 0]
+
     """
     return _CIP_CODES[atom.HasProp("_CIPCode") and atom.GetProp("_CIPCode")]
 
 
 def describe_stereocenter(atom: Chem.Atom) -> str:
-    """
-    Describe a tetrahedral stereocenter.
+    """Describe a tetrahedral stereocenter.
 
     Parameters
     ----------
@@ -134,6 +139,7 @@ def describe_stereocenter(atom: Chem.Atom) -> str:
     'C1 (CW) O3 N2 C0'
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(2))
     'N2 is not a stereocenter'
+
     """
     direction = ScanDirection.get_from(atom)
     if direction == ScanDirection.NONE:
@@ -144,8 +150,9 @@ def describe_stereocenter(atom: Chem.Atom) -> str:
 
 
 def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
-    """
-    Tag tetrahedral stereocenters in a molecule as clockwise or counterclockwise based
+    """Tag tetrahedral stereocenters in a molecule.
+
+    Tetrahedral stereocenters are tagged as clockwise or counterclockwise based
     on their neighbors arranged in a descending order of their canonical ranks.
 
     Parameters
@@ -168,6 +175,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     ...             print(stereochemistry.describe_stereocenter(atom))
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
+
     """
     if mol.HasProp("hasCanonicalStereocenters") and not force:
         return

@@ -1,8 +1,21 @@
+"""Unit tests for chiral center detection and canonical ranking using RDKit."""
+
 import numpy as np
 from rdkit import Chem
 
 
 def test_chiral_center_detection():
+    """Test detection of chiral centers in molecules using RDKit.
+
+    This test verifies that the FindPotentialStereo function from RDKit
+    accurately identifies chiral centers in given SMILES strings. It checks
+    both legacy and non-legacy stereo perception modes. The chiral centers
+    detected are compared against expected descriptors (clockwise 'CW' or
+    counterclockwise 'CCW'). The test ensures that chiral centers are correctly
+    specified and that their controlling atoms match the expected neighbors.
+    It also asserts that non-chiral atoms are marked as unspecified.
+    """
+
     def check_molecule(smiles, descriptions, use_legacy):
         Chem.SetUseLegacyStereoPerception(use_legacy)
         mol = Chem.MolFromSmiles(smiles)
@@ -33,6 +46,14 @@ def test_chiral_center_detection():
 
 
 def test_canonical_ranking():
+    """Test canonical ranking of atoms in a molecule.
+
+    Checks that the canonical ranking from RDKit produces the expected
+    order of atoms in a molecule. The test molecule is a chiral molecule
+    with a stereocenter and a tetrahedral stereobond. The test also checks
+    that the hydrogen atoms are correctly sorted last in the canonical
+    ranking.
+    """
     mol = Chem.MolFromSmiles("C[C@@H]([C@@H](C)N)O")
     order = np.argsort(Chem.CanonicalRankAtoms(mol)).tolist()
     assert order == [0, 3, 4, 5, 1, 2]

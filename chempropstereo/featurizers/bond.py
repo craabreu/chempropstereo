@@ -1,3 +1,9 @@
+"""Bond featurization.
+
+.. module:: featurizers.bond
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import chemprop
 import numpy as np
 from rdkit import Chem
@@ -13,9 +19,10 @@ _BOND_TYPES: tuple[Chem.BondType] = (
 
 
 class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]):
-    r"""
-    Multi-hot bond featurizer that includes the position of the end atom in the
-    canonical order of neighbors when the begin atom has a canonical chiral tag.
+    r"""Multi-hot bond featurizer that includes canonical stereochemistry information.
+
+    The featurizer encodes the position of the end atom in the canonical order of
+    neighbors when the begin atom has a canonical chiral tag.
 
     The featurized bonds are expected to be part of an RDKit molecule with canonical
     chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.
@@ -82,12 +89,39 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
      10→9: 0 1000 0 0 10000 100 100
      9→11: 0 1000 0 0 01000 100 100
      11→9: 0 1000 0 0 10000 100 100
+
     """
 
     def __len__(self) -> int:
         return sum(self.sizes)
 
     def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
+        """Encode a bond in a molecule with canonical stereochemistry information.
+
+        Parameters
+        ----------
+        b : Chem.Bond | None
+            The bond to be encoded.
+        flip_direction : bool, optional
+            Whether to reverse the direction of the bond (default is False).
+
+        Returns
+        -------
+        np.ndarray
+            A vector encoding the bond.
+
+        Notes
+        -----
+        The vector includes the following information:
+        - Null bond indicator
+        - Bond types
+        - Conjugation indicator
+        - Ring indicator
+        - Canonical vertex rank
+        - Canonical stem arrangement
+        - Canonical branch rank
+
+        """
         if b is None:
             x = np.zeros(len(self), int)
             x[0] = 1
@@ -113,8 +147,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
 
     @property
     def sizes(self) -> list[int]:
-        """
-        Returns a list of sizes corresponding to different bond features.
+        """Get a list of sizes corresponding to different bond features.
 
         The list contains the sizes for:
         - Null bond indicator
@@ -136,6 +169,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         >>> featurizer = featurizers.BondStereoFeaturizer()
         >>> featurizer.sizes
         [1, 4, 1, 1, 5, 3, 3]
+
         """
         return [
             1,
@@ -148,8 +182,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         ]
 
     def pretty_print(self, b: Chem.Bond | None, flip_direction: bool = False) -> str:
-        """
-        Returns a formatted string representation of the bond features.
+        """Get a formatted string representation of the bond features.
 
         Parameters
         ----------
@@ -172,6 +205,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         >>> featurizer = featurizers.BondStereoFeaturizer()
         >>> featurizer.pretty_print(bond)
         '  0→1: 0 1000 0 0 10000 100 100'
+
         """
         atoms = [b.GetBeginAtomIdx(), b.GetEndAtomIdx()]
         if flip_direction:

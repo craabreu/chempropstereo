@@ -1,3 +1,9 @@
+"""Molecule featurization.
+
+.. module:: featurizers.molecule
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import chemprop
 import numpy as np
 from rdkit import Chem
@@ -8,8 +14,7 @@ from .bond import BondStereoFeaturizer
 
 
 class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
-    """
-    Molecule featurizer that includes CIP codes for stereocenters.
+    """Molecule featurizer that includes CIP codes for stereocenters.
 
     Examples
     --------
@@ -23,6 +28,7 @@ class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturize
     >>> s_molgraph = featurizer(s_mol)
     >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)
     >>> assert np.array_equal(r_molgraph.E, s_molgraph.E)
+
     """
 
     def __init__(self):
@@ -37,14 +43,32 @@ class MoleculeCIPFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturize
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
+        """Featurize a molecule with canonical stereochemical information.
+
+        Parameters
+        ----------
+        mol
+            Molecule to be featurized.
+        atom_features_extra
+            Extra features to be added to the atoms.
+        bond_features_extra
+            Extra features to be added to the bonds.
+
+        Returns
+        -------
+        chemprop.data.MolGraph
+            Featurized molecule with canonical stereochemical information.
+
+        """
         mol = Chem.Mol(mol)
         Chem.AssignCIPLabels(mol)
         return super().__call__(mol, atom_features_extra, bond_features_extra)
 
 
 class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeaturizer):
-    """
-    Molecule featurizer that includes canonicalized tetrahedral stereocenters and
+    """Molecule featurizer that includes canonical stereochemical information.
+
+    This featurizer includes canonicalized tetrahedral stereocenters and
     cis/trans stereobonds.
 
     Parameters
@@ -65,6 +89,7 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
     >>> s_molgraph = featurizer(s_mol)
     >>> assert not np.array_equal(r_molgraph.V, s_molgraph.V)
     >>> assert np.array_equal(r_molgraph.E, s_molgraph.E)
+
     """
 
     def __init__(self, divergent_bonds: bool = True):
@@ -80,6 +105,23 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
         atom_features_extra: np.ndarray | None = None,
         bond_features_extra: np.ndarray | None = None,
     ) -> chemprop.data.MolGraph:
+        """Featurize a molecule with canonical stereochemical information.
+
+        Parameters
+        ----------
+        mol
+            Molecule to be featurized.
+        atom_features_extra
+            Extra features to be added to the atoms.
+        bond_features_extra
+            Extra features to be added to the bonds.
+
+        Returns
+        -------
+        chemprop.data.MolGraph
+            Featurized molecule with canonical stereochemical information.
+
+        """
         stereochemistry.tag_tetrahedral_stereocenters(mol, force=False)
         stereochemistry.tag_cis_trans_stereobonds(mol, force=False)
 
@@ -100,16 +142,16 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
             )
 
         if n_atoms == 0:
-            V = np.zeros((1, self.atom_fdim), dtype=np.single)
+            vertices = np.zeros((1, self.atom_fdim), dtype=np.single)
         else:
-            V = np.array(
+            vertices = np.array(
                 [self.atom_featurizer(a) for a in mol.GetAtoms()], dtype=np.single
             )
-        E = np.empty((2 * n_bonds, self.bond_fdim))
+        edges = np.empty((2 * n_bonds, self.bond_fdim))
         edge_index = [[], []]
 
         if atom_features_extra is not None:
-            V = np.hstack((V, atom_features_extra))
+            vertices = np.hstack((vertices, atom_features_extra))
 
         i = 0
         for bond in mol.GetBonds():
@@ -121,11 +163,11 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
                     x_e = np.concatenate(
                         (x_e, bond_features_extra[bond.GetIdx()]), dtype=np.single
                     )
-                E[i + j] = x_e
+                edges[i + j] = x_e
                 edge_index[j].extend([v, u] if flip_direction else [u, v])
             i += 2
 
-        rev_edge_index = np.arange(len(E)).reshape(-1, 2)[:, ::-1].ravel()
+        rev_edge_index = np.arange(len(edges)).reshape(-1, 2)[:, ::-1].ravel()
         edge_index = np.array(edge_index, int)
 
-        return chemprop.data.MolGraph(V, E, edge_index, rev_edge_index)
+        return chemprop.data.MolGraph(vertices, edges, edge_index, rev_edge_index)

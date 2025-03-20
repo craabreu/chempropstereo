@@ -100,8 +100,11 @@ lint.select = [
     "Q",  # Quality
     "SIM",  # Similarity
     "UP",  # Unused Parameters
-    "PL"  # Plugin Lints
+    "PL",  # Plugin Lints
+    "N",  # Naming
+    "D",  # Docstrings
 ]
+lint.ignore = ["D105", "D107", "D203", "D213"]
 
 [tool.ruff.lint.pylint]
 allow-magic-value-types = ["int", "str"]

@@ -1,3 +1,9 @@
+"""Atom featurization.
+
+.. module:: featurizers.atom
+.. moduleauthor:: Charlles Abreu <craabreu@mit.edu>
+"""
+
 import chemprop
 import numpy as np
 from rdkit import Chem
@@ -6,8 +12,7 @@ from .. import stereochemistry
 
 
 class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
-    """
-    Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
+    """Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
 
     The featurized atoms are expected to be part of an RDKit molecule with CIP labels
     assigned via the `AssignCIPLabels`_ function.
@@ -47,6 +52,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     00000100000000000000000000000000000000000010000001000100100000000100000
     0010000000000000010000001001000100000001000
     0010000000000000010000001000100100000001000
+
     """
 
     def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
@@ -63,6 +69,27 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         )
 
     def __call__(self, a: Chem.Atom | None) -> np.ndarray:
+        """Featurize an RDKit atom with stereochemical information.
+
+        Parameters
+        ----------
+        a : Chem.Atom | None
+            The atom to featurize. If None, returns a zero array.
+
+        Returns
+        -------
+        np.ndarray
+            A 1D array of shape `(len(self),)` containing the following features:
+            - One-hot encoding of the atomic number
+            - One-hot encoding of the total degree
+            - One-hot encoding of the formal charge
+            - One-hot encoding of the CIP code
+            - One-hot encoding of the total number of hydrogens
+            - One-hot encoding of the hybridization
+            - Boolean indicating whether the atom is aromatic
+            - Mass of the atom divided by 100
+
+        """
         x = np.zeros(len(self), int)
 
         if a is None:
@@ -89,8 +116,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
 
 
 class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
-    """
-    Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
+    """Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
     The featurized atoms are expected to be part of an RDKit molecule with canonical
     chiral tags assigned via :func:`~stereochemistry.tag_tetrahedral_stereocenters`.
@@ -133,6 +159,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     001000000000000001000000101000001000001000
     001000000000000001000000100100100000001000
     001000000000000001000000100010100000001000
+
     """
 
     def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
@@ -156,6 +183,27 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         )
 
     def __call__(self, a: Chem.Atom | None) -> np.ndarray:
+        """Featurize an RDKit atom with stereochemical information.
+
+        Parameters
+        ----------
+        a
+            The atom to featurize.
+
+        Returns
+        -------
+        np.ndarray
+            A 1D array of shape `(len(self),)` containing the following features:
+            - `atomic_num`: one-hot encoding of the atomic number
+            - `total_degree`: one-hot encoding of the total degree
+            - `formal_charge`: one-hot encoding of the formal charge
+            - `scan_direction`: one-hot encoding of the scan direction
+            - `total_num_hs`: one-hot encoding of the total number of Hs
+            - `hybridization`: one-hot encoding of the hybridization
+            - `is_aromatic`: boolean indicating whether the atom is aromatic
+            - `mass`: mass of the atom divided by 100
+
+        """
         if a is None:
             return np.zeros(len(self))
 
