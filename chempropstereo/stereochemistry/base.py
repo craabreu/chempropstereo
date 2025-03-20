@@ -32,7 +32,21 @@ class Rank(enum.IntEnum):
     """Base class for ranks in stereogenic groups."""
 
     @classmethod
-    def _get_neighbors(cls, atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
+    def get_neighbors(cls, atom: Chem.Atom) -> tuple[Chem.Atom, ...]:
+        """
+        Get the neighbors of an atom in a specific order based on a canonical
+        stereogroup tag.
+
+        Parameters
+        ----------
+        atom
+            The atom whose neighbors are to be retrieved.
+
+        Returns
+        -------
+        tuple[Chem.Atom, ...]
+            A tuple of neighboring atoms in the specified order.
+        """
         neighbors = atom.GetNeighbors()
         order = map(int, atom.GetProp(cls.tag)[1:])
         return tuple(neighbors[i] for i in order)
@@ -63,7 +77,7 @@ class Rank(enum.IntEnum):
             center_atom, edge_index = bond.GetBeginAtom(), bond.GetEndAtomIdx()
         if not center_atom.HasProp(cls.tag):
             return cls.NONE
-        neighbors = cls._get_neighbors(center_atom)
+        neighbors = cls.get_neighbors(center_atom)
         for rank, neighbor in enumerate(neighbors, start=1):
             if neighbor.GetIdx() == edge_index:
                 return cls(rank)

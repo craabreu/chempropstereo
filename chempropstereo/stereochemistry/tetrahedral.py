@@ -139,7 +139,7 @@ def describe_stereocenter(atom: Chem.Atom) -> str:
     if direction == ScanDirection.NONE:
         return f"{utils.describe_atom(atom)} is not a stereocenter"
     return f"{utils.describe_atom(atom)} ({direction.name}) " + " ".join(
-        map(utils.describe_atom, VertexRank._get_neighbors(atom))
+        map(utils.describe_atom, VertexRank.get_neighbors(atom))
     )
 
 

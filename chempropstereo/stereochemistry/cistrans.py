@@ -110,11 +110,11 @@ def describe_stereobond(bond: Chem.Bond) -> str:
     if arrangement == StemArrangement.NONE:
         return " ".join(descriptions) + " is not a stereobond"
     return (
-        " ".join(map(utils.describe_atom, BranchRank._get_neighbors(begin)))
+        " ".join(map(utils.describe_atom, BranchRank.get_neighbors(begin)))
         + " "
         + f" ({arrangement.name}) ".join(descriptions)
         + " "
-        + " ".join(map(utils.describe_atom, BranchRank._get_neighbors(end)))
+        + " ".join(map(utils.describe_atom, BranchRank.get_neighbors(end)))
     )
 
 
