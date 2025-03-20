@@ -156,11 +156,11 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
     if mol.HasProp("hasCanonicalStereobonds") and not force:
         return
     Chem.SetBondStereoFromDirections(mol)
-    hasStereobonds = False
+    has_stereobonds = False
     for bond in mol.GetBonds():
         tag = bond.GetStereo()
         if tag in (Chem.BondStereo.STEREOCIS, Chem.BondStereo.STEREOTRANS):
-            hasStereobonds = True
+            has_stereobonds = True
             connected_atoms = [bond.GetBeginAtom(), bond.GetEndAtom()]
             indices = [atom.GetIdx() for atom in connected_atoms]
             neighbors = [
@@ -188,4 +188,4 @@ def tag_cis_trans_stereobonds(mol: Chem.Mol, force: bool = False) -> None:
                 atom.SetProp(BranchRank.tag, utils.concat(arrangement, *indices))
         else:
             _clean_cis_trans_stereobond(bond)
-    mol.SetBoolProp("hasCanonicalStereobonds", hasStereobonds)
+    mol.SetBoolProp("hasCanonicalStereobonds", has_stereobonds)

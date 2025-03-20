@@ -171,14 +171,14 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     """
     if mol.HasProp("hasCanonicalStereocenters") and not force:
         return
-    hasStereocenters = False
+    has_stereocenters = False
     for atom in mol.GetAtoms():
         tag = atom.GetChiralTag()
         if tag in (
             Chem.ChiralType.CHI_TETRAHEDRAL_CW,
             Chem.ChiralType.CHI_TETRAHEDRAL_CCW,
         ):
-            hasStereocenters = True
+            has_stereocenters = True
             neighbors = [atom.GetIdx() for atom in atom.GetNeighbors()]
             all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
@@ -191,4 +191,4 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
             atom.SetProp(ScanDirection.tag, utils.concat(direction, *order))
         elif atom.HasProp(ScanDirection.tag):
             atom.ClearProp(ScanDirection.tag)
-    mol.SetBoolProp("hasCanonicalStereocenters", hasStereocenters)
+    mol.SetBoolProp("hasCanonicalStereocenters", has_stereocenters)
