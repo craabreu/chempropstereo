@@ -47,6 +47,11 @@
 neighbors when the begin atom has a canonical chiral tag.</p>
 <p>The featurized bonds are expected to be part of an RDKit molecule with canonical
 chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">tetrahedral.tag_tetrahedral_stereocenters()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sizes</strong> (<em>tuple</em><em>[</em><em>int</em><em>]</em>) – A tuple of integers representing the sizes of each bond subfeature.</p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span><span class="p">,</span> <span class="n">stereochemistry</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
@@ -59,55 +64,55 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <span class="gp">... </span>        <span class="n">atom_is_begin</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">()</span> <span class="o">==</span> <span class="n">index</span>
 <span class="gp">... </span>        <span class="k">for</span> <span class="n">reverse</span> <span class="ow">in</span> <span class="p">(</span><span class="ow">not</span> <span class="n">atom_is_begin</span><span class="p">,</span> <span class="n">atom_is_begin</span><span class="p">):</span>
 <span class="gp">... </span>            <span class="nb">print</span><span class="p">(</span><span class="n">featurizer</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">bond</span><span class="p">,</span> <span class="n">reverse</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_steregroups</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">tag_stereogroups</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="go">&#39;C0 C8 C1 (CIS) C2 C4 O3&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">  1→0: 0 1000 0 0 10000 100 010</span>
-<span class="go">  0→1: 0 1000 0 0 10000 100 100</span>
-<span class="go">  1→2: 0 0100 1 0 10000 010 100</span>
-<span class="go">  2→1: 0 0100 1 0 10000 010 100</span>
-<span class="go">  1→8: 0 1000 0 0 10000 100 001</span>
-<span class="go">  8→1: 0 1000 0 0 00010 100 100</span>
+<span class="go">    1→0: 0 1000 0 0 0000 00 10</span>
+<span class="go">    0→1: 0 1000 0 0 0000 00 00</span>
+<span class="go">    1→2: 0 0100 1 0 0000 10 00</span>
+<span class="go">    2→1: 0 0100 1 0 0000 10 00</span>
+<span class="go">    1→8: 0 1000 0 0 0000 00 01</span>
+<span class="go">    8→1: 0 1000 0 0 0010 00 00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">  2→1: 0 0100 1 0 10000 010 100</span>
-<span class="go">  1→2: 0 0100 1 0 10000 010 100</span>
-<span class="go">  2→3: 0 1000 1 0 10000 100 001</span>
-<span class="go">  3→2: 0 1000 1 0 10000 100 100</span>
-<span class="go">  2→4: 0 1000 1 0 10000 100 010</span>
-<span class="go">  4→2: 0 1000 1 0 10000 100 010</span>
+<span class="go">    2→1: 0 0100 1 0 0000 10 00</span>
+<span class="go">    1→2: 0 0100 1 0 0000 10 00</span>
+<span class="go">    2→3: 0 1000 1 0 0000 00 01</span>
+<span class="go">    3→2: 0 1000 1 0 0000 00 00</span>
+<span class="go">    2→4: 0 1000 1 0 0000 00 10</span>
+<span class="go">    4→2: 0 1000 1 0 0000 00 10</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereobond</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetBondBetweenAtoms</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
 <span class="go">&#39;C2 C4 (TRANS) C5 N6 O7&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="go">  4→2: 0 1000 1 0 10000 100 010</span>
-<span class="go">  2→4: 0 1000 1 0 10000 100 010</span>
-<span class="go">  4→5: 0 0100 1 0 10000 001 100</span>
-<span class="go">  5→4: 0 0100 1 0 10000 001 100</span>
+<span class="go">    4→2: 0 1000 1 0 0000 00 10</span>
+<span class="go">    2→4: 0 1000 1 0 0000 00 10</span>
+<span class="go">    4→5: 0 0100 1 0 0000 01 00</span>
+<span class="go">    5→4: 0 0100 1 0 0000 01 00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="go">  5→4: 0 0100 1 0 10000 001 100</span>
-<span class="go">  4→5: 0 0100 1 0 10000 001 100</span>
-<span class="go">  5→6: 0 1000 1 0 10000 100 010</span>
-<span class="go">  6→5: 0 1000 1 0 10000 100 100</span>
-<span class="go">  5→7: 0 1000 1 0 10000 100 001</span>
-<span class="go">  7→5: 0 1000 1 0 10000 100 100</span>
+<span class="go">    5→4: 0 0100 1 0 0000 01 00</span>
+<span class="go">    4→5: 0 0100 1 0 0000 01 00</span>
+<span class="go">    5→6: 0 1000 1 0 0000 00 10</span>
+<span class="go">    6→5: 0 1000 1 0 0000 00 00</span>
+<span class="go">    5→7: 0 1000 1 0 0000 00 01</span>
+<span class="go">    7→5: 0 1000 1 0 0000 00 00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereocenter</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
 <span class="go">&#39;C8 (CCW) O12 C9 C1&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
-<span class="go">  8→1: 0 1000 0 0 00010 100 100</span>
-<span class="go">  1→8: 0 1000 0 0 10000 100 001</span>
-<span class="go">  8→9: 0 1000 0 0 00100 100 100</span>
-<span class="go">  9→8: 0 1000 0 0 00010 100 100</span>
-<span class="go"> 8→12: 0 1000 0 0 01000 100 100</span>
-<span class="go"> 12→8: 0 1000 0 0 10000 100 100</span>
+<span class="go">    8→1: 0 1000 0 0 0010 00 00</span>
+<span class="go">    1→8: 0 1000 0 0 0000 00 01</span>
+<span class="go">    8→9: 0 1000 0 0 0100 00 00</span>
+<span class="go">    9→8: 0 1000 0 0 0010 00 00</span>
+<span class="go">   8→12: 0 1000 0 0 1000 00 00</span>
+<span class="go">   12→8: 0 1000 0 0 0000 00 00</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stereochemistry</span><span class="o">.</span><span class="n">describe_stereocenter</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">GetAtomWithIdx</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span>
 <span class="go">&#39;C9 (CW) O11 N10 C8&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">describe_bonds_from_atom</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
-<span class="go">  9→8: 0 1000 0 0 00010 100 100</span>
-<span class="go">  8→9: 0 1000 0 0 00100 100 100</span>
-<span class="go"> 9→10: 0 1000 0 0 00100 100 100</span>
-<span class="go"> 10→9: 0 1000 0 0 10000 100 100</span>
-<span class="go"> 9→11: 0 1000 0 0 01000 100 100</span>
-<span class="go"> 11→9: 0 1000 0 0 10000 100 100</span>
+<span class="go">    9→8: 0 1000 0 0 0010 00 00</span>
+<span class="go">    8→9: 0 1000 0 0 0100 00 00</span>
+<span class="go">   9→10: 0 1000 0 0 0100 00 00</span>
+<span class="go">   10→9: 0 1000 0 0 0000 00 00</span>
+<span class="go">   9→11: 0 1000 0 0 1000 00 00</span>
+<span class="go">   11→9: 0 1000 0 0 0000 00 00</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -136,7 +141,7 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <span class="gp">&gt;&gt;&gt; </span><span class="n">bond</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetBondWithIdx</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
-<span class="go">&#39;  0→1: 0 1000 0 0 10000 100 100&#39;</span>
+<span class="go">&#39;    0→1: 0 1000 0 0 0000 00 00&#39;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -165,7 +170,7 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">chempropstereo</span><span class="w"> </span><span class="kn">import</span> <span class="n">featurizers</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span> <span class="o">=</span> <span class="n">featurizers</span><span class="o">.</span><span class="n">BondStereoFeaturizer</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">featurizer</span><span class="o">.</span><span class="n">sizes</span>
-<span class="go">[1, 4, 1, 1, 5, 3, 3]</span>
+<span class="go">(1, 4, 1, 1, 4, 2, 2)</span>
 </pre></div>
 </div>
 </dd></dl>

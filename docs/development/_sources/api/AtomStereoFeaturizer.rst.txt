@@ -5,3 +5,7 @@ AtomStereoFeaturizer
 .. autoclass:: AtomStereoFeaturizer
     :member-order: alphabetical
 
+    .. rubric:: Methods
+
+    .. automethod:: pretty_print
+    .. automethod:: sizes

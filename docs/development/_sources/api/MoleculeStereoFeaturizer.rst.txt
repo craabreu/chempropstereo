@@ -5,3 +5,6 @@ MoleculeStereoFeaturizer
 .. autoclass:: MoleculeStereoFeaturizer
     :member-order: alphabetical
 
+    .. rubric:: Methods
+
+    .. automethod:: pretty_print

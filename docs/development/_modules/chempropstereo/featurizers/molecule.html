@@ -46,6 +46,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">stereochemistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.atom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomCIPFeaturizer</span><span class="p">,</span> <span class="n">AtomStereoFeaturizer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bond</span><span class="w"> </span><span class="kn">import</span> <span class="n">BondStereoFeaturizer</span>
 
@@ -108,7 +109,7 @@
 <div class="viewcode-block" id="MoleculeStereoFeaturizer">
 <a class="viewcode-back" href="../../../api/MoleculeStereoFeaturizer.html#chempropstereo.MoleculeStereoFeaturizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MoleculeStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">SimpleMoleculeMolGraphFeaturizer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Molecule featurizer that includes canonical stereochemical information.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Molecule featurizer that includes canonical stereochemical information.</span>
 
 <span class="sd">    This featurizer includes canonicalized tetrahedral stereocenters and</span>
 <span class="sd">    cis/trans stereobonds.</span>
@@ -124,19 +125,72 @@
 <span class="sd">    &gt;&gt;&gt; from chempropstereo import featurizers</span>
 <span class="sd">    &gt;&gt;&gt; from rdkit import Chem</span>
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
-<span class="sd">    &gt;&gt;&gt; r_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;))</span>
-<span class="sd">    &gt;&gt;&gt; s_mol = Chem.AddHs(Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;))</span>
-<span class="sd">    &gt;&gt;&gt; featurizer = featurizers.MoleculeStereoFeaturizer()</span>
-<span class="sd">    &gt;&gt;&gt; r_molgraph = featurizer(r_mol)</span>
-<span class="sd">    &gt;&gt;&gt; s_molgraph = featurizer(s_mol)</span>
-<span class="sd">    &gt;&gt;&gt; assert not np.array_equal(r_molgraph.V, s_molgraph.V)</span>
-<span class="sd">    &gt;&gt;&gt; assert np.array_equal(r_molgraph.E, s_molgraph.E)</span>
+<span class="sd">    &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@@H](N)/C=C(O)/N&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; for divergent in (True, False):</span>
+<span class="sd">    ...     print(f&quot;\nWith {&#39;di&#39; if divergent else &#39;con&#39;}vergent bonds:\n&quot;)</span>
+<span class="sd">    ...     featurizer = featurizers.MoleculeStereoFeaturizer(</span>
+<span class="sd">    ...         mode=&quot;ORGANIC&quot;,</span>
+<span class="sd">    ...         divergent_bonds=divergent,</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    ...     print(featurizer.pretty_print(mol))</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    With divergent bonds:</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    Vertices:</span>
+<span class="sd">      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120</span>
+<span class="sd">      1: 0010000000000 0000100 000010 010 010000 00010 0 0.120</span>
+<span class="sd">      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140</span>
+<span class="sd">      3: 0010000000000 0001000 000010 001 010000 00100 0 0.120</span>
+<span class="sd">      4: 0010000000000 0001000 000010 001 100000 00100 0 0.120</span>
+<span class="sd">      5: 0000100000000 0010000 000010 001 010000 00100 0 0.160</span>
+<span class="sd">      6: 0001000000000 0001000 000010 001 001000 00100 0 0.140</span>
+<span class="sd">    Edges:</span>
+<span class="sd">        0→1: 0 1000 0 0 0000 00 00</span>
+<span class="sd">        1→0: 0 1000 0 0 0100 00 00</span>
+<span class="sd">        1→2: 0 1000 0 0 1000 00 00</span>
+<span class="sd">        2→1: 0 1000 0 0 0000 00 00</span>
+<span class="sd">        1→3: 0 1000 0 0 0010 00 00</span>
+<span class="sd">        3→1: 0 1000 0 0 0000 00 10</span>
+<span class="sd">        3→4: 0 0100 1 0 0000 01 00</span>
+<span class="sd">        4→3: 0 0100 1 0 0000 01 00</span>
+<span class="sd">        4→5: 0 1000 1 0 0000 00 01</span>
+<span class="sd">        5→4: 0 1000 1 0 0000 00 00</span>
+<span class="sd">        4→6: 0 1000 1 0 0000 00 10</span>
+<span class="sd">        6→4: 0 1000 1 0 0000 00 00</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    With convergent bonds:</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    Vertices:</span>
+<span class="sd">      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120</span>
+<span class="sd">      1: 0010000000000 0000100 000010 010 010000 00010 0 0.120</span>
+<span class="sd">      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140</span>
+<span class="sd">      3: 0010000000000 0001000 000010 001 010000 00100 0 0.120</span>
+<span class="sd">      4: 0010000000000 0001000 000010 001 100000 00100 0 0.120</span>
+<span class="sd">      5: 0000100000000 0010000 000010 001 010000 00100 0 0.160</span>
+<span class="sd">      6: 0001000000000 0001000 000010 001 001000 00100 0 0.140</span>
+<span class="sd">    Edges:</span>
+<span class="sd">        1→0: 0 1000 0 0 0000 00 00</span>
+<span class="sd">        0→1: 0 1000 0 0 0100 00 00</span>
+<span class="sd">        2→1: 0 1000 0 0 1000 00 00</span>
+<span class="sd">        1→2: 0 1000 0 0 0000 00 00</span>
+<span class="sd">        3→1: 0 1000 0 0 0010 00 00</span>
+<span class="sd">        1→3: 0 1000 0 0 0000 00 10</span>
+<span class="sd">        4→3: 0 0100 1 0 0000 01 00</span>
+<span class="sd">        3→4: 0 0100 1 0 0000 01 00</span>
+<span class="sd">        5→4: 0 1000 1 0 0000 00 01</span>
+<span class="sd">        4→5: 0 1000 1 0 0000 00 00</span>
+<span class="sd">        6→4: 0 1000 1 0 0000 00 10</span>
+<span class="sd">        4→6: 0 1000 1 0 0000 00 00</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">divergent_bonds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">AtomFeatureMode</span><span class="p">,</span>
+        <span class="n">divergent_bonds</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomStereoFeaturizer</span><span class="p">(),</span>
+            <span class="n">atom_featurizer</span><span class="o">=</span><span class="n">AtomStereoFeaturizer</span><span class="p">(</span><span class="n">mode</span><span class="p">),</span>
             <span class="n">bond_featurizer</span><span class="o">=</span><span class="n">BondStereoFeaturizer</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divergent_bonds</span> <span class="o">=</span> <span class="n">divergent_bonds</span>
@@ -212,7 +266,68 @@
         <span class="n">rev_edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="n">edge_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edge_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">rev_edge_index</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">MolGraph</span><span class="p">(</span><span class="n">vertices</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">edge_index</span><span class="p">,</span> <span class="n">rev_edge_index</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MoleculeStereoFeaturizer.pretty_print">
+<a class="viewcode-back" href="../../../api/MoleculeStereoFeaturizer.html#chempropstereo.MoleculeStereoFeaturizer.pretty_print">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print a formatted string representation of the featurized molecule.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mol</span>
+<span class="sd">            The molecule to be featurized.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A string with the following format:</span>
+<span class="sd">            .. code-block:: text</span>
+
+<span class="sd">                Vertices:</span>
+<span class="sd">                &lt;atom1 features&gt;</span>
+<span class="sd">                &lt;atom2 features&gt;</span>
+<span class="sd">                ...</span>
+<span class="sd">                Edges:</span>
+<span class="sd">                &lt;bond1 features&gt;</span>
+<span class="sd">                &lt;bond2 features&gt;</span>
+<span class="sd">                ...</span>
+
+<span class="sd">            The features for each atom and bond are described in terms of the</span>
+<span class="sd">            one-hot encodings of the properties and the floats for the masses.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; from rdkit import Chem</span>
+<span class="sd">        &gt;&gt;&gt; from chempropstereo import MoleculeStereoFeaturizer</span>
+<span class="sd">        &gt;&gt;&gt; mol = Chem.MolFromSmiles(&quot;C[C@H](N)O&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; featurizer = MoleculeStereoFeaturizer(&quot;ORGANIC&quot;, divergent_bonds=True)</span>
+<span class="sd">        &gt;&gt;&gt; print(featurizer.pretty_print(mol))  # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">        Vertices:</span>
+<span class="sd">        0: 0010000000000 0000100 000010 001 000100 00010 0 0.120</span>
+<span class="sd">        1: 0010000000000 0000100 000010 100 010000 00010 0 0.120</span>
+<span class="sd">        2: 0001000000000 0001000 000010 001 001000 00010 0 0.140</span>
+<span class="sd">        3: 0000100000000 0010000 000010 001 010000 00010 0 0.160</span>
+<span class="sd">        Edges:</span>
+<span class="sd">            0→1: 0 1000 0 0 0000 00 00</span>
+<span class="sd">            1→0: 0 1000 0 0 0010 00 00</span>
+<span class="sd">            1→2: 0 1000 0 0 0100 00 00</span>
+<span class="sd">            2→1: 0 1000 0 0 0000 00 00</span>
+<span class="sd">            1→3: 0 1000 0 0 1000 00 00</span>
+<span class="sd">            3→1: 0 1000 0 0 0000 00 00</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">molgraph</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">describe_atom_features</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_featurizer</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molgraph</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">describe_bond_features</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bond_featurizer</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">edge</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">molgraph</span><span class="o">.</span><span class="n">edge_index</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">molgraph</span><span class="o">.</span><span class="n">E</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Vertices:</span><span class="se">\n</span><span class="si">{</span><span class="n">vertices</span><span class="si">}</span><span class="se">\n</span><span class="s2">Edges:</span><span class="se">\n</span><span class="si">{</span><span class="n">edges</span><span class="si">}</span><span class="s2">&quot;</span></div>
+</div>
 
 </pre></div>
 
