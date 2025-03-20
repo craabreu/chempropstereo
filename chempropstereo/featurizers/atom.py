@@ -142,21 +142,23 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     --------
     >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
-    >>> cw_mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> ccw_mol = Chem.MolFromSmiles("C[C@@H](N)O")
-    >>> stereochemistry.tag_tetrahedral_stereocenters(cw_mol)
-    >>> stereochemistry.tag_tetrahedral_stereocenters(ccw_mol)
-    >>> cw_atom = cw_mol.GetAtomWithIdx(1)
-    >>> ccw_atom = ccw_mol.GetAtomWithIdx(1)
-    >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
     >>> featurizer = featurizers.AtomStereoFeaturizer("ORGANIC")
-    >>> for atom in [non_chiral_atom, cw_atom, ccw_atom]:
-    ...     features = featurizer(atom)
-    ...     assert len(features) == len(featurizer)
-    ...     print("".join(map(str, map(int, features))))
-    001000000000000001000000100010001000001000
-    001000000000000001000000101000100000001000
-    001000000000000001000000100100100000001000
+    >>> for smi in ["C[C@H](N)O", "C[C@@H](N)O"]:
+    ...     mol = Chem.MolFromSmiles(smi)
+    ...     stereochemistry.tag_stereogroups(mol)
+    ...     print(f"Molecule: {smi}")
+    ...     for atom in mol.GetAtoms():
+    ...         print(featurizer.pretty_print(atom))
+    Molecule: C[C@H](N)O
+      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
+      1: 0010000000000 0000100 000010 100 010000 00010 0 0.120
+      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140
+      3: 0000100000000 0010000 000010 001 010000 00010 0 0.160
+    Molecule: C[C@@H](N)O
+      0: 0010000000000 0000100 000010 001 000100 00010 0 0.120
+      1: 0010000000000 0000100 000010 010 010000 00010 0 0.120
+      2: 0001000000000 0001000 000010 001 001000 00010 0 0.140
+      3: 0000100000000 0010000 000010 001 010000 00010 0 0.160
 
     """
 
@@ -286,13 +288,13 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         >>> atom = mol.GetAtomWithIdx(0)
         >>> featurizer = featurizers.AtomStereoFeaturizer("ORGANIC")
         >>> featurizer.pretty_print(atom)
-        '   C0: 0010000000000 0000100 000010 001 000100 00010 0 0.12'
+        '  0: 0010000000000 0000100 000010 001 000100 00010 0 0.120'
 
         """
-        atom_desc = stereochemistry.utils.describe_atom(a).rjust(5)
+        atom_desc = str(a.GetIdx()).rjust(3)
         features = self(a)
         s = "".join(map(str, map(int, features[:-1])))
         cuts = list(np.cumsum(self.sizes[:-1]))
         bits_desc = " ".join(s[a:b] for a, b in zip([0] + cuts, cuts))
-        mass_desc = f"{features[-1]:.2f}"
+        mass_desc = f"{features[-1]:.3f}"
         return f"{atom_desc}: {bits_desc} {mass_desc}"

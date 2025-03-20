@@ -59,55 +59,55 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
     ...         atom_is_begin = bond.GetBeginAtomIdx() == index
     ...         for reverse in (not atom_is_begin, atom_is_begin):
     ...             print(featurizer.pretty_print(bond, reverse))
-    >>> stereochemistry.tag_steregroups(mol)
+    >>> stereochemistry.tag_stereogroups(mol)
     >>> stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(1, 2))
     'C0 C8 C1 (CIS) C2 C4 O3'
     >>> describe_bonds_from_atom(1) # doctest: +NORMALIZE_WHITESPACE
-      1→0: 0 1000 0 0 0000 00 10
-      0→1: 0 1000 0 0 0000 00 00
-      1→2: 0 0100 1 0 0000 10 00
-      2→1: 0 0100 1 0 0000 10 00
-      1→8: 0 1000 0 0 0000 00 01
-      8→1: 0 1000 0 0 0010 00 00
+        1→0: 0 1000 0 0 0000 00 10
+        0→1: 0 1000 0 0 0000 00 00
+        1→2: 0 0100 1 0 0000 10 00
+        2→1: 0 0100 1 0 0000 10 00
+        1→8: 0 1000 0 0 0000 00 01
+        8→1: 0 1000 0 0 0010 00 00
     >>> describe_bonds_from_atom(2) # doctest: +NORMALIZE_WHITESPACE
-      2→1: 0 0100 1 0 0000 10 00
-      1→2: 0 0100 1 0 0000 10 00
-      2→3: 0 1000 1 0 0000 00 01
-      3→2: 0 1000 1 0 0000 00 00
-      2→4: 0 1000 1 0 0000 00 10
-      4→2: 0 1000 1 0 0000 00 10
+        2→1: 0 0100 1 0 0000 10 00
+        1→2: 0 0100 1 0 0000 10 00
+        2→3: 0 1000 1 0 0000 00 01
+        3→2: 0 1000 1 0 0000 00 00
+        2→4: 0 1000 1 0 0000 00 10
+        4→2: 0 1000 1 0 0000 00 10
     >>> stereochemistry.describe_stereobond(mol.GetBondBetweenAtoms(4, 5))
     'C2 C4 (TRANS) C5 N6 O7'
     >>> describe_bonds_from_atom(4) # doctest: +NORMALIZE_WHITESPACE
-      4→2: 0 1000 1 0 0000 00 10
-      2→4: 0 1000 1 0 0000 00 10
-      4→5: 0 0100 1 0 0000 01 00
-      5→4: 0 0100 1 0 0000 01 00
+        4→2: 0 1000 1 0 0000 00 10
+        2→4: 0 1000 1 0 0000 00 10
+        4→5: 0 0100 1 0 0000 01 00
+        5→4: 0 0100 1 0 0000 01 00
     >>> describe_bonds_from_atom(5) # doctest: +NORMALIZE_WHITESPACE
-      5→4: 0 0100 1 0 0000 01 00
-      4→5: 0 0100 1 0 0000 01 00
-      5→6: 0 1000 1 0 0000 00 10
-      6→5: 0 1000 1 0 0000 00 00
-      5→7: 0 1000 1 0 0000 00 01
-      7→5: 0 1000 1 0 0000 00 00
+        5→4: 0 0100 1 0 0000 01 00
+        4→5: 0 0100 1 0 0000 01 00
+        5→6: 0 1000 1 0 0000 00 10
+        6→5: 0 1000 1 0 0000 00 00
+        5→7: 0 1000 1 0 0000 00 01
+        7→5: 0 1000 1 0 0000 00 00
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(8))
     'C8 (CCW) O12 C9 C1'
     >>> describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE
-      8→1: 0 1000 0 0 0010 00 00
-      1→8: 0 1000 0 0 0000 00 01
-      8→9: 0 1000 0 0 0100 00 00
-      9→8: 0 1000 0 0 0010 00 00
-     8→12: 0 1000 0 0 1000 00 00
-     12→8: 0 1000 0 0 0000 00 00
+        8→1: 0 1000 0 0 0010 00 00
+        1→8: 0 1000 0 0 0000 00 01
+        8→9: 0 1000 0 0 0100 00 00
+        9→8: 0 1000 0 0 0010 00 00
+       8→12: 0 1000 0 0 1000 00 00
+       12→8: 0 1000 0 0 0000 00 00
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(9))
     'C9 (CW) O11 N10 C8'
     >>> describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE
-      9→8: 0 1000 0 0 0010 00 00
-      8→9: 0 1000 0 0 0100 00 00
-     9→10: 0 1000 0 0 0100 00 00
-     10→9: 0 1000 0 0 0000 00 00
-     9→11: 0 1000 0 0 1000 00 00
-     11→9: 0 1000 0 0 0000 00 00
+        9→8: 0 1000 0 0 0010 00 00
+        8→9: 0 1000 0 0 0100 00 00
+       9→10: 0 1000 0 0 0100 00 00
+       10→9: 0 1000 0 0 0000 00 00
+       9→11: 0 1000 0 0 1000 00 00
+       11→9: 0 1000 0 0 0000 00 00
 
     """
 
@@ -230,13 +230,13 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         >>> bond = mol.GetBondWithIdx(0)
         >>> featurizer = featurizers.BondStereoFeaturizer()
         >>> featurizer.pretty_print(bond)
-        '  0→1: 0 1000 0 0 0000 00 00'
+        '    0→1: 0 1000 0 0 0000 00 00'
 
         """
         atoms = [b.GetBeginAtomIdx(), b.GetEndAtomIdx()]
         if flip_direction:
             atoms.reverse()
-        bond_desc = "\u2192".join(map(str, atoms)).rjust(5)
+        bond_desc = "\u2192".join(map(str, atoms)).rjust(7)
         s = "".join(map(str, self(b, flip_direction)))
         cuts = list(np.cumsum(self.sizes))
         return f"{bond_desc}: " + " ".join(s[a:b] for a, b in zip([0] + cuts, cuts))

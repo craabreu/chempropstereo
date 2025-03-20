@@ -10,7 +10,7 @@ from .cistrans import tag_cis_trans_stereobonds
 from .tetrahedral import tag_tetrahedral_stereocenters
 
 
-def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
+def tag_stereogroups(mol: Chem.Mol, force: bool = False) -> None:
     r"""Add canonical stereochemistry information to stereogenic groups in a molecule.
 
     The currently supported stereogenic groups are:
@@ -30,7 +30,7 @@ def tag_steregroups(mol: Chem.Mol, force: bool = False) -> None:
     >>> from rdkit import Chem
     >>> from chempropstereo import stereochemistry
     >>> mol = Chem.MolFromSmiles("C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
-    >>> stereochemistry.tag_steregroups(mol)
+    >>> stereochemistry.tag_stereogroups(mol)
     >>> for atom in mol.GetAtoms():
     ...     direction = stereochemistry.ScanDirection.get_from(atom)
     ...     if direction != stereochemistry.ScanDirection.NONE:
