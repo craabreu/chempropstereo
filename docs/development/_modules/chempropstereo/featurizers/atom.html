@@ -35,7 +35,13 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.featurizers.atom</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
+<span></span><span class="sd">&quot;&quot;&quot;Atom featurization.</span>
+
+<span class="sd">.. module:: featurizers.atom</span>
+<span class="sd">.. moduleauthor:: Charlles Abreu &lt;craabreu@mit.edu&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
@@ -45,8 +51,7 @@
 <div class="viewcode-block" id="AtomCIPFeaturizer">
 <a class="viewcode-back" href="../../../api/AtomCIPFeaturizer.html#chempropstereo.AtomCIPFeaturizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AtomCIPFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotAtomFeaturizer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.</span>
 
 <span class="sd">    The featurized atoms are expected to be part of an RDKit molecule with CIP labels</span>
 <span class="sd">    assigned via the `AssignCIPLabels`_ function.</span>
@@ -86,6 +91,7 @@
 <span class="sd">    00000100000000000000000000000000000000000010000001000100100000000100000</span>
 <span class="sd">    0010000000000000010000001001000100000001000</span>
 <span class="sd">    0010000000000000010000001000100100000001000</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">AtomFeatureMode</span> <span class="o">=</span> <span class="s2">&quot;V2&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -102,6 +108,27 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Featurize an RDKit atom with stereochemical information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a : Chem.Atom | None</span>
+<span class="sd">            The atom to featurize. If None, returns a zero array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            A 1D array of shape `(len(self),)` containing the following features:</span>
+<span class="sd">            - One-hot encoding of the atomic number</span>
+<span class="sd">            - One-hot encoding of the total degree</span>
+<span class="sd">            - One-hot encoding of the formal charge</span>
+<span class="sd">            - One-hot encoding of the CIP code</span>
+<span class="sd">            - One-hot encoding of the total number of hydrogens</span>
+<span class="sd">            - One-hot encoding of the hybridization</span>
+<span class="sd">            - Boolean indicating whether the atom is aromatic</span>
+<span class="sd">            - Mass of the atom divided by 100</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">int</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -131,8 +158,7 @@
 <div class="viewcode-block" id="AtomStereoFeaturizer">
 <a class="viewcode-back" href="../../../api/AtomStereoFeaturizer.html#chempropstereo.AtomStereoFeaturizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AtomStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">MultiHotAtomFeaturizer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Multi-hot atom featurizer that includes a canonical chiral tag for each atom.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-hot atom featurizer that includes a canonical chiral tag for each atom.</span>
 
 <span class="sd">    The featurized atoms are expected to be part of an RDKit molecule with canonical</span>
 <span class="sd">    chiral tags assigned via :func:`~stereochemistry.tag_tetrahedral_stereocenters`.</span>
@@ -175,6 +201,7 @@
 <span class="sd">    001000000000000001000000101000001000001000</span>
 <span class="sd">    001000000000000001000000100100100000001000</span>
 <span class="sd">    001000000000000001000000100010100000001000</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">AtomFeatureMode</span> <span class="o">=</span> <span class="s2">&quot;V2&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -198,6 +225,27 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Featurize an RDKit atom with stereochemical information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        a</span>
+<span class="sd">            The atom to featurize.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            A 1D array of shape `(len(self),)` containing the following features:</span>
+<span class="sd">            - `atomic_num`: one-hot encoding of the atomic number</span>
+<span class="sd">            - `total_degree`: one-hot encoding of the total degree</span>
+<span class="sd">            - `formal_charge`: one-hot encoding of the formal charge</span>
+<span class="sd">            - `scan_direction`: one-hot encoding of the scan direction</span>
+<span class="sd">            - `total_num_hs`: one-hot encoding of the total number of Hs</span>
+<span class="sd">            - `hybridization`: one-hot encoding of the hybridization</span>
+<span class="sd">            - `is_aromatic`: boolean indicating whether the atom is aromatic</span>
+<span class="sd">            - `mass`: mass of the atom divided by 100</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 

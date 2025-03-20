@@ -42,8 +42,9 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chempropstereo.</span></span><span class="sig-name descname"><span class="pre">BondStereoFeaturizer</span></span><a class="reference internal" href="../_modules/chempropstereo/featurizers/bond.html#BondStereoFeaturizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer" title="Link to this definition">¶</a></dt>
-<dd><p>Multi-hot bond featurizer that includes the position of the end atom in the
-canonical order of neighbors when the begin atom has a canonical chiral tag.</p>
+<dd><p>Multi-hot bond featurizer that includes canonical stereochemistry information.</p>
+<p>The featurizer encodes the position of the end atom in the canonical order of
+neighbors when the begin atom has a canonical chiral tag.</p>
 <p>The featurized bonds are expected to be part of an RDKit molecule with canonical
 chiral tags assigned via <code class="xref py py-func docutils literal notranslate"><span class="pre">tetrahedral.tag_tetrahedral_stereocenters()</span></code>.</p>
 <p class="rubric">Examples</p>
@@ -113,7 +114,7 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <dl class="py method">
 <dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer.pretty_print">
 <span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flip_direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/chempropstereo/featurizers/bond.html#BondStereoFeaturizer.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer.pretty_print" title="Link to this definition">¶</a></dt>
-<dd><p>Returns a formatted string representation of the bond features.</p>
+<dd><p>Get a formatted string representation of the bond features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -143,7 +144,7 @@ chiral tags assigned via <code class="xref py py-func docutils literal notransla
 <dl class="py method">
 <dt class="sig sig-object py" id="chempropstereo.BondStereoFeaturizer.sizes">
 <span class="sig-name descname"><span class="pre">sizes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chempropstereo.BondStereoFeaturizer.sizes" title="Link to this definition">¶</a></dt>
-<dd><p>Returns a list of sizes corresponding to different bond features.</p>
+<dd><p>Get a list of sizes corresponding to different bond features.</p>
 <p>The list contains the sizes for:
 - Null bond indicator
 - Bond types

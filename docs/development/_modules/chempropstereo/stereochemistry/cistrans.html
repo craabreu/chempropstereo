@@ -35,7 +35,13 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.stereochemistry.cistrans</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span></span><span class="sd">&quot;&quot;&quot;Module for tagging cis/trans stereogenic bonds in molecules.</span>
+
+<span class="sd">.. module:: stereochemistry.cistrans</span>
+<span class="sd">.. moduleauthor:: Charlles Abreu &lt;craabreu@mit.edu&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
@@ -46,8 +52,7 @@
 <div class="viewcode-block" id="StemArrangement">
 <a class="viewcode-back" href="../../../api/StemArrangement.html#chempropstereo.StemArrangement">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StemArrangement</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">SpatialArrangement</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enumeration for cis/trans arrangements in double bonds.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for cis/trans arrangements in double bonds.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -70,6 +75,7 @@
 <span class="sd">    &gt;&gt;&gt; bond = mol.GetBondWithIdx(0)</span>
 <span class="sd">    &gt;&gt;&gt; StemArrangement.get_from(bond)</span>
 <span class="sd">    &lt;StemArrangement.NONE: 0&gt;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalCisTransTag&quot;</span><span class="p">)</span>
@@ -83,8 +89,7 @@
 <div class="viewcode-block" id="BranchRank">
 <a class="viewcode-back" href="../../../api/BranchRank.html#chempropstereo.BranchRank">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BranchRank</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Rank</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enumeration for branch ranks.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for branch ranks.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -112,6 +117,7 @@
 <span class="sd">    &lt;BranchRank.MINOR: 2&gt;</span>
 <span class="sd">    &gt;&gt;&gt; BranchRank.from_bond(bond1, end_is_center=True)</span>
 <span class="sd">    &lt;BranchRank.NONE: 0&gt;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalCisTransTag&quot;</span><span class="p">)</span>
@@ -125,8 +131,7 @@
 <div class="viewcode-block" id="describe_stereobond">
 <a class="viewcode-back" href="../../../api/describe_stereobond.html#chempropstereo.describe_stereobond">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">describe_stereobond</span><span class="p">(</span><span class="n">bond</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Describe a cis/trans stereobond.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Describe a cis/trans stereobond.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -148,6 +153,7 @@
 <span class="sd">    &#39;N0 O2 C1 (TRANS) C3 C5 S4&#39;</span>
 <span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereobond(mol.GetBondWithIdx(0))</span>
 <span class="sd">    &#39;N0 C1 is not a stereobond&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">begin</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetBeginAtom</span><span class="p">(),</span> <span class="n">bond</span><span class="o">.</span><span class="n">GetEndAtom</span><span class="p">()</span>
     <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">describe_atom</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span> <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)]</span>
@@ -174,8 +180,7 @@
 <div class="viewcode-block" id="tag_cis_trans_stereobonds">
 <a class="viewcode-back" href="../../../api/tag_cis_trans_stereobonds.html#chempropstereo.tag_cis_trans_stereobonds">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tag_cis_trans_stereobonds</span><span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tag cis/trans stereobonds in a molecule based on their spatial arrangement.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Tag cis/trans stereobonds in a molecule based on their spatial arrangement.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -200,6 +205,7 @@
 <span class="sd">    N0 O2 C1 (TRANS) C3 C5 S4</span>
 <span class="sd">    N0 O2 C1 (TRANS) C3 C4 S5</span>
 <span class="sd">    N2 O0 C1 (TRANS) C3 C5 S4</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereobonds&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
         <span class="k">return</span>

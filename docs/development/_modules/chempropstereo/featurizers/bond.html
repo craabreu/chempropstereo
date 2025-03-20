@@ -35,7 +35,13 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.featurizers.bond</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
+<span></span><span class="sd">&quot;&quot;&quot;Bond featurization.</span>
+
+<span class="sd">.. module:: featurizers.bond</span>
+<span class="sd">.. moduleauthor:: Charlles Abreu &lt;craabreu@mit.edu&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">chemprop</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
@@ -52,9 +58,10 @@
 <div class="viewcode-block" id="BondStereoFeaturizer">
 <a class="viewcode-back" href="../../../api/BondStereoFeaturizer.html#chempropstereo.BondStereoFeaturizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BondStereoFeaturizer</span><span class="p">(</span><span class="n">chemprop</span><span class="o">.</span><span class="n">featurizers</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">VectorFeaturizer</span><span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span><span class="p">]):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Multi-hot bond featurizer that includes the position of the end atom in the</span>
-<span class="sd">    canonical order of neighbors when the begin atom has a canonical chiral tag.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Multi-hot bond featurizer that includes canonical stereochemistry information.</span>
+
+<span class="sd">    The featurizer encodes the position of the end atom in the canonical order of</span>
+<span class="sd">    neighbors when the begin atom has a canonical chiral tag.</span>
 
 <span class="sd">    The featurized bonds are expected to be part of an RDKit molecule with canonical</span>
 <span class="sd">    chiral tags assigned via :func:`tetrahedral.tag_tetrahedral_stereocenters`.</span>
@@ -121,12 +128,39 @@
 <span class="sd">     10→9: 0 1000 0 0 10000 100 100</span>
 <span class="sd">     9→11: 0 1000 0 0 01000 100 100</span>
 <span class="sd">     11→9: 0 1000 0 0 10000 100 100</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a bond in a molecule with canonical stereochemistry information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        b : Chem.Bond | None</span>
+<span class="sd">            The bond to be encoded.</span>
+<span class="sd">        flip_direction : bool, optional</span>
+<span class="sd">            Whether to reverse the direction of the bond (default is False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            A vector encoding the bond.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The vector includes the following information:</span>
+<span class="sd">        - Null bond indicator</span>
+<span class="sd">        - Bond types</span>
+<span class="sd">        - Conjugation indicator</span>
+<span class="sd">        - Ring indicator</span>
+<span class="sd">        - Canonical vertex rank</span>
+<span class="sd">        - Canonical stem arrangement</span>
+<span class="sd">        - Canonical branch rank</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">int</span><span class="p">)</span>
             <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -152,8 +186,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a list of sizes corresponding to different bond features.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of sizes corresponding to different bond features.</span>
 
 <span class="sd">        The list contains the sizes for:</span>
 <span class="sd">        - Null bond indicator</span>
@@ -175,6 +208,7 @@
 <span class="sd">        &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
 <span class="sd">        &gt;&gt;&gt; featurizer.sizes</span>
 <span class="sd">        [1, 4, 1, 1, 5, 3, 3]</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="mi">1</span><span class="p">,</span>
@@ -189,8 +223,7 @@
 <div class="viewcode-block" id="BondStereoFeaturizer.pretty_print">
 <a class="viewcode-back" href="../../../api/BondStereoFeaturizer.html#chempropstereo.BondStereoFeaturizer.pretty_print">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Bond</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flip_direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns a formatted string representation of the bond features.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a formatted string representation of the bond features.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -213,6 +246,7 @@
 <span class="sd">        &gt;&gt;&gt; featurizer = featurizers.BondStereoFeaturizer()</span>
 <span class="sd">        &gt;&gt;&gt; featurizer.pretty_print(bond)</span>
 <span class="sd">        &#39;  0→1: 0 1000 0 0 10000 100 100&#39;</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">atoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">GetBeginAtomIdx</span><span class="p">(),</span> <span class="n">b</span><span class="o">.</span><span class="n">GetEndAtomIdx</span><span class="p">()]</span>
         <span class="k">if</span> <span class="n">flip_direction</span><span class="p">:</span>

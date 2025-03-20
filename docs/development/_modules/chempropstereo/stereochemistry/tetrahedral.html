@@ -35,7 +35,13 @@
           <div class="body" role="main">
             
   <h1>Source code for chempropstereo.stereochemistry.tetrahedral</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span></span><span class="sd">&quot;&quot;&quot;Module for tagging tetrahedral stereogenic centers in molecules.</span>
+
+<span class="sd">.. module:: stereochemistry.tetrahedral</span>
+<span class="sd">.. moduleauthor:: Charlles Abreu &lt;craabreu@mit.edu&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rdkit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Chem</span>
 
@@ -47,8 +53,7 @@
 <div class="viewcode-block" id="ScanDirection">
 <a class="viewcode-back" href="../../../api/ScanDirection.html#chempropstereo.ScanDirection">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScanDirection</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">SpatialArrangement</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enumeration for scan directions in canonicalized tetrahedral stereocenters.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for scan directions in canonicalized tetrahedral stereocenters.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -72,6 +77,7 @@
 <span class="sd">    &lt;ScanDirection.CW: 1&gt;</span>
 <span class="sd">    &gt;&gt;&gt; ScanDirection.get_from(mol.GetAtomWithIdx(2))</span>
 <span class="sd">    &lt;ScanDirection.NONE: 0&gt;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)</span>
@@ -85,8 +91,7 @@
 <div class="viewcode-block" id="VertexRank">
 <a class="viewcode-back" href="../../../api/VertexRank.html#chempropstereo.VertexRank">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VertexRank</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Rank</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enumeration of vertex ranks for tetrahedral stereochemistry.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of vertex ranks for tetrahedral stereochemistry.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -113,6 +118,7 @@
 <span class="sd">    &lt;VertexRank.SECOND: 2&gt;</span>
 <span class="sd">    &gt;&gt;&gt; VertexRank.from_bond(bond, end_is_center=True)</span>
 <span class="sd">    &lt;VertexRank.NONE: 0&gt;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">tag</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">nonmember</span><span class="p">(</span><span class="s2">&quot;canonicalChiralTag&quot;</span><span class="p">)</span>
@@ -128,8 +134,7 @@
 <div class="viewcode-block" id="get_cip_code">
 <a class="viewcode-back" href="../../../api/get_cip_code.html#chempropstereo.get_cip_code">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_cip_code</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the CIP code of an atom as an integer.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the CIP code of an atom as an integer.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -151,6 +156,7 @@
 <span class="sd">    &gt;&gt;&gt; mol2 = Chem.MolFromSmiles(&quot;C[C@@H](N)O&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; [stereochemistry.get_cip_code(atom) for atom in mol2.GetAtoms()]</span>
 <span class="sd">    [0, 2, 0, 0]</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CIP_CODES</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;_CIPCode&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">atom</span><span class="o">.</span><span class="n">GetProp</span><span class="p">(</span><span class="s2">&quot;_CIPCode&quot;</span><span class="p">)]</span></div>
 
@@ -159,8 +165,7 @@
 <div class="viewcode-block" id="describe_stereocenter">
 <a class="viewcode-back" href="../../../api/describe_stereocenter.html#chempropstereo.describe_stereocenter">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">describe_stereocenter</span><span class="p">(</span><span class="n">atom</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Atom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Describe a tetrahedral stereocenter.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Describe a tetrahedral stereocenter.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -182,6 +187,7 @@
 <span class="sd">    &#39;C1 (CW) O3 N2 C0&#39;</span>
 <span class="sd">    &gt;&gt;&gt; stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(2))</span>
 <span class="sd">    &#39;N2 is not a stereocenter&#39;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">direction</span> <span class="o">=</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">get_from</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">ScanDirection</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
@@ -195,8 +201,9 @@
 <div class="viewcode-block" id="tag_tetrahedral_stereocenters">
 <a class="viewcode-back" href="../../../api/tag_tetrahedral_stereocenters.html#chempropstereo.tag_tetrahedral_stereocenters">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">tag_tetrahedral_stereocenters</span><span class="p">(</span><span class="n">mol</span><span class="p">:</span> <span class="n">Chem</span><span class="o">.</span><span class="n">Mol</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tag tetrahedral stereocenters in a molecule as clockwise or counterclockwise based</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tag tetrahedral stereocenters in a molecule.</span>
+
+<span class="sd">    Tetrahedral stereocenters are tagged as clockwise or counterclockwise based</span>
 <span class="sd">    on their neighbors arranged in a descending order of their canonical ranks.</span>
 
 <span class="sd">    Parameters</span>
@@ -219,6 +226,7 @@
 <span class="sd">    ...             print(stereochemistry.describe_stereocenter(atom))</span>
 <span class="sd">    C1 (CW) O3 N2 C0</span>
 <span class="sd">    C1 (CW) O2 N3 C0</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">HasProp</span><span class="p">(</span><span class="s2">&quot;hasCanonicalStereocenters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
         <span class="k">return</span>
