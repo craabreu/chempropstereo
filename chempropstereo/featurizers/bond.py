@@ -10,27 +10,27 @@ from rdkit import Chem
 
 from .. import stereochemistry
 
-_BOND_TYPES: tuple[Chem.BondType] = (
+_BOND_TYPES: tuple[Chem.BondType, ...] = (
     Chem.BondType.SINGLE,
     Chem.BondType.DOUBLE,
     Chem.BondType.TRIPLE,
     Chem.BondType.AROMATIC,
 )
-_VERTEX_RANKS: tuple[stereochemistry.VertexRank] = (
+_VERTEX_RANKS: tuple[stereochemistry.VertexRank, ...] = (
     stereochemistry.VertexRank.FIRST,
     stereochemistry.VertexRank.SECOND,
     stereochemistry.VertexRank.THIRD,
     stereochemistry.VertexRank.FOURTH,
 )
-_STEM_ARRANGEMENTS: tuple[stereochemistry.StemArrangement] = (
+_STEM_ARRANGEMENTS: tuple[stereochemistry.StemArrangement, ...] = (
     stereochemistry.StemArrangement.CIS,
     stereochemistry.StemArrangement.TRANS,
 )
-_BRANCH_RANKS: tuple[stereochemistry.BranchRank] = (
+_BRANCH_RANKS: tuple[stereochemistry.BranchRank, ...] = (
     stereochemistry.BranchRank.MAJOR,
     stereochemistry.BranchRank.MINOR,
 )
-_SIZES = (
+_SIZES: tuple[int, ...] = (
     1,
     len(_BOND_TYPES),
     1,

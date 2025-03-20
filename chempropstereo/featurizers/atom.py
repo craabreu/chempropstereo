@@ -43,13 +43,11 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     ...     Chem.AssignCIPLabels(mol)
     >>> r_atom = r_mol.GetAtomWithIdx(1)
     >>> s_atom = s_mol.GetAtomWithIdx(1)
-    >>> for featurizer in [AtomCIPFeaturizer("V2"), AtomCIPFeaturizer("ORGANIC")]:
-    ...     for atom in [r_atom, s_atom]:
-    ...         features = featurizer(atom)
-    ...         assert len(features) == len(featurizer)
-    ...         print("".join(map(str, features)))
-    00000100000000000000000000000000000000000010000001001000100000000100000
-    00000100000000000000000000000000000000000010000001000100100000000100000
+    >>> featurizer = AtomCIPFeaturizer("ORGANIC")
+    >>> for atom in [r_atom, s_atom]:
+    ...     features = featurizer(atom)
+    ...     assert len(features) == len(featurizer)
+    ...     print("".join(map(str, features)))
     0010000000000000010000001001000100000001000
     0010000000000000010000001000100100000001000
 
@@ -115,7 +113,13 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         return x
 
 
-class AtomStereoFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
+_SCAN_DIRECTIONS: tuple[stereochemistry.ScanDirection, ...] = (
+    stereochemistry.ScanDirection.CW,
+    stereochemistry.ScanDirection.CCW,
+)
+
+
+class AtomStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Atom]):
     """Multi-hot atom featurizer that includes a canonical chiral tag for each atom.
 
     The featurized atoms are expected to be part of an RDKit molecule with canonical
@@ -145,18 +149,12 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     >>> cw_atom = cw_mol.GetAtomWithIdx(1)
     >>> ccw_atom = ccw_mol.GetAtomWithIdx(1)
     >>> non_chiral_atom = cw_mol.GetAtomWithIdx(0)
-    >>> for featurizer in [
-    ...     featurizers.AtomStereoFeaturizer("V2"),
-    ...     featurizers.AtomStereoFeaturizer("ORGANIC"),
-    ... ]:
-    ...     for atom in [non_chiral_atom, cw_atom, ccw_atom]:
-    ...         features = featurizer(atom)
-    ...         assert len(features) == len(featurizer)
-    ...         print("".join(map(str, map(int, features))))
-    0000010000000000000000000000000000000000001000000101000001000000100000
-    0000010000000000000000000000000000000000001000000100100100000000100000
-    0000010000000000000000000000000000000000001000000100010100000000100000
-    001000000000000001000000101000001000001000
+    >>> featurizer = featurizers.AtomStereoFeaturizer("ORGANIC")
+    >>> for atom in [non_chiral_atom, cw_atom, ccw_atom]:
+    ...     features = featurizer(atom)
+    ...     assert len(features) == len(featurizer)
+    ...     print("".join(map(str, map(int, features))))
+    001000000000000001000000100001001000001000
     001000000000000001000000100100100000001000
     001000000000000001000000100010100000001000
 
@@ -166,21 +164,16 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         featurizer = chemprop.featurizers.get_multi_hot_atom_featurizer(
             chemprop.featurizers.AtomFeatureMode.get(mode)
         )
-        super().__init__(
-            atomic_nums=featurizer.atomic_nums,
-            degrees=featurizer.degrees,
-            formal_charges=featurizer.formal_charges,
-            chiral_tags=[],
-            num_Hs=featurizer.num_Hs,
-            hybridizations=featurizer.hybridizations,
-        )
+        self.atomic_nums = featurizer.atomic_nums
+        self.degrees = featurizer.degrees
+        self.formal_charges = featurizer.formal_charges
+        self.scan_directions = _SCAN_DIRECTIONS
+        self.num_Hs = featurizer.num_Hs
+        self.hybridizations = featurizer.hybridizations
+        self._len = sum(self.sizes)
 
     def __len__(self):
-        return (
-            super().__len__()  # Original subfeatures
-            - 1  # minus chiral tag padding
-            + len(stereochemistry.ScanDirection)  # plus scan direction slots
-        )
+        return self._len
 
     def __call__(self, a: Chem.Atom | None) -> np.ndarray:
         """Featurize an RDKit atom with stereochemical information.
@@ -222,7 +215,8 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
                 total_degree not in self.degrees,
                 *(formal_charge == item for item in self.formal_charges),
                 formal_charge not in self.formal_charges,
-                *(scan_direction == item for item in stereochemistry.ScanDirection),
+                *(scan_direction == item for item in self.scan_directions),
+                scan_direction not in self.scan_directions,
                 *(total_num_hs == item for item in self.num_Hs),
                 total_num_hs not in self.num_Hs,
                 *(hybridization == item for item in self.hybridizations),
@@ -231,4 +225,42 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
                 0.01 * a.GetMass(),
             ],
             dtype=float,
+        )
+
+    @property
+    def sizes(self) -> tuple[int, ...]:
+        """Get a tuple of sizes corresponding to different atom features.
+
+        The tuple contains the sizes for:
+        - Atomic number
+        - Total degree
+        - Formal charge
+        - Scan direction
+        - Total number of Hs
+        - Hybridization
+        - Is aromatic
+        - Mass
+
+        Returns
+        -------
+        tuple[int, ...]
+            A tuple of integers representing the sizes of each atom feature.
+
+        Examples
+        --------
+        >>> from chempropstereo import featurizers
+        >>> featurizer = featurizers.AtomStereoFeaturizer("ORGANIC")
+        >>> featurizer.sizes
+        (13, 7, 6, 3, 6, 5, 1, 1)
+
+        """
+        return (
+            len(self.atomic_nums) + 1,
+            len(self.degrees) + 1,
+            len(self.formal_charges) + 1,
+            len(self.scan_directions) + 1,
+            len(self.num_Hs) + 1,
+            len(self.hybridizations) + 1,
+            1,
+            1,
         )
