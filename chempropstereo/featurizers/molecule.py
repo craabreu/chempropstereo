@@ -176,8 +176,7 @@ class MoleculeStereoFeaturizer(chemprop.featurizers.SimpleMoleculeMolGraphFeatur
             Featurized molecule with canonical stereochemical information.
 
         """
-        stereochemistry.tag_tetrahedral_stereocenters(mol, force=False)
-        stereochemistry.tag_cis_trans_stereobonds(mol, force=False)
+        stereochemistry.tag_stereogroups(mol, force=False)
 
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
