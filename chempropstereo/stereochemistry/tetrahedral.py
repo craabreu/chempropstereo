@@ -187,8 +187,12 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
             Chem.ChiralType.CHI_TETRAHEDRAL_CCW,
         ):
             has_stereocenters = True
-            neighbors = [atom.GetIdx() for atom in atom.GetNeighbors()]
-            all_ranks = list(Chem.CanonicalRankAtomsInFragment(mol, neighbors))
+            neighbors = [neighbor.GetIdx() for neighbor in atom.GetNeighbors()]
+            all_ranks = list(
+                Chem.CanonicalRankAtomsInFragment(
+                    mol, neighbors, includeChirality=False
+                )
+            )
             neighbor_ranks = [all_ranks[idx] for idx in neighbors]
             # Sorting ranks in descending order keeps explicit hydrogens at the end
             order, flip = utils.argsort_descending_with_parity(*neighbor_ranks)
