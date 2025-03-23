@@ -71,9 +71,10 @@ def add_neighbor_rank_tags(
     mol
         The molecule to add neighbor-rank tags to.
     break_ties
-        Whether to break ties in neighbor-rank assignments.
+        Whether to break ties in neighbor-rank assignments (default is False).
     force
-        Whether to add neighbor-rank tags even if they have already been added.
+        Whether to add neighbor-rank tags even if they have already been added with
+        the same tie-breaking choice (default is False).
 
     Examples
     --------
@@ -125,7 +126,11 @@ def add_neighbor_rank_tags(
     C5 H12 1 0
 
     """
-    if mol.HasProp("hasNeighborRanks") and not force:
+    if (
+        mol.HasProp("neighborRanksWithoutTies")
+        and mol.GetBoolProp("neighborRanksWithoutTies") == break_ties
+        and not force
+    ):
         return
     # Negative ranks from Chem.CanonicalRankAtoms to ensure hydrogen atoms are last
     all_priorities = -np.fromiter(
@@ -150,4 +155,4 @@ def add_neighbor_rank_tags(
         begin, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
         bond.SetIntProp("endRankFromBegin", int(sorted_neighbors[begin][end]))
         bond.SetIntProp("beginRankFromEnd", int(sorted_neighbors[end][begin]))
-    mol.SetBoolProp("hasNeighborRanks", True)
+    mol.SetBoolProp("neighborRanksWithoutTies", break_ties)
