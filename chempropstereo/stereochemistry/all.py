@@ -53,7 +53,7 @@ def tag_stereogroups(mol: Chem.Mol, force: bool = False) -> None:
 def add_neighbor_rank_tags(
     mol: Chem.Mol, break_ties: bool = False, force: bool = False
 ) -> None:
-    """Add neighbor-rank tags to the bonds of a molecule.
+    r"""Add neighbor-rank tags to the bonds of a molecule.
 
     Neighbors of each atom are sorted in descending order of their RDKit canonical
     ranks. Then, each bond is given two integer properties:
@@ -80,24 +80,49 @@ def add_neighbor_rank_tags(
     >>> from chempropstereo import stereochemistry
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> mol = Chem.MolFromSmiles("NC(O)=C(S)C")
+    >>> mol = Chem.AddHs(Chem.MolFromSmiles("NC(O)=C(S)C"))
     >>> ranks = np.fromiter(Chem.CanonicalRankAtoms(mol, includeChirality=False), int)
     >>> ranked_atoms = map(mol.GetAtomWithIdx, map(int, np.argsort(-ranks)))
     >>> print(" ".join(map(stereochemistry.utils.describe_atom, ranked_atoms)))
-    C3 C1 S4 O2 N0 C5
-    >>> stereochemistry.add_neighbor_rank_tags(mol)
-    >>> for bond in mol.GetBonds():
-    ...     print(
-    ...         stereochemistry.utils.describe_atom(bond.GetBeginAtom()),
-    ...         stereochemistry.utils.describe_atom(bond.GetEndAtom()),
-    ...         bond.GetIntProp("endRankFromBegin"),
-    ...         bond.GetIntProp("beginRankFromEnd"),
-    ...     )
-    N0 C1 0 2
-    C1 O2 1 0
-    C1 C3 0 0
-    C3 S4 1 0
-    C3 C5 2 0
+    C5 N0 C3 C1 S4 O2 H12 H11 H10 H7 H6 H9 H8
+    >>> for break_ties in [False, True]:
+    ...     stereochemistry.add_neighbor_rank_tags(mol, break_ties, force=True)
+    ...     print("\nBreak ties:", ["No", "Yes"][break_ties])
+    ...     for bond in mol.GetBonds():
+    ...         print(
+    ...             stereochemistry.utils.describe_atom(bond.GetBeginAtom()),
+    ...             stereochemistry.utils.describe_atom(bond.GetEndAtom()),
+    ...             bond.GetIntProp("endRankFromBegin"),
+    ...             bond.GetIntProp("beginRankFromEnd"),
+    ...         )
+    <BLANKLINE>
+    Break ties: No
+    N0 C1 0 0
+    C1 O2 2 0
+    C1 C3 1 1
+    C3 S4 2 0
+    C3 C5 0 0
+    N0 H6 1 0
+    N0 H7 1 0
+    O2 H8 1 0
+    S4 H9 1 0
+    C5 H10 1 0
+    C5 H11 1 0
+    C5 H12 1 0
+    <BLANKLINE>
+    Break ties: Yes
+    N0 C1 0 0
+    C1 O2 2 0
+    C1 C3 1 1
+    C3 S4 2 0
+    C3 C5 0 0
+    N0 H6 2 0
+    N0 H7 1 0
+    O2 H8 1 0
+    S4 H9 1 0
+    C5 H10 3 0
+    C5 H11 2 0
+    C5 H12 1 0
 
     """
     if mol.HasProp("hasNeighborRanks") and not force:
