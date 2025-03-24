@@ -18,6 +18,7 @@ from ._version import __version__  # noqa: F401
 from .featurizers import (
     AtomAchiralFeaturizer,
     AtomStereoFeaturizer,
+    BondNeighborRankingFeaturizer,
     BondStereoFeaturizer,
     MoleculeStereoFeaturizer,
 )
@@ -37,6 +38,7 @@ from .stereochemistry import (
 __all__ = [
     "AtomAchiralFeaturizer",
     "AtomStereoFeaturizer",
+    "BondNeighborRankingFeaturizer",
     "BondStereoFeaturizer",
     "BranchRank",
     "ScanDirection",

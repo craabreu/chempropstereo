@@ -238,3 +238,158 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         if flip_direction:
             atoms.reverse()
         return utils.describe_bond_features(atoms, self(b, flip_direction), self.sizes)
+
+
+class BondNeighborRankingFeaturizer(
+    chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
+):
+    r"""Multi-hot bond featurizer that includes neighbor ranking information.
+
+    Attributes
+    ----------
+    sizes: tuple[int]
+        A tuple of integers representing the sizes of each bond subfeature.
+
+    Examples
+    --------
+    >>> from chempropstereo import featurizers, stereochemistry
+    >>> from rdkit import Chem
+    >>> import numpy as np
+    >>> mol = Chem.MolFromSmiles("C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
+    >>> stereochemistry.set_relative_neighbor_ranking(mol)
+    >>> featurizer = featurizers.BondNeighborRankingFeaturizer()
+    >>> def describe_bonds_from_atom(index):
+    ...     for bond in mol.GetAtomWithIdx(index).GetBonds():
+    ...         atom_is_begin = bond.GetBeginAtomIdx() == index
+    ...         for reverse in (not atom_is_begin, atom_is_begin):
+    ...             print(featurizer.pretty_print(bond, reverse))
+    >>> describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE
+        8→1: 0 1000 0 0 0010
+        1→8: 0 1000 0 0 1000
+        8→9: 0 1000 0 0 1000
+        9→8: 0 1000 0 0 1000
+       8→12: 0 1000 0 0 0100
+       12→8: 0 1000 0 0 1000
+    >>> describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE
+        9→8: 0 1000 0 0 1000
+        8→9: 0 1000 0 0 1000
+       9→10: 0 1000 0 0 0010
+       10→9: 0 1000 0 0 1000
+       9→11: 0 1000 0 0 0100
+       11→9: 0 1000 0 0 1000
+
+    """
+
+    def __init__(self, max_degree: int = 4):
+        self.bond_types = _BOND_TYPES
+        self.neighbor_ranks = list(range(max_degree))
+        self._len = sum(self.sizes)
+
+    def __len__(self) -> int:
+        return self._len
+
+    def __call__(self, b: Chem.Bond | None, flip_direction: bool = False) -> np.ndarray:
+        """Encode a bond in a molecule with canonical stereochemistry information.
+
+        Parameters
+        ----------
+        b : Chem.Bond | None
+            The bond to be encoded.
+        flip_direction : bool, optional
+            Whether to reverse the direction of the bond (default is False).
+
+        Returns
+        -------
+        np.ndarray
+            A vector encoding the bond.
+
+        Notes
+        -----
+        The vector includes the following information:
+        - Null bond indicator
+        - Bond types
+        - Conjugation indicator
+        - Ring indicator
+        - Relative neighbor rank
+
+        """
+        if b is None:
+            x = np.zeros(len(self), int)
+            x[0] = 1
+            return x
+
+        bond_type = b.GetBondType()
+        neighbor_rank = b.GetIntProp(
+            "beginRankFromEnd" if flip_direction else "endRankFromBegin"
+        )
+
+        return np.array(
+            [
+                b is None,
+                *(bond_type == item for item in _BOND_TYPES),
+                b.GetIsConjugated(),
+                b.IsInRing(),
+                *(neighbor_rank == item for item in self.neighbor_ranks),
+            ],
+            dtype=int,
+        )
+
+    @property
+    def sizes(self) -> list[int]:
+        """Get a list of sizes corresponding to different bond features.
+
+        The list contains the sizes for:
+        - Null bond indicator
+        - Bond types
+        - Conjugation indicator
+        - Ring indicator
+        - Relative neighbor rank
+
+        Returns
+        -------
+        list[int]
+            A list of integers representing the sizes of each bond feature.
+
+        Examples
+        --------
+        >>> from chempropstereo import featurizers
+        >>> featurizer = featurizers.BondNeighborRankingFeaturizer()
+        >>> featurizer.sizes
+        (1, 4, 1, 1, 4)
+
+        """
+        return (1, len(self.bond_types), 1, 1, len(self.neighbor_ranks))
+
+    def pretty_print(self, b: Chem.Bond | None, flip_direction: bool = False) -> str:
+        """Get a formatted string representation of the bond features.
+
+        Parameters
+        ----------
+        b : Chem.Bond or None
+            The bond to be described. If None, a null bond is assumed.
+        flip_direction : bool, optional
+            Whether to reverse the direction of the bond (default is False).
+
+        Returns
+        -------
+        str
+            A formatted string representing the bond features.
+
+        Examples
+        --------
+        >>> from rdkit import Chem
+        >>> from chempropstereo import featurizers, stereochemistry
+        >>> mol = Chem.MolFromSmiles('CC(O)N')
+        >>> stereochemistry.set_relative_neighbor_ranking(mol)
+        >>> bond = mol.GetBondWithIdx(0)
+        >>> featurizer = featurizers.BondNeighborRankingFeaturizer()
+        >>> featurizer.pretty_print(bond)
+        '    0→1: 0 1000 0 0 1000'
+        >>> featurizer.pretty_print(bond, flip_direction=True)
+        '    1→0: 0 1000 0 0 0010'
+
+        """
+        atoms = [b.GetBeginAtomIdx(), b.GetEndAtomIdx()]
+        if flip_direction:
+            atoms.reverse()
+        return utils.describe_bond_features(atoms, self(b, flip_direction), self.sizes)
