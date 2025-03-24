@@ -16,11 +16,9 @@ by integrating stereochemical considerations into molecular representations.
 
 from ._version import __version__  # noqa: F401
 from .featurizers import (
-    AtomCIPFeaturizer,
-    AtomSimplifiedFeaturizer,
+    AtomAchiralFeaturizer,
     AtomStereoFeaturizer,
     BondStereoFeaturizer,
-    MoleculeCIPFeaturizer,
     MoleculeStereoFeaturizer,
 )
 from .stereochemistry import (
@@ -37,15 +35,13 @@ from .stereochemistry import (
 )
 
 __all__ = [
-    "AtomCIPFeaturizer",
-    "AtomSimplifiedFeaturizer",
+    "AtomAchiralFeaturizer",
     "AtomStereoFeaturizer",
     "BondStereoFeaturizer",
     "BranchRank",
     "ScanDirection",
     "StemArrangement",
     "VertexRank",
-    "MoleculeCIPFeaturizer",
     "MoleculeStereoFeaturizer",
     "describe_stereobond",
     "describe_stereocenter",

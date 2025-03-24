@@ -11,109 +11,6 @@ from rdkit import Chem
 from .. import stereochemistry
 from . import utils
 
-
-class AtomCIPFeaturizer(chemprop.featurizers.MultiHotAtomFeaturizer):
-    """Multi-hot atom featurizer that includes a CIP code if the atom is a stereocenter.
-
-    The featurized atoms are expected to be part of an RDKit molecule with CIP labels
-    assigned via the `AssignCIPLabels`_ function.
-
-    .. _AssignCIPLabels: https://www.rdkit.org/docs/source/\
-rdkit.Chem.rdCIPLabeler.html#rdkit.Chem.rdCIPLabeler.AssignCIPLabels
-
-    Parameters
-    ----------
-    mode : featurizers.AtomFeatureMode
-        The mode to use for the featurizer. Available modes are `V1`_, `V2`_, and
-        `ORGANIC`_.
-
-        .. _V1: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
-featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v1
-        .. _V2: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
-featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.v2
-        .. _ORGANIC: https://chemprop.readthedocs.io/en/latest/autoapi/chemprop/\
-featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.organic
-
-    Examples
-    --------
-    >>> from chempropstereo import AtomCIPFeaturizer
-    >>> from rdkit import Chem
-    >>> r_mol = Chem.MolFromSmiles("C[C@H](N)O")
-    >>> s_mol = Chem.MolFromSmiles("C[C@@H](N)O")
-    >>> for mol in [r_mol, s_mol]:
-    ...     Chem.AssignCIPLabels(mol)
-    >>> r_atom = r_mol.GetAtomWithIdx(1)
-    >>> s_atom = s_mol.GetAtomWithIdx(1)
-    >>> featurizer = AtomCIPFeaturizer("ORGANIC")
-    >>> for atom in [r_atom, s_atom]:
-    ...     features = featurizer(atom)
-    ...     assert len(features) == len(featurizer)
-    ...     print("".join(map(str, features)))
-    0010000000000000010000001001000100000001000
-    0010000000000000010000001000100100000001000
-
-    """
-
-    def __init__(self, mode: str | chemprop.featurizers.AtomFeatureMode = "V2") -> None:
-        featurizer = chemprop.featurizers.get_multi_hot_atom_featurizer(
-            chemprop.featurizers.AtomFeatureMode.get(mode)
-        )
-        super().__init__(
-            atomic_nums=featurizer.atomic_nums,
-            degrees=featurizer.degrees,
-            formal_charges=featurizer.formal_charges,
-            chiral_tags=list(range(3)),
-            num_Hs=featurizer.num_Hs,
-            hybridizations=featurizer.hybridizations,
-        )
-
-    def __call__(self, a: Chem.Atom | None) -> np.ndarray:
-        """Featurize an RDKit atom with stereochemical information.
-
-        Parameters
-        ----------
-        a : Chem.Atom | None
-            The atom to featurize. If None, returns a zero array.
-
-        Returns
-        -------
-        np.ndarray
-            A 1D array of shape `(len(self),)` containing the following features:
-            - One-hot encoding of the atomic number
-            - One-hot encoding of the total degree
-            - One-hot encoding of the formal charge
-            - One-hot encoding of the CIP code
-            - One-hot encoding of the total number of hydrogens
-            - One-hot encoding of the hybridization
-            - Boolean indicating whether the atom is aromatic
-            - Mass of the atom divided by 100
-
-        """
-        x = np.zeros(len(self), int)
-
-        if a is None:
-            return x
-
-        feats = [
-            a.GetAtomicNum(),
-            a.GetTotalDegree(),
-            a.GetFormalCharge(),
-            stereochemistry.get_cip_code(a),
-            int(a.GetTotalNumHs()),
-            a.GetHybridization(),
-        ]
-
-        i = 0
-        for feat, choices in zip(feats, self._subfeats):
-            j = choices.get(feat, len(choices))
-            x[i + j] = 1
-            i += len(choices) + 1
-        x[i] = int(a.GetIsAromatic())
-        x[i + 1] = 0.01 * a.GetMass()
-
-        return x
-
-
 _SCAN_DIRECTIONS: tuple[stereochemistry.ScanDirection, ...] = (
     stereochemistry.ScanDirection.CW,
     stereochemistry.ScanDirection.CCW,
@@ -295,8 +192,8 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         return utils.describe_atom_features(a.GetIdx(), self(a), self.sizes)
 
 
-class AtomSimplifiedFeaturizer(AtomStereoFeaturizer):
-    """Multi-hot atom featurizer that excludes a canonical chiral tag for each atom.
+class AtomAchiralFeaturizer(AtomStereoFeaturizer):
+    """Multi-hot atom featurizer that excludes canonical chiral tags.
 
     Parameters
     ----------
@@ -315,7 +212,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
     --------
     >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
-    >>> featurizer = featurizers.AtomSimplifiedFeaturizer(mode="ORGANIC")
+    >>> featurizer = featurizers.AtomAchiralFeaturizer(mode="ORGANIC")
     >>> for smi in ["C[C@H](N)O", "C[C@@H](N)O"]:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     stereochemistry.tag_stereogroups(mol)
@@ -422,7 +319,7 @@ featurizers/atom/index.html#chemprop.featurizers.atom.MultiHotAtomFeaturizer.org
         Examples
         --------
         >>> from chempropstereo import featurizers
-        >>> featurizer = featurizers.AtomSimplifiedFeaturizer("ORGANIC")
+        >>> featurizer = featurizers.AtomAchiralFeaturizer("ORGANIC")
         >>> featurizer.sizes
         (13, 7, 6, 6, 5, 1, 1)
 

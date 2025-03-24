@@ -1,14 +1,12 @@
 """Package for featurizers used in chempropstereo package."""
 
-from .atom import AtomCIPFeaturizer, AtomSimplifiedFeaturizer, AtomStereoFeaturizer
+from .atom import AtomAchiralFeaturizer, AtomStereoFeaturizer
 from .bond import BondStereoFeaturizer
-from .molecule import MoleculeCIPFeaturizer, MoleculeStereoFeaturizer
+from .molecule import MoleculeStereoFeaturizer
 
 __all__ = [
-    "AtomCIPFeaturizer",
-    "AtomSimplifiedFeaturizer",
+    "AtomAchiralFeaturizer",
     "AtomStereoFeaturizer",
     "BondStereoFeaturizer",
-    "MoleculeCIPFeaturizer",
     "MoleculeStereoFeaturizer",
 ]
