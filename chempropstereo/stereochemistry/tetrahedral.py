@@ -166,7 +166,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     --------
     >>> from chempropstereo import stereochemistry
     >>> from rdkit import Chem
-    >>> for smi in ["C[C@H](N)O", "C[C@@H](O)N"]:
+    >>> for smi in ["C[C@H](N)O", "C[C@@H](O)N", "C[C@@H](N)O", "C[C@H](O)N"]:
     ...     mol = Chem.MolFromSmiles(smi)
     ...     stereochemistry.tag_tetrahedral_stereocenters(mol)
     ...     for atom in mol.GetAtoms():
@@ -175,6 +175,8 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
     ...             print(stereochemistry.describe_stereocenter(atom))
     C1 (CW) O3 N2 C0
     C1 (CW) O2 N3 C0
+    C1 (CCW) O3 C0 N2
+    C1 (CCW) O2 C0 N3
 
     """
     if mol.HasProp("hasCanonicalStereocenters") and not force:
@@ -200,6 +202,7 @@ def tag_tetrahedral_stereocenters(mol: Chem.Mol, force: bool = False) -> None:
                 direction = ScanDirection.CW
             else:
                 direction = ScanDirection.CCW
+                order = (order[0], order[2], order[1], *order[3:])
             atom.SetProp(ScanDirection.tag, utils.concat(direction, *order))
         elif atom.HasProp(ScanDirection.tag):
             atom.ClearProp(ScanDirection.tag)

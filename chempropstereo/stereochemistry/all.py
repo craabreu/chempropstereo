@@ -36,7 +36,7 @@ def tag_stereogroups(mol: Chem.Mol, force: bool = False) -> None:
     ...     direction = stereochemistry.ScanDirection.get_from(atom)
     ...     if direction != stereochemistry.ScanDirection.NONE:
     ...         print(stereochemistry.describe_stereocenter(atom))
-    C8 (CCW) O12 C9 C1
+    C8 (CCW) O12 C1 C9
     C9 (CW) O11 N10 C8
     >>> for bond in mol.GetBonds():
     ...     arrangement = stereochemistry.StemArrangement.get_from(bond)

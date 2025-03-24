@@ -69,7 +69,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         1→2: 0 0100 1 0 0000 10 00
         2→1: 0 0100 1 0 0000 10 00
         1→8: 0 1000 0 0 0000 00 01
-        8→1: 0 1000 0 0 0010 00 00
+        8→1: 0 1000 0 0 0100 00 00
     >>> describe_bonds_from_atom(2) # doctest: +NORMALIZE_WHITESPACE
         2→1: 0 0100 1 0 0000 10 00
         1→2: 0 0100 1 0 0000 10 00
@@ -92,11 +92,11 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
         5→7: 0 1000 1 0 0000 00 01
         7→5: 0 1000 1 0 0000 00 00
     >>> stereochemistry.describe_stereocenter(mol.GetAtomWithIdx(8))
-    'C8 (CCW) O12 C9 C1'
+    'C8 (CCW) O12 C1 C9'
     >>> describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE
-        8→1: 0 1000 0 0 0010 00 00
+        8→1: 0 1000 0 0 0100 00 00
         1→8: 0 1000 0 0 0000 00 01
-        8→9: 0 1000 0 0 0100 00 00
+        8→9: 0 1000 0 0 0010 00 00
         9→8: 0 1000 0 0 0010 00 00
        8→12: 0 1000 0 0 1000 00 00
        12→8: 0 1000 0 0 0000 00 00
@@ -104,7 +104,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
     'C9 (CW) O11 N10 C8'
     >>> describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE
         9→8: 0 1000 0 0 0010 00 00
-        8→9: 0 1000 0 0 0100 00 00
+        8→9: 0 1000 0 0 0010 00 00
        9→10: 0 1000 0 0 0100 00 00
        10→9: 0 1000 0 0 0000 00 00
        9→11: 0 1000 0 0 1000 00 00
