@@ -61,11 +61,13 @@ def create_function_rst_file(func):
 
 
 classes = [item for item in chempropstereo.__dict__.values() if inspect.isclass(item)]
-functions = [item for item in chempropstereo.__dict__.values() if inspect.isfunction(item)]
+functions = [
+    item for item in chempropstereo.__dict__.values() if inspect.isfunction(item)
+]
 
 if classes:
     with open("api/classes.rst", "w") as f:
-        f.write("Classes\n" "=======\n" "\n" ".. toctree::\n" "    :titlesonly:\n" "\n")
+        f.write("Classes\n=======\n\n.. toctree::\n    :titlesonly:\n\n")
         for item in classes:
             f.write(f"    {item.__name__}\n")
             create_class_rst_file(item)
@@ -73,9 +75,7 @@ if classes:
 
 if functions:
     with open("api/functions.rst", "w") as f:
-        f.write(
-            "Functions\n" "=========\n" "\n" ".. toctree::\n" "    :titlesonly:\n" "\n"
-        )
+        f.write("Functions\n=========\n\n.. toctree::\n    :titlesonly:\n\n")
         for item in functions:
             f.write(f"    {item.__name__}\n")
             create_function_rst_file(item)
@@ -245,7 +245,9 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "chempropstereo", "ChempropStereo Documentation", [author], 1)]
+man_pages = [
+    (master_doc, "chempropstereo", "ChempropStereo Documentation", [author], 1)
+]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -276,3 +278,15 @@ bibtex_bibfiles = ["refs.bib"]
 # Copy button configuration
 copybutton_prompt_text = r">>> |\.\.\. "
 copybutton_prompt_is_regexp = True
+
+# External links
+extlinks = {
+    module: (
+        "#".join(
+            f"https://www.rdkit.org/docs/source/rdkit.Chem.{module}.html",
+            "rdkit.Chem.{module}.%s",
+        ),
+        "rdkit.Chem.%s",
+    )
+    for module in ("rdmolfiles",)
+}
