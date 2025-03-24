@@ -50,85 +50,84 @@ def tag_stereogroups(mol: Chem.Mol, force: bool = False) -> None:
     tag_cis_trans_stereobonds(mol, force)
 
 
-def add_neighbor_rank_tags(
+def set_relative_neighbor_ranking(
     mol: Chem.Mol, break_ties: bool = False, force: bool = False
 ) -> None:
-    r"""Add neighbor-rank tags to the bonds of a molecule.
+    r"""Add neighbor ranking information to the bonds of a molecule.
 
-    Neighbors of each atom are sorted in descending order of their RDKit canonical
-    ranks. Then, each bond is given two integer properties:
+    Neighbors of each atom are sorted in descending order based on their RDKit canonical
+    ranks (see :rdmolfiles:`CanonicalRankAtoms`). This sorting keeps hydrogens at the
+    end of the list.
 
-    - `endRankFromBegin`: the index of its end atom in the sorted list of its begin
-      atom's neighbors.
-    - `beginRankFromEnd`: the index of its begin atom in the sorted list of its end
-      atom's neighbors.
+    For each bond in the molecule, two integer properties are added:
 
-    The molecule is tagged with a boolean property `hasNeighborRanks` to indicate
-    that neighbor-rank tags have been added.
+    - `endRankFromBegin`: The relative rank of the bond's end atom with respect to all
+        neighbors of the bond's begin atom.
+    - `beginRankFromEnd`: The relative rank of the bond's begin atom with respect to all
+        neighbors of the bond's end atom.
+
+    A relative rank indicates the position of an atom in the sorted list of another
+    atom's neighbors. For example, if an atom has three neighbors with RDKit ranks
+    `(3, 1, 7)`, their relative ranks will be `(1, 2, 0)`.
+
+    By default, rank assignments can result in ties. For instance, if the neighbors
+    have RDKit ranks `(3, 1, 1)`, their resulting relative ranks will be `(1, 0, 0)`.
+
+    If the optional parameter `break_ties` is set to `True`, ties will be resolved by
+    considering the arbitrary order of the atoms in the molecule.
+
+    The molecule is tagged with a boolean property `neighborRankTiesAreBroken` to
+    indicate whether ties have been broken in neighbor-rank assignments.
 
     Parameters
     ----------
     mol
-        The molecule to add neighbor-rank tags to.
+        The molecule to add neighbor ranking information to.
     break_ties
-        Whether to break ties in neighbor-rank assignments (default is False).
+        Whether to break ties in neighbor rank assignments (default is False).
     force
-        Whether to add neighbor-rank tags even if they have already been added with
-        the same tie-breaking choice (default is False).
+        Whether to add neighbor ranking information even if it has already been added
+        with the same tie-breaking choice (default is False).
 
     Examples
     --------
     >>> from chempropstereo import stereochemistry
+    >>> from chempropstereo.stereochemistry.utils import describe_atom
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> mol = Chem.AddHs(Chem.MolFromSmiles("NC(O)=C(S)C"))
-    >>> ranks = np.fromiter(Chem.CanonicalRankAtoms(mol, includeChirality=False), int)
-    >>> ranked_atoms = map(mol.GetAtomWithIdx, map(int, np.argsort(-ranks)))
-    >>> print(" ".join(map(stereochemistry.utils.describe_atom, ranked_atoms)))
-    C5 N0 C3 C1 S4 O2 H12 H11 H10 H7 H6 H9 H8
+    >>> mol = Chem.MolFromSmiles("NC(O)=C(O)O")
     >>> for break_ties in [False, True]:
-    ...     stereochemistry.add_neighbor_rank_tags(mol, break_ties, force=True)
+    ...     stereochemistry.set_relative_neighbor_ranking(mol, break_ties, force=True)
     ...     print("\nBreak ties:", ["No", "Yes"][break_ties])
+    ...     ranks = {describe_atom(atom): [] for atom in mol.GetAtoms()}
     ...     for bond in mol.GetBonds():
-    ...         print(
-    ...             stereochemistry.utils.describe_atom(bond.GetBeginAtom()),
-    ...             stereochemistry.utils.describe_atom(bond.GetEndAtom()),
-    ...             bond.GetIntProp("endRankFromBegin"),
-    ...             bond.GetIntProp("beginRankFromEnd"),
-    ...         )
+    ...         begin = describe_atom(bond.GetBeginAtom())
+    ...         end = describe_atom(bond.GetEndAtom())
+    ...         ranks[begin].append((end, bond.GetIntProp("endRankFromBegin")))
+    ...         ranks[end].append((begin, bond.GetIntProp("beginRankFromEnd")))
+    ...     for atom in ranks:
+    ...         print(atom, *sorted(ranks[atom], key=lambda x: x[1]))
     <BLANKLINE>
     Break ties: No
-    N0 C1 0 0
-    C1 O2 2 0
-    C1 C3 1 1
-    C3 S4 2 0
-    C3 C5 0 0
-    N0 H6 1 0
-    N0 H7 1 0
-    O2 H8 1 0
-    S4 H9 1 0
-    C5 H10 1 0
-    C5 H11 1 0
-    C5 H12 1 0
+    N0 ('C1', 0)
+    C1 ('C3', 0) ('O2', 1) ('N0', 2)
+    O2 ('C1', 0)
+    C3 ('C1', 0) ('O4', 1) ('O5', 1)
+    O4 ('C3', 0)
+    O5 ('C3', 0)
     <BLANKLINE>
     Break ties: Yes
-    N0 C1 0 0
-    C1 O2 2 0
-    C1 C3 1 1
-    C3 S4 2 0
-    C3 C5 0 0
-    N0 H6 2 0
-    N0 H7 1 0
-    O2 H8 1 0
-    S4 H9 1 0
-    C5 H10 3 0
-    C5 H11 2 0
-    C5 H12 1 0
+    N0 ('C1', 0)
+    C1 ('C3', 0) ('O2', 1) ('N0', 2)
+    O2 ('C1', 0)
+    C3 ('C1', 0) ('O5', 1) ('O4', 2)
+    O4 ('C3', 0)
+    O5 ('C3', 0)
 
     """
     if (
-        mol.HasProp("neighborRanksWithoutTies")
-        and mol.GetBoolProp("neighborRanksWithoutTies") == break_ties
+        mol.HasProp("neighborRankTiesAreBroken")
+        and mol.GetBoolProp("neighborRankTiesAreBroken") == break_ties
         and not force
     ):
         return
@@ -145,14 +144,10 @@ def add_neighbor_rank_tags(
             (atom.GetIdx() for atom in atom.GetNeighbors()), dtype=int
         )
         neighbor_priorities = all_priorities[neighbors]
-        ranks = np.searchsorted(
-            neighbor_priorities,
-            neighbor_priorities,
-            sorter=np.argsort(neighbor_priorities),
-        )
+        ranks = np.searchsorted(np.unique(neighbor_priorities), neighbor_priorities)
         sorted_neighbors.append(dict(zip(neighbors, ranks)))
     for bond in mol.GetBonds():
         begin, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
         bond.SetIntProp("endRankFromBegin", int(sorted_neighbors[begin][end]))
         bond.SetIntProp("beginRankFromEnd", int(sorted_neighbors[end][begin]))
-    mol.SetBoolProp("neighborRanksWithoutTies", break_ties)
+    mol.SetBoolProp("neighborRankTiesAreBroken", break_ties)

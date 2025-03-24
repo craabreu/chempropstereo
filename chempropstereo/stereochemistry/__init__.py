@@ -1,6 +1,6 @@
 """Package for stereochemistry functions and features."""
 
-from .all import add_neighbor_rank_tags, tag_stereogroups
+from .all import set_relative_neighbor_ranking, tag_stereogroups
 from .cistrans import (
     BranchRank,
     StemArrangement,
@@ -20,7 +20,7 @@ __all__ = [
     "ScanDirection",
     "StemArrangement",
     "VertexRank",
-    "add_neighbor_rank_tags",
+    "set_relative_neighbor_ranking",
     "describe_stereobond",
     "describe_stereocenter",
     "get_cip_code",
