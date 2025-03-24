@@ -20,6 +20,7 @@ from .featurizers import (
     AtomStereoFeaturizer,
     BondNeighborRankingFeaturizer,
     BondStereoFeaturizer,
+    MoleculeNeighborRankingFeaturizer,
     MoleculeStereoFeaturizer,
 )
 from .stereochemistry import (
@@ -44,6 +45,7 @@ __all__ = [
     "ScanDirection",
     "StemArrangement",
     "VertexRank",
+    "MoleculeNeighborRankingFeaturizer",
     "MoleculeStereoFeaturizer",
     "describe_stereobond",
     "describe_stereocenter",

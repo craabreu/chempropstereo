@@ -2,12 +2,13 @@
 
 from .atom import AtomAchiralFeaturizer, AtomStereoFeaturizer
 from .bond import BondNeighborRankingFeaturizer, BondStereoFeaturizer
-from .molecule import MoleculeStereoFeaturizer
+from .molecule import MoleculeNeighborRankingFeaturizer, MoleculeStereoFeaturizer
 
 __all__ = [
     "AtomAchiralFeaturizer",
     "AtomStereoFeaturizer",
     "BondNeighborRankingFeaturizer",
     "BondStereoFeaturizer",
+    "MoleculeNeighborRankingFeaturizer",
     "MoleculeStereoFeaturizer",
 ]

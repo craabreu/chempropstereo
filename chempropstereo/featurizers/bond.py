@@ -52,7 +52,7 @@ class BondStereoFeaturizer(chemprop.featurizers.base.VectorFeaturizer[Chem.Bond]
     >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> mol = Chem.MolFromSmiles("C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
+    >>> mol = Chem.MolFromSmiles(r"C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
     >>> stereochemistry.tag_tetrahedral_stereocenters(mol)
     >>> featurizer = featurizers.BondStereoFeaturizer()
     >>> def describe_bonds_from_atom(index):
@@ -255,7 +255,7 @@ class BondNeighborRankingFeaturizer(
     >>> from chempropstereo import featurizers, stereochemistry
     >>> from rdkit import Chem
     >>> import numpy as np
-    >>> mol = Chem.MolFromSmiles("C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
+    >>> mol = Chem.MolFromSmiles(r"C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
     >>> stereochemistry.set_relative_neighbor_ranking(mol)
     >>> featurizer = featurizers.BondNeighborRankingFeaturizer()
     >>> def describe_bonds_from_atom(index):

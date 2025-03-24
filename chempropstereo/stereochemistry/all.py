@@ -30,7 +30,7 @@ def tag_stereogroups(mol: Chem.Mol, force: bool = False) -> None:
     --------
     >>> from rdkit import Chem
     >>> from chempropstereo import stereochemistry
-    >>> mol = Chem.MolFromSmiles("C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
+    >>> mol = Chem.MolFromSmiles(r"C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
     >>> stereochemistry.tag_stereogroups(mol)
     >>> for atom in mol.GetAtoms():
     ...     direction = stereochemistry.ScanDirection.get_from(atom)
