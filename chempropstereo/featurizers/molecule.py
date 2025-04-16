@@ -255,6 +255,7 @@ class MoleculeNeighborRankingFeaturizer(
     ...     featurizer = featurizers.MoleculeNeighborRankingFeaturizer(
     ...         mode="ORGANIC",
     ...         divergent_bonds=divergent,
+    ...         chiral_only=True,
     ...     )
     ...     print(featurizer.pretty_print(mol))
     <BLANKLINE>
@@ -269,18 +270,18 @@ class MoleculeNeighborRankingFeaturizer(
       5: 0000100000000 0010000 000010 010000 00100 0 0.160
       6: 0001000000000 0001000 000010 001000 00100 0 0.140
     Edges:
-        0→1: 0 1000 0 0 1000
-        1→0: 0 1000 0 0 0100
-        1→2: 0 1000 0 0 0010
-        2→1: 0 1000 0 0 1000
-        1→3: 0 1000 0 0 1000
-        3→1: 0 1000 0 0 1000
-        3→4: 0 0100 1 0 0100
-        4→3: 0 0100 1 0 1000
-        4→5: 0 1000 1 0 0100
-        5→4: 0 1000 1 0 1000
-        4→6: 0 1000 1 0 0010
-        6→4: 0 1000 1 0 1000
+        0→1: 0 1000 0 0 00001
+        1→0: 0 1000 0 0 00100
+        1→2: 0 1000 0 0 10000
+        2→1: 0 1000 0 0 00001
+        1→3: 0 1000 0 0 01000
+        3→1: 0 1000 0 0 00001
+        3→4: 0 0100 1 0 00001
+        4→3: 0 0100 1 0 00001
+        4→5: 0 1000 1 0 00001
+        5→4: 0 1000 1 0 00001
+        4→6: 0 1000 1 0 00001
+        6→4: 0 1000 1 0 00001
     <BLANKLINE>
     With convergent bonds:
     <BLANKLINE>
@@ -293,18 +294,18 @@ class MoleculeNeighborRankingFeaturizer(
       5: 0000100000000 0010000 000010 010000 00100 0 0.160
       6: 0001000000000 0001000 000010 001000 00100 0 0.140
     Edges:
-        1→0: 0 1000 0 0 1000
-        0→1: 0 1000 0 0 0100
-        2→1: 0 1000 0 0 0010
-        1→2: 0 1000 0 0 1000
-        3→1: 0 1000 0 0 1000
-        1→3: 0 1000 0 0 1000
-        4→3: 0 0100 1 0 0100
-        3→4: 0 0100 1 0 1000
-        5→4: 0 1000 1 0 0100
-        4→5: 0 1000 1 0 1000
-        6→4: 0 1000 1 0 0010
-        4→6: 0 1000 1 0 1000
+        1→0: 0 1000 0 0 00001
+        0→1: 0 1000 0 0 00100
+        2→1: 0 1000 0 0 10000
+        1→2: 0 1000 0 0 00001
+        3→1: 0 1000 0 0 01000
+        1→3: 0 1000 0 0 00001
+        4→3: 0 0100 1 0 00001
+        3→4: 0 0100 1 0 00001
+        5→4: 0 1000 1 0 00001
+        4→5: 0 1000 1 0 00001
+        6→4: 0 1000 1 0 00001
+        4→6: 0 1000 1 0 00001
 
     """
 
@@ -312,12 +313,14 @@ class MoleculeNeighborRankingFeaturizer(
         self,
         mode: str | chemprop.featurizers.AtomFeatureMode,
         divergent_bonds: bool,
+        chiral_only: bool = False,
     ) -> None:
         super().__init__(
             atom_featurizer=AtomAchiralFeaturizer(mode),
             bond_featurizer=BondNeighborRankingFeaturizer(),
         )
         self.divergent_bonds = divergent_bonds
+        self.chiral_only = chiral_only
 
     def __call__(
         self,
@@ -342,7 +345,9 @@ class MoleculeNeighborRankingFeaturizer(
             Featurized molecule with canonical stereochemical information.
 
         """
-        stereochemistry.set_relative_neighbor_ranking(mol, force=False)
+        stereochemistry.set_relative_neighbor_ranking(
+            mol, chiral_only=self.chiral_only, force=False
+        )
 
         n_atoms = mol.GetNumAtoms()
         n_bonds = mol.GetNumBonds()
