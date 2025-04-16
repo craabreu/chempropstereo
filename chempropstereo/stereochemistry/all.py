@@ -76,14 +76,12 @@ def is_odd_permutation(i: int, j: int, k: int, m: int | None = None) -> int:
     return bool(swaps % 2)
 
 
-def set_relative_neighbor_ranking(
-    mol: Chem.Mol, break_ties: bool = False, force: bool = False
-) -> None:
+def set_relative_neighbor_ranking(mol: Chem.Mol, force: bool = False) -> None:
     r"""Add neighbor ranking information to the bonds of a molecule.
 
-    Neighbors of each atom are sorted in descending order based on their RDKit canonical
-    ranks (see :rdmolfiles:`CanonicalRankAtoms`). The descending order aims to keep
-    hydrogens at the end of the list.
+    Neighbors of each atom are sorted in descending order based on their canonical
+    ranks (see :rdmolfiles:`CanonicalRankAtoms`). The descending order keeps hydrogens
+    at the end of the list.
 
     For each bond in the molecule, two integer properties are added:
 
@@ -92,28 +90,21 @@ def set_relative_neighbor_ranking(
     - `beginRankFromEnd`: The relative rank of the bond's begin atom with respect to all
         neighbors of the bond's end atom.
 
-    A relative rank indicates the position of an atom in the sorted list of another
-    atom's neighbors. For example, if an atom has three neighbors with RDKit ranks
-    `(3, 1, 7)`, their relative ranks will be `(1, 2, 0)`.
+    A relative rank is the position in a sorted list of canonical ranks in descending
+    order. For example, if an atom has three neighbors with canonical ranks `(3, 1, 7)`,
+    their relative ranks are `(1, 2, 0)`. Tied canonical ranks result in the same
+    relative rank, corresponding to the least position they occupy in the descending
+    sorted list.
 
-    By default, rank assignments can result in ties. For instance, if the neighbors
-    have RDKit ranks `(3, 1, 1)`, their resulting relative ranks will be `(1, 0, 0)`.
-
-    If the optional parameter `break_ties` is set to `True`, ties will be resolved by
-    considering the arbitrary order of the atoms in the molecule.
-
-    The molecule is tagged with a boolean property `neighborRankTiesAreBroken` to
-    indicate whether ties have been broken in neighbor-rank assignments.
+    The molecule is tagged with a boolean property `hasNeighborRanks` set to True.
 
     Parameters
     ----------
     mol
         The molecule to add neighbor ranking information to.
-    break_ties
-        Whether to break ties in neighbor rank assignments (default is False).
     force
         Whether to add neighbor ranking information even if it has already been added
-        with the same tie-breaking choice (default is False).
+        (default is False).
 
     Examples
     --------
@@ -135,21 +126,11 @@ def set_relative_neighbor_ranking(
     ...         if len(ranks[atom]) > 1:
     ...             print(atom, *sorted(ranks[atom], key=lambda x: x[1]))
 
-    Assign neighbor ranks to a molecule with and without breaking ties
+    Assign neighbor ranks to a molecule
 
     >>> mol = Chem.MolFromSmiles("NC(O)=C(OC)OC")
-    >>> for break_ties in [True, False]:
-    ...     stereochemistry.set_relative_neighbor_ranking(mol, break_ties, force=True)
-    ...     print("\nBreak ties:", ["No", "Yes"][break_ties])
-    ...     print_rankings(mol)
-    <BLANKLINE>
-    Break ties: Yes
-    C1 ('C3', 0) ('O2', 1) ('N0', 2)
-    C3 ('C1', 0) ('O6', 1) ('O4', 2)
-    O4 ('C3', 0) ('C5', 1)
-    O6 ('C3', 0) ('C7', 1)
-    <BLANKLINE>
-    Break ties: No
+    >>> stereochemistry.set_relative_neighbor_ranking(mol)
+    >>> print_rankings(mol)
     C1 ('C3', 0) ('O2', 1) ('N0', 2)
     C3 ('C1', 0) ('O4', 1) ('O6', 1)
     O4 ('C3', 0) ('C5', 1)
@@ -164,21 +145,17 @@ def set_relative_neighbor_ranking(
     ...     print_rankings(mol)
     <BLANKLINE>
     Molecule: C[C@](O)(S)N
-    C1 ('S3', 0) ('N4', 1) ('O2', 2) ('C0', 3)
+    C1 ('O2', 0) ('S3', 1) ('N4', 2) ('C0', 3)
     <BLANKLINE>
     Molecule: C[C@@](O)(S)N
     C1 ('S3', 0) ('O2', 1) ('N4', 2) ('C0', 3)
 
     """
-    if (
-        mol.HasProp("neighborRankTiesAreBroken")
-        and mol.GetBoolProp("neighborRankTiesAreBroken") == break_ties
-        and not force
-    ):
+    if not force and mol.HasProp("hasNeighborRanks"):
         return
     all_priorities = -np.fromiter(
         Chem.CanonicalRankAtoms(
-            mol, breakTies=break_ties, includeChirality=False, includeAtomMaps=False
+            mol, breakTies=False, includeChirality=False, includeAtomMaps=False
         ),
         dtype=int,
     )
@@ -188,18 +165,18 @@ def set_relative_neighbor_ranking(
             (atom.GetIdx() for atom in atom.GetNeighbors()), dtype=int
         )
         neighbor_priorities = all_priorities[neighbors]
-        ranks = np.searchsorted(np.unique(neighbor_priorities), neighbor_priorities)
+        ranks = np.searchsorted(np.sort(neighbor_priorities), neighbor_priorities)
 
         # Handle tetrahedral stereocenters
         chiral_tag = atom.GetChiralTag()
         is_cw = chiral_tag == Chem.ChiralType.CHI_TETRAHEDRAL_CW
         is_ccw = chiral_tag == Chem.ChiralType.CHI_TETRAHEDRAL_CCW
         if (is_cw or is_ccw) and (is_cw == is_odd_permutation(*ranks)):
-            ranks = [3 - rank if 0 < rank < 3 else rank for rank in ranks]
+            ranks = np.where(ranks < 2, 1 - ranks, ranks)
 
         sorted_neighbors.append(dict(zip(neighbors, ranks)))
     for bond in mol.GetBonds():
         begin, end = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
         bond.SetIntProp("endRankFromBegin", int(sorted_neighbors[begin][end]))
         bond.SetIntProp("beginRankFromEnd", int(sorted_neighbors[end][begin]))
-    mol.SetBoolProp("neighborRankTiesAreBroken", break_ties)
+    mol.SetBoolProp("hasNeighborRanks", True)
