@@ -76,7 +76,9 @@ def is_odd_permutation(i: int, j: int, k: int, m: int | None = None) -> int:
     return bool(swaps % 2)
 
 
-def set_relative_neighbor_ranking(mol: Chem.Mol, force: bool = False) -> None:
+def set_relative_neighbor_ranking(
+    mol: Chem.Mol, chiral_only: bool = False, force: bool = False
+) -> None:
     r"""Add neighbor ranking information to the bonds of a molecule.
 
     Neighbors of each atom are sorted in descending order based on their canonical
@@ -102,6 +104,9 @@ def set_relative_neighbor_ranking(mol: Chem.Mol, force: bool = False) -> None:
     ----------
     mol
         The molecule to add neighbor ranking information to.
+    chiral_only
+        Whether to only add neighbor ranking information to chiral centers
+        (default is False).
     force
         Whether to add neighbor ranking information even if it has already been added
         (default is False).
@@ -164,15 +169,20 @@ def set_relative_neighbor_ranking(mol: Chem.Mol, force: bool = False) -> None:
         neighbors = np.fromiter(
             (atom.GetIdx() for atom in atom.GetNeighbors()), dtype=int
         )
-        neighbor_priorities = all_priorities[neighbors]
-        ranks = np.searchsorted(np.sort(neighbor_priorities), neighbor_priorities)
 
         # Handle tetrahedral stereocenters
         chiral_tag = atom.GetChiralTag()
         is_cw = chiral_tag == Chem.ChiralType.CHI_TETRAHEDRAL_CW
         is_ccw = chiral_tag == Chem.ChiralType.CHI_TETRAHEDRAL_CCW
-        if (is_cw or is_ccw) and (is_cw == is_odd_permutation(*ranks)):
-            ranks = np.where(ranks < 2, 1 - ranks, ranks)
+
+        if chiral_only and not (is_cw or is_ccw):
+            ranks = np.full(len(neighbors), 4)
+        else:
+            neighbor_priorities = all_priorities[neighbors]
+            ranks = np.searchsorted(np.sort(neighbor_priorities), neighbor_priorities)
+
+            if (is_cw or is_ccw) and (is_cw == is_odd_permutation(*ranks)):
+                ranks = np.where(ranks < 2, 1 - ranks, ranks)
 
         sorted_neighbors.append(dict(zip(neighbors, ranks)))
     for bond in mol.GetBonds():

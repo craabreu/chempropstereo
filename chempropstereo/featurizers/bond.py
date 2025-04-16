@@ -256,7 +256,7 @@ class BondNeighborRankingFeaturizer(
     >>> from rdkit import Chem
     >>> import numpy as np
     >>> mol = Chem.MolFromSmiles(r"C\C(=C(O)/C=C(/N)O)[C@@H]([C@H](N)O)O")
-    >>> stereochemistry.set_relative_neighbor_ranking(mol)
+    >>> stereochemistry.set_relative_neighbor_ranking(mol, chiral_only=True)
     >>> featurizer = featurizers.BondNeighborRankingFeaturizer()
     >>> def describe_bonds_from_atom(index):
     ...     for bond in mol.GetAtomWithIdx(index).GetBonds():
@@ -264,25 +264,26 @@ class BondNeighborRankingFeaturizer(
     ...         for reverse in (not atom_is_begin, atom_is_begin):
     ...             print(featurizer.pretty_print(bond, reverse))
     >>> describe_bonds_from_atom(8) # doctest: +NORMALIZE_WHITESPACE
-        8→1: 0 1000 0 0 0010
-        1→8: 0 1000 0 0 1000
-        8→9: 0 1000 0 0 1000
-        9→8: 0 1000 0 0 1000
-       8→12: 0 1000 0 0 0100
-       12→8: 0 1000 0 0 1000
+        8→1: 0 1000 0 0 10000
+        1→8: 0 1000 0 0 00001
+        8→9: 0 1000 0 0 01000
+        9→8: 0 1000 0 0 10000
+       8→12: 0 1000 0 0 00100
+       12→8: 0 1000 0 0 00001
     >>> describe_bonds_from_atom(9) # doctest: +NORMALIZE_WHITESPACE
-        9→8: 0 1000 0 0 1000
-        8→9: 0 1000 0 0 1000
-       9→10: 0 1000 0 0 0010
-       10→9: 0 1000 0 0 1000
-       9→11: 0 1000 0 0 0100
-       11→9: 0 1000 0 0 1000
+        9→8: 0 1000 0 0 10000
+        8→9: 0 1000 0 0 01000
+       9→10: 0 1000 0 0 00100
+       10→9: 0 1000 0 0 00001
+       9→11: 0 1000 0 0 01000
+       11→9: 0 1000 0 0 00001
 
     """
 
     def __init__(self, max_degree: int = 4):
+        self.max_degree = max_degree
         self.bond_types = _BOND_TYPES
-        self.neighbor_ranks = list(range(max_degree))
+        self.neighbor_ranks = list(range(max_degree + 1))
         self._len = sum(self.sizes)
 
     def __len__(self) -> int:
